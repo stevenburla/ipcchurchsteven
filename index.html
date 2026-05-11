@@ -13,8 +13,9 @@
         rel="stylesheet">
     <link rel="stylesheet" href="style.css?v=5">
     <link rel="stylesheet" href="lyrics.css">
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <!-- Supabase SDK + compat shim (replaces Firebase) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-shim.js"></script>
     <script src="translations.js" defer></script>
     <script src="cms-bridge.js" defer></script>
     <script src="main.js?v=3" defer></script>
