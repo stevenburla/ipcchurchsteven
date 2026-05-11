@@ -102,9 +102,9 @@ const translations = {
     "event_3": "Bible Study Course",
     "btn_add_calendar": "Add to Calendar",
     "sidebar_contact_title": "Contact Us",
-    "contact_address": "123 Faith Avenue, Cityville, State 12345",
-    "contact_phone": "+1 (555) 123-4567",
-    "contact_email": "info@ourchurch.com"
+    "contact_address": "IPC Church of God, Suryanarayana Colony, 534002, Andhra Pradesh, India",
+    "contact_phone": "+91 96402 12697",
+    "contact_email": "contact@ipcchurchsteven.com"
   },
   "te": {
     "doc_title": "IPC చర్చి - పాస్టర్ బి స్టీవెన్",
@@ -209,9 +209,9 @@ const translations = {
     "event_3": "బైబిల్ స్టడీ కోర్సు",
     "btn_add_calendar": "క్యాలెండర్‌కు జోడించండి",
     "sidebar_contact_title": "మమ్మల్ని సంప్రదించండి",
-    "contact_address": "123 ఫెయిత్ అవెన్యూ, సిటీవిల్లే, స్టేట్ 12345",
-    "contact_phone": "+1 (555) 123-4567",
-    "contact_email": "info@ourchurch.com"
+    "contact_address": "IPC చర్చ్ ఆఫ్ గాడ్, సూర్యనారాయణ కాలనీ, 534002, ఆంధ్రప్రదేశ్, భారతదేశం",
+    "contact_phone": "+91 96402 12697",
+    "contact_email": "contact@ipcchurchsteven.com"
   }
 };
 
