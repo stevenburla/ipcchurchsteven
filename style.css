@@ -295,7 +295,8 @@ p { color: var(--ink-700); }
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
   }
-  .nav-links.open { display: flex; }
+  .nav-links.open,
+  .nav-links.nav-active { display: flex; }
   .nav-links a {
     padding: 0.7rem 0.9rem;
     border-bottom: 1px solid rgba(180,130,70,0.1);
@@ -415,8 +416,30 @@ p { color: var(--ink-700); }
   background: radial-gradient(circle at 30% 30%, rgba(229,197,147,0.4), transparent 60%),
               linear-gradient(135deg, #9C6B38 0%, #7A5128 50%, #4A2C0E 100%);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 0.75rem;
+  position: relative;
+}
+.hero-placeholder::after {
+  content: '🖼️  Upload hero slides via Admin → Hero (Recommended 2100×900 px)';
+  position: absolute;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.75);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-align: center;
+  padding: 0.5rem 1.25rem;
+  background: rgba(0,0,0,0.25);
+  backdrop-filter: blur(8px);
+  border-radius: 30px;
+  white-space: nowrap;
+  max-width: 90%;
 }
 .hero-placeholder span {
   font-size: clamp(4rem, 10vw, 9rem);
@@ -631,6 +654,22 @@ p { color: var(--ink-700); }
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+}
+.about-img-container:empty::after,
+.about-img-container:not(:has(img))::after {
+  content: '📷  Upload about image via Admin';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--gold-700);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.6;
 }
 .about-img {
   display: block;
@@ -643,6 +682,7 @@ p { color: var(--ink-700); }
   border: none;
   background: transparent;
 }
+.about-img-container:has(img:not([style*="display:none"]))::after { display: none; }
 
 /* ============================================================
    SUNDAY SCHOOL banner
@@ -665,6 +705,22 @@ p { color: var(--ink-700); }
   justify-content: center;
   position: relative;
   overflow: hidden;
+}
+.ss-img-container:not(:has(img))::after {
+  content: '📷  Upload Sunday School photo via Admin';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--gold-700);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-align: center;
+  padding: 1rem;
+  opacity: 0.6;
 }
 @media (max-width: 700px) {
   .ss-img-container { border-right: 0; border-bottom: 2px dashed rgba(180,130,70,0.3); }
@@ -750,19 +806,155 @@ p { color: var(--ink-700); }
    GALLERY
    ============================================================ */
 .gallery-section .section-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
   margin-top: 1rem;
 }
-.gallery-section .section-container > * {
-  aspect-ratio: 1;
-  border-radius: 14px;
-  overflow: hidden;
-  cursor: pointer;
-  transition: transform 0.35s var(--ease-out-back);
+
+/* Each album */
+.gallery-album {
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-sm);
 }
-.gallery-section .section-container > *:hover { transform: translateY(-3px) scale(1.02); }
+.album-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+.album-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.35rem;
+  font-weight: 600;
+  margin: 0;
+}
+.album-meta {
+  font-size: 0.78rem;
+  color: var(--gold-600);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+
+/* Universal collage item — applies to every layout style */
+.collage-item {
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: transform 0.4s var(--ease-out-back), box-shadow 0.4s ease;
+  box-shadow: 0 8px 20px -6px rgba(120, 80, 40, 0.2);
+}
+.collage-item:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 18px 36px -8px rgba(120, 80, 40, 0.3);
+  z-index: 2;
+}
+.collage-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.6s var(--ease-out-back);
+}
+.collage-item:hover img { transform: scale(1.08); }
+.collage-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 50%, rgba(26, 20, 16, 0.65) 100%);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 1rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.collage-item:hover .collage-overlay { opacity: 1; }
+.collage-overlay span {
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* Layout: GRID — uniform tiles */
+.collage-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.85rem;
+}
+.collage-grid .collage-item { aspect-ratio: 1; }
+@media (max-width: 600px) {
+  .collage-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Layout: BENTO — mixed tile sizes, magazine-style */
+.collage-bento {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: 150px;
+  gap: 0.85rem;
+}
+.collage-bento .collage-item:nth-child(5n + 1) { grid-column: span 2; grid-row: span 2; }
+.collage-bento .collage-item:nth-child(5n + 2) { grid-column: span 2; grid-row: span 1; }
+.collage-bento .collage-item:nth-child(5n + 3) { grid-column: span 1; grid-row: span 1; }
+.collage-bento .collage-item:nth-child(5n + 4) { grid-column: span 1; grid-row: span 1; }
+.collage-bento .collage-item:nth-child(5n + 5) { grid-column: span 2; grid-row: span 2; }
+@media (max-width: 800px) {
+  .collage-bento { grid-template-columns: repeat(2, 1fr); }
+  .collage-bento .collage-item { grid-column: span 1 !important; grid-row: span 1 !important; }
+}
+
+/* Layout: MASONRY — pinterest-style waterfall */
+.collage-masonry {
+  columns: 3;
+  column-gap: 0.85rem;
+}
+.collage-masonry .collage-item {
+  display: inline-block;
+  width: 100%;
+  margin-bottom: 0.85rem;
+  break-inside: avoid;
+  aspect-ratio: auto;
+}
+.collage-masonry .collage-item img { height: auto; }
+@media (max-width: 800px) { .collage-masonry { columns: 2; } }
+@media (max-width: 500px) { .collage-masonry { columns: 1; } }
+
+/* Layout: CAROUSEL — horizontal scroll */
+.collage-carousel {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  gap: 0.85rem;
+  padding-bottom: 0.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gold-400) transparent;
+}
+.collage-carousel::-webkit-scrollbar { height: 6px; }
+.collage-carousel::-webkit-scrollbar-track { background: transparent; }
+.collage-carousel::-webkit-scrollbar-thumb {
+  background: var(--gold-400);
+  border-radius: 3px;
+}
+.collage-carousel .collage-item {
+  flex: 0 0 280px;
+  aspect-ratio: 4 / 3;
+  scroll-snap-align: start;
+}
+@media (max-width: 600px) {
+  .collage-carousel .collage-item { flex: 0 0 75vw; }
+}
+
+/* Lightbox already injected inline by cms-bridge.js — nothing needed here */
 
 /* ============================================================
    PASTORS — bigger photo, glass cards
@@ -804,9 +996,28 @@ p { color: var(--ink-700); }
   background: rgba(180,130,70,0.06);
   margin-bottom: 1.25rem !important;
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .pastor-card .pastor-img-wrapper:not(:has(img)) {
   border: 2px dashed rgba(180,130,70,0.4) !important;
+}
+.pastor-card .pastor-img-wrapper:not(:has(img))::after {
+  content: '👤  Upload pastor photo via Admin';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--gold-700);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-align: center;
+  padding: 1rem;
+  opacity: 0.6;
 }
 .pastor-card .pastor-img-wrapper img {
   width: 100%; height: 100%;
@@ -992,18 +1203,18 @@ p { color: var(--ink-700); }
 .carousel-viewport::before,
 .carousel-viewport::after {
   content: '';
-  flex: 0 0 calc(50% - 190px);
+  flex: 0 0 calc(50% - 170px);
 }
 
 /* VERTICAL RECTANGLE CARD — 380×560+ — bigger photo — smooth */
 .carousel-card {
-  flex: 0 0 380px;
-  min-height: 560px;
+  flex: 0 0 340px;
+  min-height: 500px;
   background: var(--glass-strong);
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
   border: 1px solid var(--glass-border);
-  padding: 3rem 2rem 2.75rem;
+  padding: 2.5rem 1.75rem 2.25rem;
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-md);
   scroll-snap-align: center;
@@ -1015,10 +1226,9 @@ p { color: var(--ink-700); }
   position: relative;
   transform-origin: center center;
   will-change: transform, opacity;
-  transition:
-    transform 0.55s var(--ease-out-expo),
-    opacity 0.5s ease,
-    box-shadow 0.45s ease;
+  /* NO transform transition — main.js drives transform on every scroll frame,
+     a CSS transition would fight it and make scrolling feel laggy. */
+  transition: opacity 0.35s ease, box-shadow 0.4s ease;
 }
 .carousel-card.center-card { box-shadow: var(--shadow-xl); }
 .carousel-card::before {
@@ -1034,11 +1244,11 @@ p { color: var(--ink-700); }
   z-index: 0;
 }
 
-/* BIGGER photo: 200×200 */
+/* Photo: 170×170 */
 .carousel-card .testimonial-photo-wrapper {
-  width: 200px;
-  height: 200px;
-  margin: 0 0 1.5rem;
+  width: 170px;
+  height: 170px;
+  margin: 0 0 1.25rem;
   border-radius: 50%;
   overflow: hidden;
   flex-shrink: 0;
@@ -1115,20 +1325,20 @@ p { color: var(--ink-700); }
 
 @media (max-width: 1100px) {
   .carousel-card {
-    flex: 0 0 320px;
-    min-height: 500px;
-    padding: 2.5rem 1.5rem 2.25rem;
+    flex: 0 0 300px;
+    min-height: 460px;
+    padding: 2.25rem 1.25rem 2rem;
   }
   .carousel-viewport::before,
-  .carousel-viewport::after { flex: 0 0 calc(50% - 160px); }
-  .carousel-card .testimonial-photo-wrapper { width: 170px; height: 170px; }
+  .carousel-viewport::after { flex: 0 0 calc(50% - 150px); }
+  .carousel-card .testimonial-photo-wrapper { width: 150px; height: 150px; }
 }
 @media (max-width: 600px) {
-  .carousel-card { flex: 0 0 85vw; min-height: 480px; }
+  .carousel-card { flex: 0 0 82vw; min-height: 440px; }
   .carousel-viewport { gap: 1.25rem; padding: 3rem 0 4rem; }
   .carousel-viewport::before,
-  .carousel-viewport::after { flex: 0 0 calc(50% - 42.5vw); }
-  .carousel-card .testimonial-photo-wrapper { width: 150px; height: 150px; }
+  .carousel-viewport::after { flex: 0 0 calc(50% - 41vw); }
+  .carousel-card .testimonial-photo-wrapper { width: 140px; height: 140px; }
 }
 
 .btn-container { margin-top: 1rem; }
@@ -1372,4 +1582,248 @@ p { color: var(--ink-700); }
 .version-info {
   font-weight: 600;
   color: var(--gold-600);
+}
+
+
+/* ============================================================
+   TESTIMONIALS PAGE (testimonials.html)
+   ============================================================ */
+.testimonials-page-hero {
+  max-width: 1240px;
+  margin: 1rem auto 2rem;
+  padding: 2.5rem 1.5rem 1rem;
+  text-align: center;
+}
+.testimonials-page-hero h1 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.01em;
+}
+.testimonials-page-hero p {
+  color: var(--ink-500);
+  font-size: 1rem;
+  max-width: 540px;
+  margin: 0 auto;
+}
+
+.testimonials-page-body {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 1.5rem 3rem;
+}
+.testimonials-page-body section {
+  margin-bottom: 3rem;
+}
+
+.t-section-heading {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(1.6rem, 3vw, 2.25rem);
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 0.75rem;
+}
+.t-section-divider {
+  width: 60px; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold-400), transparent);
+  margin: 0 auto 2rem;
+  border-radius: 2px;
+}
+.t-section-separator {
+  border: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(180,130,70,0.3), transparent);
+  margin: 2rem 0;
+}
+
+/* Card grid — proper responsive layout */
+.testimonials-page-body .testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Each testimonial card */
+.testimonials-page-body .static-card {
+  background: var(--glass-strong);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: 2rem 1.5rem 1.75rem;
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+  position: relative;
+  transition: all 0.4s var(--ease-out-back);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  /* Hide the data-num label */
+}
+.testimonials-page-body .static-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+}
+.testimonials-page-body .static-card::before {
+  content: '"';
+  position: absolute;
+  top: 0.25rem; left: 1.25rem;
+  font-family: 'Playfair Display', serif;
+  font-size: 4.5rem;
+  color: var(--gold-400);
+  opacity: 0.35;
+  line-height: 1;
+  user-select: none;
+}
+
+/* The little YT1/MT1 tag overlay — push it inside the card subtly */
+.testimonials-page-body .static-card::after {
+  content: attr(data-num);
+  position: absolute;
+  top: 0.75rem;
+  right: 1rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--gold-600);
+  background: rgba(212, 165, 116, 0.15);
+  padding: 0.2rem 0.5rem;
+  border-radius: 20px;
+  letter-spacing: 0.08em;
+}
+
+/* Photo (placeholder until real image uploaded) */
+.testimonials-page-body .testimonial-photo {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 25%, var(--gold-300), var(--gold-500));
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.4) inset,
+    0 10px 22px -4px rgba(180,130,70,0.45);
+  position: relative;
+  z-index: 1;
+}
+
+/* Name */
+.testimonials-page-body .static-card .testimonial-name {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+/* Role */
+.testimonials-page-body .static-card .testimonial-role {
+  font-size: 0.72rem;
+  color: var(--gold-600);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 1rem;
+}
+
+/* Quote text */
+.testimonials-page-body .static-card .testimonial-text {
+  font-size: 0.95rem;
+  color: var(--ink-700);
+  line-height: 1.65;
+  font-style: italic;
+  font-family: 'Playfair Display', serif;
+  margin-bottom: 0.85rem;
+  flex: 1;
+}
+
+/* "Tap to read more" */
+.testimonials-page-body .click-hint {
+  font-size: 0.72rem;
+  color: var(--gold-600);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* Mobile — single column with consistent sizing */
+@media (max-width: 600px) {
+  .testimonials-page-body .testimonials-grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+  .testimonials-page-body .static-card {
+    padding: 1.75rem 1.25rem 1.5rem;
+  }
+}
+
+/* ============================================================
+   HOMEPAGE GALLERY — empty state placeholder
+   ============================================================ */
+.gallery-section:not(:has(.gallery-album)) .section-container::after {
+  content: '📷  Upload church photos via Admin → Gallery';
+  display: block;
+  text-align: center;
+  padding: 3rem 2rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--gold-700);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: rgba(180, 130, 70, 0.06);
+  border: 2px dashed rgba(180, 130, 70, 0.4);
+  border-radius: 16px;
+  margin-top: 1rem;
+}
+
+/* ============================================================
+   HOMEPAGE CAROUSEL — tighter on mobile to fix congestion
+   ============================================================ */
+@media (max-width: 600px) {
+  /* Section-level padding */
+  .testimonials-section {
+    margin: 1.5rem 0;
+    padding: 0;
+  }
+  .testimonials-section .section-title {
+    font-size: 1.6rem;
+    padding: 0 1rem;
+  }
+  /* Tighter carousel viewport on mobile */
+  .carousel-viewport {
+    gap: 0.85rem;
+    padding: 2rem 0 2.5rem;
+  }
+  .carousel-card {
+    flex: 0 0 78vw;
+    min-height: 380px;
+    padding: 2rem 1.25rem 1.75rem;
+    border-radius: 22px;
+  }
+  .carousel-viewport::before,
+  .carousel-viewport::after {
+    flex: 0 0 calc(50% - 39vw);
+  }
+  .carousel-card .testimonial-photo-wrapper {
+    width: 110px;
+    height: 110px;
+    margin-bottom: 0.85rem;
+  }
+  .carousel-card .testimonial-name,
+  .carousel-card h4 { font-size: 1.2rem; }
+  .carousel-card .testimonial-role {
+    font-size: 0.7rem;
+    margin-bottom: 0.85rem;
+  }
+  .carousel-card .testimonial-text { font-size: 0.92rem; line-height: 1.7; }
+  .carousel-card::before {
+    font-size: 4.5rem;
+    top: 0.25rem; left: 1rem;
+  }
 }
