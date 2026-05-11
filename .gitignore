@@ -31,3 +31,7 @@ node_modules/
 # Local environment files
 .env
 .env.local
+
+# Local backup files from patches (keep local, don't push)
+*.before-*
+*.backup
