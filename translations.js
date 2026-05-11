@@ -252,3 +252,166 @@ const translations = {
 };
 
 window.translations = translations;
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * AUTO-TRANSLATE — runs after translations.js + cms-bridge.js
+ * Automatically translates any English content to Telugu when the user
+ * switches to తెలుగు mode. Uses MyMemory free API + localStorage cache.
+ * Handles future content added via admin without any manual translation.
+ * ═══════════════════════════════════════════════════════════════════════════ */
+(function () {
+    'use strict';
+
+    const CACHE_KEY = 'autoTranslate_en_to_te_v2';
+    const API_URL  = 'https://api.mymemory.translated.net/get';
+
+    // Load cache from localStorage
+    let cache = {};
+    try { cache = JSON.parse(localStorage.getItem(CACHE_KEY) || '{}'); } catch (e) {}
+
+    // Pre-seed known role labels with high-quality fixed translations.
+    // These won't hit the API at all.
+    const PRESETS = {
+        'Main Pastor':        'ప్రధాన కాపరి',
+        'Associate Pastor':   'సహాయ కాపరి',
+        'Youth Pastor':       'యూత్ కాపరి',
+        'Senior Pastor':      'సీనియర్ కాపరి',
+        'Youth Member':       'యూత్ మెంబర్',
+        'Church Member':      'చర్చి సభ్యుడు',
+        'Sunday Service':     'ఆదివారం ఆరాధన',
+        'View Larger':        'పెద్దగా చూడండి',
+        'Add to Calendar':    'క్యాలెండర్‌కు జోడించండి',
+        'Tap to read more':   'మరిన్ని చదవడానికి తాకండి'
+    };
+    for (const [k, v] of Object.entries(PRESETS)) {
+        if (!cache[k]) cache[k] = v;
+    }
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify(cache)); } catch (e) {}
+
+    function saveCache() {
+        try { localStorage.setItem(CACHE_KEY, JSON.stringify(cache)); } catch (e) {}
+    }
+
+    function isTelugu(s) { return /[\u0C00-\u0C7F]/.test(s); }
+    function currentLang() { return document.documentElement.lang || 'en'; }
+
+    // Avoid duplicate concurrent requests for the same string
+    const inflight = new Map();
+
+    async function translate(en) {
+        en = (en || '').trim();
+        if (!en || en.length < 2) return en;
+        if (isTelugu(en)) return en;            // already Telugu, skip
+        if (cache[en]) return cache[en];         // cached
+        if (inflight.has(en)) return inflight.get(en);
+
+        const p = (async () => {
+            try {
+                const url = API_URL + '?q=' + encodeURIComponent(en) + '&langpair=en|te';
+                const r = await fetch(url);
+                const j = await r.json();
+                const t = j && j.responseData && j.responseData.translatedText;
+                if (t && isTelugu(t)) {
+                    cache[en] = t;
+                    saveCache();
+                    return t;
+                }
+            } catch (err) {
+                // network / API failure — fall through to English
+            }
+            return en; // graceful fallback
+        })();
+        inflight.set(en, p);
+        const result = await p;
+        inflight.delete(en);
+        return result;
+    }
+
+    // Selectors that may contain CMS-rendered English text we want translated
+    const SELECTORS = [
+        '.testimonial-text',
+        '.testimonial-name',
+        '.testimonial-role',
+        '.pastor-card h3',
+        '.pastor-role',
+        '.gallery-album .album-title',
+        '.gallery-album .album-meta',
+        '.kids-program-card h3',
+        '.kids-program-card p',
+        '.kids-program-card .program-age',
+        '.timeline-details h4',
+        '.timeline-details p',
+        '.timeline-details .add-calendar-btn',
+        '.lyric-card .lyric-title',
+        '.lyric-card .lyric-category',
+        '.collage-overlay span',
+        '#yt-channel-link'
+    ];
+
+    async function translatePage() {
+        const lang = currentLang();
+
+        // English mode — restore originals
+        if (lang !== 'te') {
+            document.querySelectorAll('[data-orig-text]').forEach(el => {
+                el.textContent = el.dataset.origText;
+            });
+            return;
+        }
+
+        // Collect elements to translate
+        const targets = [];
+        SELECTORS.forEach(sel => {
+            document.querySelectorAll(sel).forEach(el => {
+                if (el.hasAttribute('data-i18n')) return;        // translations.js owns it
+                if (el.children.length > 0) return;              // only leaf-text nodes
+                const txt = el.textContent.trim();
+                if (!txt) return;
+                if (isTelugu(txt)) return;                        // already Telugu
+                targets.push(el);
+            });
+        });
+
+        if (!targets.length) return;
+
+        // Translate in batches of 5 to avoid hammering the API
+        for (let i = 0; i < targets.length; i += 5) {
+            const batch = targets.slice(i, i + 5);
+            await Promise.all(batch.map(async el => {
+                const orig = el.dataset.origText || el.textContent.trim();
+                if (!el.dataset.origText) el.dataset.origText = orig;
+                const te = await translate(orig);
+                // Only set if we're still in Telugu mode (user might have switched mid-way)
+                if (currentLang() === 'te' && te && te !== el.textContent) {
+                    el.textContent = te;
+                }
+            }));
+        }
+    }
+
+    // Debounce so rapid CMS updates don't flood the API
+    let pending = null;
+    function scheduleTranslate() {
+        if (pending) clearTimeout(pending);
+        pending = setTimeout(() => { pending = null; translatePage(); }, 250);
+    }
+
+    // Run when language attribute changes on <html>
+    new MutationObserver(muts => {
+        for (const m of muts) if (m.attributeName === 'lang') { scheduleTranslate(); break; }
+    }).observe(document.documentElement, { attributes: true });
+
+    // Run after CMS finishes applying data
+    document.addEventListener('cms-data-applied', scheduleTranslate);
+
+    // Initial run on page load
+    function init() {
+        if (currentLang() === 'te') scheduleTranslate();
+        console.log('[auto-translate] ready — cache size:', Object.keys(cache).length);
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
