@@ -13,8 +13,8 @@
         rel="stylesheet">
     <link rel="stylesheet" href="style.css?v=5">
     <link rel="stylesheet" href="lyrics.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-shim.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="translations.js" defer></script>
     <script src="cms-bridge.js" defer></script>
     <script src="main.js?v=3" defer></script>
@@ -249,7 +249,7 @@
             <!-- Brand & Social -->
             <div class="footer-brand">
                 <div class="footer-logo">⛪ <span data-i18n="doc_title">IPC Church</span></div>
-                <p class="footer-tagline">A Place of Grace, Faith &amp; Community</p>
+                <p class="footer-tagline" data-i18n="footer_tagline">A Place of Grace, Faith &amp; Community</p>
                 <div class="footer-social">
                     <a href="#" class="social-link" aria-label="YouTube" title="YouTube">
                         <svg viewBox="0 0 24 24" fill="currentColor">
@@ -310,7 +310,7 @@
 
         </div>
         <div class="footer-bottom">
-            <p>&copy; 2024 IPC Church. All rights reserved. | <strong>Version 1.1</strong> | Made with ❤️ for our congregation.</p>
+            <p><span data-i18n="footer_copyright_full">© 2026 IPC Church. All rights reserved. Made with ❤️ for our congregation.</span></p>
         </div>
     </footer>
 

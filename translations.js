@@ -104,7 +104,25 @@ const translations = {
     "sidebar_contact_title": "Contact Us",
     "contact_address": "IPC Church of God, Suryanarayana Colony, 534002, Andhra Pradesh, India",
     "contact_phone": "+91 96402 12697",
-    "contact_email": "contact@ipcchurchsteven.com"
+    "contact_email": "contact@ipcchurchsteven.com",
+    "yt_feed_title": "Latest Sermons & Videos",
+    "yt_btn_visit": "Visit Our YouTube Channel",
+    "yt_unable_load": "Unable to load videos at this time. Visit our channel directly.",
+    "footer_quick_links": "Quick Links",
+    "footer_find_us": "Find Us",
+    "footer_contact_title": "Contact Us",
+    "footer_timings_inline": "Sun: 7:30 AM – 9:30 AM | Sat: 7:00 PM – 9:00 PM",
+    "tap_to_read_more": "Tap to read more",
+    "all_testimonials_title": "❤️ All Testimonials",
+    "all_testimonials_subtitle": "Every testimony is a story of grace. Click any card to read the full story.",
+    "youth_testimonials_heading": "🙌 Youth Testimonials",
+    "member_testimonials_heading": "🙏 Member Testimonials",
+    "footer_tagline": "A Place of Grace, Faith & Community",
+    "footer_copyright_full": "© 2026 IPC Church. All rights reserved. Made with ❤️ for our congregation.",
+    "role_main_pastor": "Main Pastor",
+    "role_associate_pastor": "Associate Pastor",
+    "role_youth_pastor": "Youth Pastor",
+    "footer_copyright": "© 2026 IPC Church. Made with care for our congregation."
   },
   "te": {
     "doc_title": "IPC చర్చి - పాస్టర్ బి స్టీవెన్",
@@ -211,7 +229,25 @@ const translations = {
     "sidebar_contact_title": "మమ్మల్ని సంప్రదించండి",
     "contact_address": "IPC చర్చ్ ఆఫ్ గాడ్, సూర్యనారాయణ కాలనీ, 534002, ఆంధ్రప్రదేశ్, భారతదేశం",
     "contact_phone": "+91 96402 12697",
-    "contact_email": "contact@ipcchurchsteven.com"
+    "contact_email": "contact@ipcchurchsteven.com",
+    "yt_feed_title": "తాజా ప్రసంగాలు & వీడియోలు",
+    "yt_btn_visit": "మా యూట్యూబ్ ఛానెల్‌ను సందర్శించండి",
+    "yt_unable_load": "ప్రస్తుతం వీడియోలను లోడ్ చేయలేకపోతున్నాము. నేరుగా మా ఛానెల్‌ను సందర్శించండి.",
+    "footer_quick_links": "త్వరిత లింకులు",
+    "footer_find_us": "మమ్మల్ని కనుగొనండి",
+    "footer_contact_title": "మమ్మల్ని సంప్రదించండి",
+    "footer_timings_inline": "ఆది: ఉ. 7:30 – 9:30 | శని: సా. 7:00 – 9:00",
+    "tap_to_read_more": "మరిన్ని చదవడానికి తాకండి",
+    "all_testimonials_title": "❤️ అన్ని సాక్ష్యాలు",
+    "all_testimonials_subtitle": "ప్రతి సాక్ష్యం దేవుని కృప కథ. పూర్తి కథ చదవడానికి ఏదైనా కార్డుపై నొక్కండి.",
+    "youth_testimonials_heading": "🙌 యౌవనస్తుల సాక్ష్యాలు",
+    "member_testimonials_heading": "🙏 సభ్యుల సాక్ష్యాలు",
+    "footer_tagline": "దేవుని కృప, విశ్వాసం మరియు సహవాసానికి ఒక ప్రదేశం",
+    "footer_copyright_full": "© 2026 IPC చర్చి. అన్ని హక్కులు ప్రత్యేకించబడ్డాయి. మా సంఘం కోసం ❤️తో రూపొందించబడింది.",
+    "role_main_pastor": "ప్రధాన కాపరి",
+    "role_associate_pastor": "సహ కాపరి",
+    "role_youth_pastor": "యువ కాపరి",
+    "footer_copyright": "© 2026 IPC చర్చి. మా సంఘం కోసం ప్రేమతో రూపొందించబడింది."
   }
 };
 

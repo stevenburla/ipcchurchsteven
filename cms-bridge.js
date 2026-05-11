@@ -228,7 +228,7 @@
                     ${displayUrl ? `<img src="${esc(displayUrl)}" alt="${esc(p.name)}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover">` : '<div class="img-placeholder" style="height:100%"></div>'}
                 </div>
                 <h3>${esc(p.name)}</h3>
-                <p class="pastor-role">${esc(p.role)}</p>
+                <p class="pastor-role"${roleI18n(p.role)}>${esc(p.role)}</p>
             `;
             grid.appendChild(card);
         });
@@ -237,6 +237,23 @@
 
 
     // ════════════════════════════════════════════════════════════════════════════
+    // ────────────────────────────────────────────────────────────────────────
+    // Role translation helper — maps English role labels to translation keys
+    // so translations.js can swap them when language changes.
+    // ────────────────────────────────────────────────────────────────────────
+    function roleI18n(role) {
+        if (!role) return '';
+        const map = {
+            'Main Pastor': 'role_main_pastor',
+            'Associate Pastor': 'role_associate_pastor',
+            'Youth Pastor': 'role_youth_pastor',
+            'Youth Member': 'role_youth',
+            'Church Member': 'role_member'
+        };
+        const key = map[role];
+        return key ? ' data-i18n="' + key + '"' : '';
+    }
+
     // 2. HERO SECTION — replaces static slides with CMS images + text
     // ════════════════════════════════════════════════════════════════════════════
     function applyHeroSection(data) {
@@ -401,9 +418,9 @@
                     ${displayUrl ? `<img src="${esc(displayUrl)}" class="testimonial-photo" alt="${esc(t.name)}" loading="lazy" decoding="async">` : `<div class="img-placeholder testimonial-photo"><span>${prefix}${i + 1}</span></div>`}
                 </div>
                 <h4 class="testimonial-name">${esc(t.name)}</h4>
-                <div class="testimonial-role">${esc(t.role)}</div>
+                <div class="testimonial-role"${roleI18n(t.role)}>${esc(t.role)}</div>
                 <p class="testimonial-text">"${esc(truncate(t.text, 100))}"</p>
-                <span class="click-hint">Tap to read more</span>
+                <span class="click-hint" data-i18n="tap_to_read_more">Tap to read more</span>
             `;
             card.onclick = () => window.openTestimonialModal(card);
             container.appendChild(card);
@@ -443,7 +460,7 @@
                     ${displayUrl ? `<img src="${esc(displayUrl)}" class="testimonial-photo" alt="${esc(name)}" loading="lazy" decoding="async">` : `<div class="img-placeholder testimonial-photo"><span>YT${i + 1}</span></div>`}
                 </div>
                 <h4 class="testimonial-name">${esc(name)}</h4>
-                <div class="testimonial-role">${esc(t.role)}</div>
+                <div class="testimonial-role"${roleI18n(t.role)}>${esc(t.role)}</div>
                 <div class="testimonial-text-wrapper">
                     <p class="testimonial-text">${esc(text)}</p>
                 </div>`;
