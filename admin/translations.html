@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Translation Manager - IPC Church Admin</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem;
+            background: #f9f7f3;
+            color: #1A1A1A;
+        }
+        h1 { margin: 0 0 0.3rem; }
+        .subtitle { color: #666; margin: 0 0 1.5rem; }
+        a.back { color: #F46A00; text-decoration: none; font-size: 0.9rem; }
+        a.back:hover { text-decoration: underline; }
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.25rem;
+            margin-bottom: 1.25rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+        }
+        .card h3 { margin: 0 0 0.8rem; font-size: 1.05rem; }
+        label { display: block; margin: 0.6rem 0 0.3rem; font-weight: 600; font-size: 0.85rem; color: #444; }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 0.55rem 0.7rem;
+            border: 1px solid #d4d0c8;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.95rem;
+        }
+        textarea { min-height: 60px; resize: vertical; }
+        textarea:focus, input:focus { outline: none; border-color: #F46A00; }
+        button {
+            background: #F46A00;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: background 0.15s;
+        }
+        button:hover { background: #D55A00; }
+        button.add-btn { background: #16a34a; }
+        button.add-btn:hover { background: #128a3e; }
+        button.danger { background: #dc2626; padding: 0.3rem 0.6rem; font-size: 0.8rem; }
+        button.danger:hover { background: #b91c1c; }
+        .toolbar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .toolbar input[type="text"] { flex: 1; min-width: 200px; max-width: 400px; }
+        .toolbar label { margin: 0; display: inline-flex; align-items: center; gap: 0.3rem; cursor: pointer; }
+        .stats { color: #666; font-size: 0.85rem; margin-left: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #1A1A1A; color: white; padding: 0.7rem; text-align: left; font-size: 0.85rem; font-weight: 600; }
+        th:first-child { border-top-left-radius: 8px; }
+        th:last-child { border-top-right-radius: 8px; }
+        td { padding: 0.5rem 0.7rem; border-bottom: 1px solid #f0ece4; vertical-align: top; }
+        tr:hover { background: #fcfaf5; }
+        .badge {
+            display: inline-block;
+            padding: 0.2rem 0.55rem;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .badge-auto { background: #fef3c7; color: #92400e; }
+        .badge-manual { background: #d1fae5; color: #065f46; }
+        .status { font-size: 0.8rem; margin-top: 0.3rem; }
+        .status.saved { color: #16a34a; font-weight: 600; }
+        .status.error { color: #dc2626; }
+        .empty { padding: 2rem; text-align: center; color: #888; }
+        .loading { padding: 1rem; text-align: center; color: #888; }
+        @media (max-width: 700px) {
+            body { padding: 0.8rem; }
+            th, td { padding: 0.4rem; font-size: 0.85rem; }
+            .toolbar { flex-direction: column; align-items: stretch; }
+            .toolbar input[type="text"] { max-width: none; }
+            .stats { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+    <a href="dashboard.html" class="back">← Back to dashboard</a>
+    <h1>🌐 Translation Manager</h1>
+    <p class="subtitle">Edit Telugu translations for any English text on the site. Manual edits override auto-translations and propagate live to all visitors.</p>
+
+    <div class="card">
+        <h3>➕ Add or override a translation</h3>
+        <label for="add-en">English text (exact match)</label>
+        <textarea id="add-en" placeholder="e.g. Welcome to our church"></textarea>
+        <label for="add-te">Telugu translation</label>
+        <textarea id="add-te" placeholder="e.g. మా చర్చికి స్వాగతం"></textarea>
+        <button class="add-btn" onclick="addTranslation()" style="margin-top: 0.6rem;">Add / Update Translation</button>
+        <div id="add-status" class="status"></div>
+    </div>
+
+    <div class="card" style="padding-bottom: 0.5rem;">
+        <div class="toolbar">
+            <input type="text" id="search" placeholder="🔍 Search English or Telugu...">
+            <label><input type="checkbox" id="auto-only"> Auto-translated only</label>
+            <span class="stats" id="stats">Loading...</span>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th width="30%">English</th>
+                    <th width="48%">Telugu (click to edit)</th>
+                    <th width="12%">Type</th>
+                    <th width="10%">Action</th>
+                </tr>
+            </thead>
+            <tbody id="tbody">
+                <tr><td colspan="4" class="loading">Loading translations from Supabase...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://fsxnckdckfcargnvxzlf.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_n4HVXI_QZoibz3DUjjuDSw_7MwD2Ivl';
+        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let all = [];
+
+        function escHtml(s) {
+            const d = document.createElement('div');
+            d.textContent = s == null ? '' : String(s);
+            return d.innerHTML;
+        }
+        function escAttr(s) {
+            return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        async function loadAll() {
+            try {
+                const { data, error } = await sb.from('translations')
+                    .select('*')
+                    .order('updated_at', { ascending: false });
+                if (error) throw error;
+                all = data || [];
+                render();
+            } catch (err) {
+                document.getElementById('tbody').innerHTML =
+                    '<tr><td colspan="4" class="empty" style="color:#dc2626">Error loading: ' + escHtml(err.message) + '</td></tr>';
+                document.getElementById('stats').textContent = 'Error';
+            }
+        }
+
+        function render() {
+            const search = document.getElementById('search').value.toLowerCase().trim();
+            const autoOnly = document.getElementById('auto-only').checked;
+
+            const filtered = all.filter(t => {
+                if (autoOnly && t.is_manual) return false;
+                if (!search) return true;
+                return (t.english || '').toLowerCase().includes(search) ||
+                       (t.telugu || '').toLowerCase().includes(search);
+            });
+
+            const tbody = document.getElementById('tbody');
+            if (!filtered.length) {
+                tbody.innerHTML = '<tr><td colspan="4" class="empty">No translations match your filter.</td></tr>';
+            } else {
+                tbody.innerHTML = filtered.map(t => `
+                    <tr data-en="${escAttr(t.english)}">
+                        <td>${escHtml(t.english)}</td>
+                        <td><textarea>${escHtml(t.telugu)}</textarea><div class="status"></div></td>
+                        <td><span class="badge badge-${t.is_manual ? 'manual' : 'auto'}">${t.is_manual ? 'Manual' : 'Auto'}</span></td>
+                        <td>
+                            <button onclick="saveRow(this)">Save</button>
+                            <button class="danger" onclick="deleteRow(this)" title="Delete this translation">✕</button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            const manualCount = all.filter(t => t.is_manual).length;
+            const autoCount = all.length - manualCount;
+            document.getElementById('stats').textContent =
+                `Showing ${filtered.length} of ${all.length} • ${manualCount} manual, ${autoCount} auto`;
+        }
+
+        async function saveRow(btn) {
+            const tr = btn.closest('tr');
+            const ta = tr.querySelector('textarea');
+            const status = tr.querySelector('.status');
+            const english = tr.dataset.en;
+            const telugu = ta.value.trim();
+
+            if (!telugu) { status.textContent = 'Telugu cannot be empty'; status.className = 'status error'; return; }
+
+            status.textContent = 'Saving...';
+            status.className = 'status';
+
+            const { error } = await sb.from('translations').upsert(
+                { english, telugu, is_manual: true, updated_at: new Date().toISOString() },
+                { onConflict: 'english' }
+            );
+
+            if (error) {
+                status.textContent = 'Error: ' + error.message;
+                status.className = 'status error';
+            } else {
+                status.textContent = '✓ Saved — visitors will see this now';
+                status.className = 'status saved';
+                setTimeout(() => { status.textContent = ''; }, 3000);
+                const idx = all.findIndex(x => x.english === english);
+                if (idx >= 0) { all[idx].telugu = telugu; all[idx].is_manual = true; }
+                const badge = tr.querySelector('.badge');
+                badge.className = 'badge badge-manual';
+                badge.textContent = 'Manual';
+            }
+        }
+
+        async function deleteRow(btn) {
+            const tr = btn.closest('tr');
+            const english = tr.dataset.en;
+            if (!confirm('Delete this translation? Site will auto-retranslate it on next visit.\n\n"' + english + '"')) return;
+
+            const { error } = await sb.from('translations').delete().eq('english', english);
+            if (error) { alert('Delete error: ' + error.message); return; }
+            all = all.filter(x => x.english !== english);
+            render();
+        }
+
+        async function addTranslation() {
+            const enEl = document.getElementById('add-en');
+            const teEl = document.getElementById('add-te');
+            const status = document.getElementById('add-status');
+            const en = enEl.value.trim();
+            const te = teEl.value.trim();
+
+            if (!en || !te) {
+                status.textContent = 'Both English and Telugu are required';
+                status.className = 'status error';
+                return;
+            }
+
+            status.textContent = 'Saving...';
+            status.className = 'status';
+
+            const { error } = await sb.from('translations').upsert(
+                { english: en, telugu: te, is_manual: true, updated_at: new Date().toISOString() },
+                { onConflict: 'english' }
+            );
+
+            if (error) {
+                status.textContent = 'Error: ' + error.message;
+                status.className = 'status error';
+            } else {
+                status.textContent = '✓ Saved';
+                status.className = 'status saved';
+                enEl.value = ''; teEl.value = '';
+                setTimeout(() => { status.textContent = ''; }, 3000);
+                loadAll();
+            }
+        }
+
+        document.getElementById('search').oninput = render;
+        document.getElementById('auto-only').onchange = render;
+
+        // Subscribe to live changes so multiple admins see each other's edits
+        sb.channel('admin-translations')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'translations' }, () => loadAll())
+            .subscribe();
+
+        loadAll();
+    </script>
+</body>
+</html>

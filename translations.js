@@ -254,80 +254,114 @@ const translations = {
 window.translations = translations;
 
 /* ═══════════════════════════════════════════════════════════════════════════
- * AUTO-TRANSLATE — runs after translations.js + cms-bridge.js
- * Automatically translates any English content to Telugu when the user
- * switches to తెలుగు mode. Uses MyMemory free API + localStorage cache.
- * Handles future content added via admin without any manual translation.
+ * AUTO-TRANSLATE v2 — Supabase-backed permanent translation cache
+ * 
+ * Architecture:
+ *  • All English→Telugu pairs stored in Supabase 'translations' table
+ *  • Loaded once on page init into in-memory cache
+ *  • Static dict (above) gets overridden by Supabase entries (admin edits)
+ *  • New dynamic content auto-translates via MyMemory API → saved to Supabase
+ *  • Admin edits propagate to all visitors via realtime subscription
  * ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
     'use strict';
 
-    const CACHE_KEY = 'autoTranslate_en_to_te_v2';
-    const API_URL  = 'https://api.mymemory.translated.net/get';
+    const SUPABASE_URL = 'https://fsxnckdckfcargnvxzlf.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_n4HVXI_QZoibz3DUjjuDSw_7MwD2Ivl';
+    const API_URL      = 'https://api.mymemory.translated.net/get';
 
-    // Load cache from localStorage
-    let cache = {};
-    try { cache = JSON.parse(localStorage.getItem(CACHE_KEY) || '{}'); } catch (e) {}
-
-    // Pre-seed known role labels with high-quality fixed translations.
-    // These won't hit the API at all.
-    const PRESETS = {
-        'Main Pastor':        'ప్రధాన కాపరి',
-        'Associate Pastor':   'సహాయ కాపరి',
-        'Youth Pastor':       'యూత్ కాపరి',
-        'Senior Pastor':      'సీనియర్ కాపరి',
-        'Youth Member':       'యూత్ మెంబర్',
-        'Church Member':      'చర్చి సభ్యుడు',
-        'Sunday Service':     'ఆదివారం ఆరాధన',
-        'View Larger':        'పెద్దగా చూడండి',
-        'Add to Calendar':    'క్యాలెండర్‌కు జోడించండి',
-        'Tap to read more':   'మరిన్ని చదవడానికి తాకండి'
-    };
-    for (const [k, v] of Object.entries(PRESETS)) {
-        if (!cache[k]) cache[k] = v;
+    if (!window.supabase || !window.supabase.createClient) {
+        console.warn('[auto-translate] Supabase SDK not available — falling back to dict-only');
+        return;
     }
-    try { localStorage.setItem(CACHE_KEY, JSON.stringify(cache)); } catch (e) {}
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    function saveCache() {
-        try { localStorage.setItem(CACHE_KEY, JSON.stringify(cache)); } catch (e) {}
-    }
+    // English → Telugu cache (loaded from Supabase + populated as we translate)
+    const cache = {};
+    let cacheLoaded = false;
+    const inflight = new Map();
 
     function isTelugu(s) { return /[\u0C00-\u0C7F]/.test(s); }
     function currentLang() { return document.documentElement.lang || 'en'; }
 
-    // Avoid duplicate concurrent requests for the same string
-    const inflight = new Map();
+    // ── Build a reverse lookup: English value → translation key
+    // So when admin edits "Welcome to IPC Church", we can find that this
+    // corresponds to hero_title and update translations.te.hero_title
+    const enToKey = {};
+    if (window.translations && window.translations.en) {
+        Object.entries(window.translations.en).forEach(([k, v]) => {
+            if (typeof v === 'string') enToKey[v] = k;
+        });
+    }
+
+    // ── Load all overrides from Supabase + merge into static dict
+    async function loadCache() {
+        try {
+            const { data, error } = await sb.from('translations').select('english, telugu');
+            if (error) throw error;
+            (data || []).forEach(row => {
+                cache[row.english] = row.telugu;
+                // Override static dict if this English value matches a known key
+                const key = enToKey[row.english];
+                if (key && window.translations && window.translations.te) {
+                    window.translations.te[key] = row.telugu;
+                }
+            });
+            console.log('[auto-translate] Loaded', Object.keys(cache).length, 'translations from Supabase');
+        } catch (err) {
+            console.warn('[auto-translate] Supabase load failed:', err.message);
+        } finally {
+            cacheLoaded = true;
+        }
+    }
+
+    async function waitForCache() {
+        if (cacheLoaded) return;
+        for (let i = 0; i < 50; i++) {
+            if (cacheLoaded) return;
+            await new Promise(r => setTimeout(r, 100));
+        }
+    }
+
+    // ── Call MyMemory API for new translations, save to Supabase
+    async function translateAndStore(en) {
+        try {
+            const url = API_URL + '?q=' + encodeURIComponent(en) + '&langpair=en|te';
+            const r = await fetch(url);
+            const j = await r.json();
+            const t = j && j.responseData && j.responseData.translatedText;
+            if (t && isTelugu(t)) {
+                cache[en] = t;
+                // Save to Supabase (don't block)
+                sb.from('translations').upsert(
+                    { english: en, telugu: t, is_manual: false, updated_at: new Date().toISOString() },
+                    { onConflict: 'english' }
+                ).then(({ error }) => {
+                    if (error) console.warn('[auto-translate] save failed:', error.message);
+                });
+                return t;
+            }
+        } catch (e) { /* fall through */ }
+        return en;
+    }
 
     async function translate(en) {
         en = (en || '').trim();
         if (!en || en.length < 2) return en;
-        if (isTelugu(en)) return en;            // already Telugu, skip
-        if (cache[en]) return cache[en];         // cached
-        if (inflight.has(en)) return inflight.get(en);
+        if (isTelugu(en)) return en;
 
-        const p = (async () => {
-            try {
-                const url = API_URL + '?q=' + encodeURIComponent(en) + '&langpair=en|te';
-                const r = await fetch(url);
-                const j = await r.json();
-                const t = j && j.responseData && j.responseData.translatedText;
-                if (t && isTelugu(t)) {
-                    cache[en] = t;
-                    saveCache();
-                    return t;
-                }
-            } catch (err) {
-                // network / API failure — fall through to English
-            }
-            return en; // graceful fallback
-        })();
+        await waitForCache();
+        if (cache[en]) return cache[en];
+
+        if (inflight.has(en)) return inflight.get(en);
+        const p = translateAndStore(en);
         inflight.set(en, p);
         const result = await p;
         inflight.delete(en);
         return result;
     }
 
-    // Selectors that may contain CMS-rendered English text we want translated
+    // Selectors for dynamic CMS-rendered content (NOT data-i18n)
     const SELECTORS = [
         '.testimonial-text',
         '.testimonial-name',
@@ -351,7 +385,6 @@ window.translations = translations;
     async function translatePage() {
         const lang = currentLang();
 
-        // English mode — restore originals
         if (lang !== 'te') {
             document.querySelectorAll('[data-orig-text]').forEach(el => {
                 el.textContent = el.dataset.origText;
@@ -359,29 +392,39 @@ window.translations = translations;
             return;
         }
 
-        // Collect elements to translate
+        await waitForCache();
+
         const targets = [];
         SELECTORS.forEach(sel => {
             document.querySelectorAll(sel).forEach(el => {
-                if (el.hasAttribute('data-i18n')) return;        // translations.js owns it
-                if (el.children.length > 0) return;              // only leaf-text nodes
+                if (el.hasAttribute('data-i18n')) return;
+                if (el.children.length > 0) return;
                 const txt = el.textContent.trim();
-                if (!txt) return;
-                if (isTelugu(txt)) return;                        // already Telugu
+                if (!txt || isTelugu(txt)) return;
                 targets.push(el);
             });
         });
 
         if (!targets.length) return;
 
-        // Translate in batches of 5 to avoid hammering the API
-        for (let i = 0; i < targets.length; i += 5) {
-            const batch = targets.slice(i, i + 5);
+        // Phase 1: instant pass — apply anything already in cache
+        const remaining = [];
+        targets.forEach(el => {
+            const orig = el.dataset.origText || el.textContent.trim();
+            if (!el.dataset.origText) el.dataset.origText = orig;
+            if (cache[orig]) {
+                el.textContent = cache[orig];
+            } else {
+                remaining.push(el);
+            }
+        });
+
+        // Phase 2: API pass — translate misses in batches of 5
+        for (let i = 0; i < remaining.length; i += 5) {
+            const batch = remaining.slice(i, i + 5);
             await Promise.all(batch.map(async el => {
-                const orig = el.dataset.origText || el.textContent.trim();
-                if (!el.dataset.origText) el.dataset.origText = orig;
+                const orig = el.dataset.origText;
                 const te = await translate(orig);
-                // Only set if we're still in Telugu mode (user might have switched mid-way)
                 if (currentLang() === 'te' && te && te !== el.textContent) {
                     el.textContent = te;
                 }
@@ -389,26 +432,75 @@ window.translations = translations;
         }
     }
 
-    // Debounce so rapid CMS updates don't flood the API
+    // ── Re-apply data-i18n translations after admin edits arrive
+    function reApplyI18n() {
+        const lang = currentLang();
+        const table = window.translations && window.translations[lang];
+        if (!table) return;
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (table[key]) el.textContent = table[key];
+        });
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+            const key = el.getAttribute('data-i18n-placeholder');
+            if (table[key]) el.placeholder = table[key];
+        });
+    }
+
+    // ── Realtime subscription: admin edits update cache + UI live
+    sb.channel('translations_live')
+        .on('postgres_changes',
+            { event: '*', schema: 'public', table: 'translations' },
+            (payload) => {
+                const row = payload.new || payload.old;
+                if (!row || !row.english) return;
+                if (payload.eventType === 'DELETE') {
+                    delete cache[row.english];
+                    return;
+                }
+                cache[row.english] = row.telugu;
+                // Override static dict if this English matches a known key
+                const key = enToKey[row.english];
+                if (key && window.translations && window.translations.te) {
+                    window.translations.te[key] = row.telugu;
+                }
+                // Update any visible elements
+                if (currentLang() === 'te') {
+                    document.querySelectorAll('[data-orig-text]').forEach(el => {
+                        if (el.dataset.origText === row.english) {
+                            el.textContent = row.telugu;
+                        }
+                    });
+                    reApplyI18n();
+                }
+                console.log('[auto-translate] Live update:', row.english, '→', row.telugu);
+            }
+        )
+        .subscribe();
+
+    // ── Debounce repeated triggers
     let pending = null;
-    function scheduleTranslate() {
+    function schedule() {
         if (pending) clearTimeout(pending);
         pending = setTimeout(() => { pending = null; translatePage(); }, 250);
     }
 
-    // Run when language attribute changes on <html>
+    // ── Watch <html lang="..."> attribute for language switches
     new MutationObserver(muts => {
-        for (const m of muts) if (m.attributeName === 'lang') { scheduleTranslate(); break; }
+        for (const m of muts) if (m.attributeName === 'lang') { schedule(); break; }
     }).observe(document.documentElement, { attributes: true });
 
-    // Run after CMS finishes applying data
-    document.addEventListener('cms-data-applied', scheduleTranslate);
+    // ── Re-translate after CMS data updates
+    document.addEventListener('cms-data-applied', schedule);
 
-    // Initial run on page load
-    function init() {
-        if (currentLang() === 'te') scheduleTranslate();
-        console.log('[auto-translate] ready — cache size:', Object.keys(cache).length);
+    // ── Init: load cache, then re-apply UI translations + auto-translate dynamic
+    async function init() {
+        await loadCache();
+        reApplyI18n();              // refresh data-i18n with any Supabase overrides
+        if (currentLang() === 'te') schedule();
+        console.log('[auto-translate] ready');
     }
+
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {
