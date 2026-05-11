@@ -1,0 +1,17 @@
+/* admin-components.css — kept for backward compatibility
+   All styles are now consolidated in admin-style.css
+   This file intentionally only contains the critical [hidden] override */
+
+[hidden] {
+    display: none !important;
+}
+
+.modal-overlay[hidden],
+#modal-overlay[hidden] {
+    display: none !important;
+}
+
+.img-preview-overlay[hidden],
+#img-preview-overlay[hidden] {
+    display: none !important;
+}

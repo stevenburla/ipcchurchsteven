@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Church CMS — Admin Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --accent: #D4A574;
+            --danger: #EF4444;
+            --primary: #1A1A1A;
+            --muted: #9CA3AF;
+            --radius: 12px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #111 0%, #1e1810 50%, #111 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 2.5rem 2rem;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, .5);
+            animation: up .4s ease;
+        }
+
+        @keyframes up {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .logo {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #D4A574, #b58655);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin: 0 auto 1.25rem;
+            box-shadow: 0 8px 24px rgba(212, 165, 116, .3);
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            text-align: center;
+            font-size: 1.7rem;
+            color: var(--primary);
+        }
+
+        .sub {
+            text-align: center;
+            color: var(--muted);
+            font-size: .88rem;
+            margin: .4rem 0 2rem;
+        }
+
+        .err {
+            background: #FEF2F2;
+            color: var(--danger);
+            border: 1px solid #FECACA;
+            border-radius: 8px;
+            padding: .65rem 1rem;
+            font-size: .87rem;
+            margin-bottom: 1.1rem;
+            display: none;
+        }
+
+        .err.show {
+            display: block;
+        }
+
+        .field {
+            margin-bottom: 1.1rem;
+        }
+
+        .field label {
+            display: block;
+            font-size: .75rem;
+            font-weight: 600;
+            letter-spacing: .07em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: .4rem;
+        }
+
+        .field input {
+            width: 100%;
+            padding: .8rem 1rem;
+            border: 1.5px solid #E5E7EB;
+            border-radius: var(--radius);
+            font-size: .95rem;
+            font-family: inherit;
+            color: var(--primary);
+            background: #FAFAFA;
+            transition: .2s;
+        }
+
+        .field input:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(212, 165, 116, .12);
+        }
+
+        .pw-row {
+            position: relative;
+        }
+
+        .pw-row input {
+            padding-right: 2.75rem;
+        }
+
+        .eye {
+            position: absolute;
+            right: .85rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            color: var(--muted);
+        }
+
+        .btn {
+            width: 100%;
+            padding: .9rem;
+            margin-top: .5rem;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-family: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .2s, transform .1s;
+        }
+
+        .btn:hover {
+            background: #333;
+        }
+
+        .btn:active {
+            transform: scale(.98);
+        }
+
+        .btn:disabled {
+            opacity: .55;
+            cursor: not-allowed;
+        }
+
+        .hint {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: .83rem;
+            color: var(--muted);
+        }
+
+        .hint strong {
+            color: var(--primary);
+        }
+
+        .back {
+            display: block;
+            text-align: center;
+            margin-top: .75rem;
+            color: var(--accent);
+            font-size: .85rem;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back:hover {
+            color: #b58655;
+        }
+
+        .spin {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            border: 2px solid rgba(255, 255, 255, .35);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: sp .6s linear infinite;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+
+        @keyframes sp {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <div class="logo">⛪</div>
+        <h1>Church CMS</h1>
+        <p class="sub">Sign in to manage your website</p>
+
+        <div class="err" id="err"></div>
+
+        <form id="frm" novalidate>
+            <div class="field">
+                <label>Email Address</label>
+                <input type="email" id="em" placeholder="admin@church.com" autocomplete="username">
+            </div>
+            <div class="field">
+                <label>Password</label>
+                <div class="pw-row">
+                    <input type="password" id="pw" placeholder="••••••••" autocomplete="current-password">
+                    <button type="button" class="eye" id="eyeBtn">👁</button>
+                </div>
+            </div>
+            <button type="submit" class="btn" id="loginBtn">Log In to Dashboard</button>
+        </form>
+
+
+        <a class="back" href="../index.html">← Back to Website</a>
+    </div>
+
+    <!-- FIREBASE SDK (Compat) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../supabase-shim.js"></script>
+
+    <script>
+        // ── Firebase Config ──────────────────────────────────────────────────────────
+        const firebaseConfig = {
+          apiKey: "AIzaSyCFO_WCeQEoKSK9AzfT2q2pf8CMwuQMER8",
+          authDomain: "ipcchurchpastorbsteven.firebaseapp.com",
+          databaseURL: "https://ipcchurchpastorbsteven-default-rtdb.asia-southeast1.firebasedatabase.app",
+          projectId: "ipcchurchpastorbsteven",
+          storageBucket: "ipcchurchpastorbsteven.firebasestorage.app",
+          messagingSenderId: "637419601191",
+          appId: "1:637419601191:web:cdc7664a3c97f2541b3d02",
+          measurementId: "G-CJY4G8RCV3"
+        };
+        firebase.initializeApp(firebaseConfig);
+        var db = firebase.database();
+
+        // ── Auth key (shared with dashboard) ─────────────────────────────────────────
+
+        var AUTH_KEY = 'cms_auth_user';
+        var STATE_KEY = 'churchCMS_v2';
+
+        // ── Clean up old auth keys from previous CMS version ─────────────────────────
+        try { sessionStorage.removeItem('cms_user'); } catch (e) { }
+
+        // ── If already logged in, go straight to dashboard ───────────────────────────
+        try {
+            if (localStorage.getItem(AUTH_KEY)) {
+                window.location.replace('dashboard.html');
+            }
+        } catch (e) { }
+
+        // ── Password toggle ───────────────────────────────────────────────────────────
+        document.getElementById('eyeBtn').onclick = function () {
+            var pw = document.getElementById('pw');
+            pw.type = pw.type === 'password' ? 'text' : 'password';
+            this.textContent = pw.type === 'password' ? '👁' : '🙈';
+        };
+
+        // ── Get users from storage (always has fallback) ──────────────────────────────
+        function getUsers() {
+            var defaults = [{ id: 1, name: 'Administrator', email: 'stevenburla4@gmail.com', password: 'adminsteven@26', role: 'super-admin' }];
+            try {
+                var raw = localStorage.getItem(STATE_KEY);
+                if (!raw) return defaults;
+                var state = JSON.parse(raw);
+                if (state && state.users && state.users.length > 0) return state.users;
+            } catch (e) { }
+            return defaults;
+        }
+
+        // ── Form submit ───────────────────────────────────────────────────────────────
+        document.getElementById('frm').onsubmit = function (e) {
+            e.preventDefault();
+            var email = (document.getElementById('em').value || '').trim().toLowerCase();
+            var pass = document.getElementById('pw').value || '';
+            var btn = document.getElementById('loginBtn');
+            var err = document.getElementById('err');
+
+            err.textContent = ''; err.className = 'err';
+            if (!email || !pass) { err.textContent = 'Please enter email and password.'; err.className = 'err show'; return; }
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spin"></span>Verifying…';
+
+            // ATTEMPT CLOUD LOGIN FIRST
+            db.ref('church_cms/state/users').once('value').then(snapshot => {
+                var users = snapshot.val() || getUsers();
+                var found = users.find(u => u.email.toLowerCase() === email && u.password === pass);
+
+                if (found) {
+                    localStorage.setItem(AUTH_KEY, JSON.stringify({ id: found.id, name: found.name, role: found.role, ts: Date.now() }));
+                    window.location.href = 'dashboard.html';
+                } else {
+                    throw new Error('Incorrect credentials');
+                }
+            }).catch(() => {
+                var localUsers = getUsers();
+                var foundLocal = localUsers.find(u => u.email.toLowerCase() === email && u.password === pass);
+                if (foundLocal) {
+                    localStorage.setItem(AUTH_KEY, JSON.stringify({ id: foundLocal.id, name: foundLocal.name, role: foundLocal.role, ts: Date.now() }));
+                    window.location.href = 'dashboard.html';
+                } else {
+                    err.textContent = 'Incorrect email or password.';
+                    err.className = 'err show';
+                    btn.disabled = false;
+                    btn.textContent = 'Log In to Dashboard';
+                }
+            });
+        };
+    </script>
+
+</body>
+
+</html>

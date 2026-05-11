@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Church CMS — Admin Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="admin-style.css">
+</head>
+
+<body class="dashboard-body">
+
+    <!-- Mobile sidebar backdrop -->
+    <div id="sidebar-overlay"></div>
+
+    <div class="dashboard-wrap">
+
+        <!-- ◀◀ SIDEBAR ▶▶ -->
+        <aside id="sidebar">
+            <div class="sidebar-brand">
+                <span class="brand-icon">⛪</span>
+                <div class="brand-text">
+                    <h2>Church CMS</h2>
+                    <p>Admin Dashboard</p>
+                </div>
+            </div>
+
+            <div class="sidebar-search-wrap">
+                <input type="text" id="nav-search" placeholder="Search sections…" autocomplete="off">
+            </div>
+
+            <nav class="sidebar-nav">
+                <ul id="nav-list">
+                    <li><span class="nav-section-title">Main</span></li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="#" data-tab="tab-overview">
+                            <span class="nav-icon">📊</span><span class="nav-text">Overview</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-tab="tab-layout">
+                            <span class="nav-icon">🗂️</span><span class="nav-text">Layout Manager</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-tab="tab-media">
+                            <span class="nav-icon">🗄️</span><span class="nav-text">Media Library</span>
+                        </a>
+                    </li>
+
+                    <li><span class="nav-section-title">Content</span></li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-tab="tab-hero">
+                            <span class="nav-icon">🖼️</span><span class="nav-text">Hero Slider</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-tab="tab-gallery">
+                            <span class="nav-icon">📷</span><span class="nav-text">Gallery</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-tab="tab-events">
+                            <span class="nav-icon">📅</span><span class="nav-text">Events</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-tab="tab-youtube">
+                            <span class="nav-icon">📺</span><span class="nav-text">YouTube Feed</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-tab="tab-pastors">
+                            <span class="nav-icon">👔</span><span class="nav-text">Pastors</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-tab="tab-testimonials">
+                            <span class="nav-icon">💬</span><span class="nav-text">Testimonials</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-tab="tab-lyrics">
+                            <span class="nav-icon">🎶</span><span class="nav-text">Lyrics</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-tab="tab-texteditor">
+                            <span class="nav-icon">✏️</span><span class="nav-text">Text Editor</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-tab="tab-ministries">
+                            <span class="nav-icon">✝️</span><span class="nav-text">Ministries</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-tab="tab-kids">
+                            <span class="nav-icon">🌟</span><span class="nav-text">Kids Programs</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-tab="tab-prayer">
+                            <span class="nav-icon">🙏</span>
+                            <span class="nav-text">Prayer Requests</span>
+                            <span class="nav-badge" id="prayer-badge">0</span>
+                        </a>
+                    </li>
+
+                    <li><span class="nav-section-title">Settings</span></li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-tab="tab-siteinfo">
+                            <span class="nav-icon">⚙️</span><span class="nav-text">Site Settings</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-tab="tab-seo">
+                            <span class="nav-icon">🔍</span><span class="nav-text">SEO Controls</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-tab="tab-users">
+                            <span class="nav-icon">👥</span><span class="nav-text">User Roles</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-tab="tab-analytics">
+                            <span class="nav-icon">📈</span><span class="nav-text">Analytics</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-tab="tab-backups">
+                            <span class="nav-icon">💾</span><span class="nav-text">Backups</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-tab="tab-activitylog">
+                            <span class="nav-icon">📋</span><span class="nav-text">Activity Log</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-chip" id="user-avatar-chip">A</div>
+                <div class="user-info-text">
+                    <strong id="user-name-display">Administrator</strong>
+                    <span id="user-role-display">Super Admin</span>
+                </div>
+                <button id="logout-btn" title="Logout">🚪</button>
+            </div>
+        </aside>
+
+        <!-- ◀◀ MAIN AREA ▶▶ -->
+        <div id="main-area">
+
+            <!-- TOP BAR -->
+            <header id="topbar">
+                <button id="mobile-menu-btn" aria-label="Open sidebar">☰</button>
+                <div class="breadcrumb">
+                    <span class="breadcrumb-root">CMS</span>
+                    <span class="breadcrumb-sep">/</span>
+                    <span id="breadcrumb-text">Overview</span>
+                </div>
+                <div class="topbar-r">
+                    <div class="cms-lang-toggle">
+                        <button class="lang-btn active" data-lang="en">EN</button>
+                        <button class="lang-btn" data-lang="te">తెలుగు</button>
+                    </div>
+                    <a class="btn-preview" href="../index.html" target="_blank">👁 Preview Site</a>
+                    <button id="publish-btn">⬆ Publish</button>
+                    <div class="notif-wrap">
+                        <button id="notif-btn" title="Notifications">
+                            🔔 <span id="notif-count"></span>
+                        </button>
+                        <div id="notif-dropdown" hidden>
+                            <div class="notif-panel-head">
+                                <h4>Notifications</h4>
+                                <button id="clear-notifs">Clear all</button>
+                            </div>
+                            <ul id="notif-list">
+                                <li class="notif-empty">No notifications yet.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <button id="logout-btn-top">🚪 <span>Logout</span></button>
+                </div>
+            </header>
+
+            <!-- TAB CONTENT -->
+            <div id="content-wrap">
+
+                <!-- ═══ OVERVIEW ══════════════════════════════════════════ -->
+                <div id="tab-overview" class="tab-panel active">
+                    <div class="page-title">
+                        <h1>👋 Welcome back, <span id="welcome-name">Admin</span>!</h1>
+                        <p>Here's a quick snapshot of your church website.</p>
+                    </div>
+                    <div class="stats-grid" id="stats-row"></div>
+                    <div class="card" style="margin-bottom: 2rem; border: 1px dashed var(--accent);">
+                        <div class="section-head">
+                            <h2>🛠️ Maintenance & Recovery</h2>
+                        </div>
+                        <p class="field-hint" style="margin-bottom:1rem">Use these tools if you encounter sync issues or missing data.</p>
+                        <div style="display:flex; gap:1rem; flex-wrap:wrap">
+                            <button class="btn btn-outline btn-sm" onclick="recoverFromTranslations()">♻️ Recover Missing Testimonials</button>
+                            <button class="btn btn-danger-outline btn-sm" onclick="if(confirm('This will Reset EVERYTHING to default. Are you sure?')){ localStorage.clear(); location.reload(); }">🗑 Emergency Deep Reset</button>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>Section Visibility</h2>
+                            <small style="color:var(--muted);font-size:.78rem">Toggle to show/hide website
+                                sections</small>
+                        </div>
+                        <div class="vis-grid" id="visibility-grid"></div>
+                    </div>
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>Recent Notifications</h2>
+                        </div>
+                        <ul class="notif-inline-list" id="overview-notifs">
+                            <li class="muted-note">No recent activity.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- ═══ LAYOUT ════════════════════════════════════════════ -->
+                <div id="tab-layout" class="tab-panel">
+                    <div class="page-title">
+                        <h1>🗂️ Layout Manager</h1>
+                        <p>Drag rows to reorder homepage sections.</p>
+                    </div>
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>Section Order</h2>
+                            <button class="btn btn-outline btn-sm" id="reset-layout-btn">↺ Reset</button>
+                        </div>
+                        <p class="field-hint">Drag the ⠿ handle to reorder. Changes are saved when you click
+                            <strong>Publish</strong>.
+                        </p>
+                        <ul id="layout-sort-list" class="sort-list"></ul>
+                    </div>
+                </div>
+
+                <!-- ═══ MEDIA LIBRARY ═════════════════════════════════════ -->
+                <div id="tab-media" class="tab-panel">
+                    <div class="page-title">
+                        <h1>🗄️ Media Library</h1>
+                        <p>Central store for all uploaded images.</p>
+                    </div>
+                    <div class="card">
+                        <label class="upload-zone" for="media-file-input">
+                            <input type="file" id="media-file-input" accept="image/*" multiple>
+                            <span class="upload-icon-lg">📁</span>
+                            <strong>Click to upload or drag images here</strong>
+                            <span>JPG, PNG, WebP — multiple files supported</span>
+                        </label>
+                        <div class="filter-bar">
+                            <select class="filter-input" id="media-category-filter">
+                                <option value="all">All Categories</option>
+                                <option value="hero">Hero</option>
+                                <option value="gallery">Gallery</option>
+                                <option value="events">Events</option>
+                                <option value="general">General</option>
+                            </select>
+                        </div>
+                        <div class="media-grid" id="media-grid">
+                            <p class="muted-note">No media uploaded yet.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══ HERO SLIDER ═══════════════════════════════════════ -->
+                <div id="tab-hero" class="tab-panel">
+                    <div class="page-title">
+                        <h1>🖼️ Hero Slider</h1>
+                        <p>Upload and reorder the homepage banner images.</p>
+                    </div>
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>Hero Images</h2>
+                            <small style="color:var(--muted);font-size:.78rem">Labeled H1, H2… · Drag cards to
+                                reorder</small>
+                        </div>
+                        <label class="upload-zone upload-zone-sm" for="hero-file-input">
+                            <input type="file" id="hero-file-input" accept="image/*" multiple>
+                            📸 <strong>Click to upload hero images</strong>
+                        </label>
+                        <div class="media-grid" id="hero-grid">
+                            <p class="muted-note">No hero images uploaded yet.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══ GALLERY ═══════════════════════════════════════════ -->
+                <div id="tab-gallery" class="tab-panel">
+                    <div class="page-title">
+                        <h1>📷 Gallery Albums</h1>
+                        <p>Organize photos into albums/events and choose different collage styles.</p>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>Albums</h2>
+                            <button class="btn btn-accent btn-sm" id="add-album-btn">+ Create New Album</button>
+                        </div>
+                        <div id="album-list" class="album-grid">
+                            <!-- Albums will be rendered here -->
+                        </div>
+                    </div>
+
+                    <!-- Album Detail View (Hidden by default) -->
+                    <div id="album-detail-view" style="display:none; margin-top: 2rem;">
+                        <div class="card">
+                            <div class="section-head">
+                                <h2 id="current-album-title">Album Name</h2>
+                                <button class="btn btn-outline btn-sm" onclick="closeAlbumDetail()">← Back to Albums</button>
+                            </div>
+                            <div class="form-grid" style="margin-bottom: 2rem;">
+                                <div class="form-group">
+                                    <label class="form-label">Album Title</label>
+                                    <input class="form-control" id="album-title-edit" placeholder="Enter album name">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Collage Style</label>
+                                    <select class="form-control" id="album-style-edit">
+                                        <option value="grid">Classic Grid</option>
+                                        <option value="bento">Bento Layout (varied sizes)</option>
+                                        <option value="masonry">Masonry (dynamic heights)</option>
+                                        <option value="carousel">Horizontal Carousel</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Link to Event (Optional)</label>
+                                    <select class="form-control" id="album-event-link">
+                                        <option value="">None</option>
+                                        <!-- Events will be populated here -->
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <label class="upload-zone upload-zone-sm" for="album-photo-input">
+                                <input type="file" id="album-photo-input" accept="image/*" multiple>
+                                📸 <strong>Click to upload photos to this album</strong>
+                            </label>
+                            
+                            <div class="media-grid" id="album-photos-grid" style="margin-top: 2rem;">
+                                <!-- Photos will be rendered here -->
+                            </div>
+                            
+                            <div style="margin-top: 2rem; display: flex; justify-content: flex-end; gap: 1rem;">
+                                <button class="btn btn-outline" id="delete-album-btn" style="color: var(--error);">Delete Album</button>
+                                <button class="btn btn-accent" id="save-album-btn">Save Album Changes</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- ═══ EVENTS ════════════════════════════════════════════ -->
+                <div id="tab-events" class="tab-panel">
+                    <div class="page-title">
+                        <h1>📅 Events</h1>
+                        <p>Create, edit, and manage upcoming church events.</p>
+                    </div>
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>All Events</h2>
+                            <button class="btn btn-accent btn-sm" id="add-event-btn">+ New Event</button>
+                        </div>
+                        <div class="filter-bar">
+                            <select class="filter-input" id="event-status-filter">
+                                <option value="all">All Statuses</option>
+                                <option value="published">Published</option>
+                                <option value="draft">Draft</option>
+                                <option value="scheduled">Scheduled</option>
+                                <option value="archived">Archived</option>
+                            </select>
+                            <input class="filter-input filter-search" type="text" id="event-search"
+                                placeholder="Search events…">
+                        </div>
+                        <ul id="events-list" class="item-list"></ul>
+                    </div>
+                </div>
+
+                <!-- ═══ YOUTUBE ═══════════════════════════════════════════ -->
+                <div id="tab-youtube" class="tab-panel">
+                    <div class="page-title">
+                        <h1>📺 YouTube Feed</h1>
+                        <p>Configure which YouTube channels appear on your site.</p>
+                    </div>
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>Channels</h2>
+                        </div>
+                        <div class="yt-channel-add">
+                            <input class="form-control" type="text" id="yt-channel-input"
+                                placeholder="Paste YouTube channel URL or ID…">
+                            <button class="btn btn-accent btn-sm" id="yt-add-btn">+ Add</button>
+                        </div>
+                        <ul class="channel-list" id="yt-channels-list"></ul>
+                    </div>
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>Feed Settings</h2>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Videos to Display</label>
+                                <select class="form-control" id="yt-video-count">
+                                    <option value="3">3</option>
+                                    <option value="6" selected>6</option>
+                                    <option value="9">9</option>
+                                    <option value="12">12</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Layout Style</label>
+                                <select class="form-control" id="yt-layout">
+                                    <option value="grid-3">Grid – 3 columns</option>
+                                    <option value="grid-2">Grid – 2 columns</option>
+                                    <option value="list">List</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">On Click</label>
+                                <select class="form-control" id="yt-click-action">
+                                    <option value="modal">Open Popup</option>
+                                    <option value="tab">Open New Tab</option>
+                                    <option value="embed">Inline Embed</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Auto-Refresh Feed</label>
+                                <label class="toggle-switch"><input type="checkbox" id="yt-auto-refresh" checked><span
+                                        class="toggle-track"></span></label>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Show Section on Website</label>
+                                <label class="toggle-switch"><input type="checkbox" id="yt-visible" checked><span
+                                        class="toggle-track"></span></label>
+                            </div>
+                        </div>
+                        <button class="btn btn-accent" id="yt-save-btn" style="margin-top:.85rem">💾 Save YouTube
+                            Settings</button>
+                    </div>
+                </div>
+
+                <!-- ═══ TESTIMONIALS ══════════════════════════════════════ -->
+                <div id="tab-testimonials" class="tab-panel">
+                    <div class="page-title">
+                        <h1>💬 Testimonials</h1>
+                        <p>Add, edit, and reorder youth and member testimonials.</p>
+                    </div>
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>Testimonials</h2>
+                            <button class="btn btn-accent btn-sm" id="add-testimonial-btn">+ Add</button>
+                        </div>
+                        <div class="filter-bar">
+                            <select class="filter-input" id="testimonial-cat">
+                                <option value="youth">Youth</option>
+                                <option value="member">Members</option>
+                            </select>
+                            <input class="filter-input filter-search" type="text" id="testimonial-search"
+                                placeholder="Search by name…">
+                        </div>
+                        <ul id="testimonials-list" class="item-list"></ul>
+                    </div>
+                </div>
+
+                <!-- ═══ LYRICS ════════════════════════════════════════════ -->
+                <div id="tab-lyrics" class="tab-panel">
+                    <div class="page-title">
+                        <h1>🎶 Lyrics &amp; Worship</h1>
+                        <p>Manage worship songs and Sunday school lyrics. All songs support <strong>English &amp; Telugu</strong> translations.</p>
+                    </div>
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>Song Library</h2>
+                            <button class="btn btn-accent btn-sm" id="add-lyric-btn">+ Add Song</button>
+                        </div>
+                        <div class="filter-bar">
+                            <select class="filter-input" id="lyrics-cat">
+                                <option value="song">Worship Songs</option>
+                                <option value="sunday">Sunday School</option>
+                            </select>
+                            <input class="filter-input filter-search" type="text" id="lyrics-search"
+                                placeholder="Search songs…">
+                        </div>
+                        <ul id="lyrics-list" class="item-list"></ul>
+                    </div>
+                </div>
+
+                <!-- ═══ TEXT EDITOR ═══════════════════════════════════════ -->
+                <div id="tab-texteditor" class="tab-panel">
+                    <div class="page-title">
+                        <h1>✏️ Text Editor</h1>
+                        <p>Edit all headings, descriptions, and button text.</p>
+                    </div>
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>🏠 Hero Section</h2>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group col-2">
+                                <label class="form-label">Main Heading (English)</label>
+                                <input class="form-control" id="tc-hero_title" placeholder="Welcome">
+                            </div>
+                            <div class="form-group col-2">
+                                <label class="form-label">పేరు (Telugu)</label>
+                                <input class="form-control" id="tc-hero_title-te" placeholder="స్వాగతం">
+                            </div>
+                            <div class="form-group col-2">
+                                <label class="form-label">Subtitle (English)</label>
+                                <input class="form-control" id="tc-hero_subtitle" placeholder="A Place of Grace">
+                            </div>
+                            <div class="form-group col-2">
+                                <label class="form-label">ఉపశీర్షిక (Telugu)</label>
+                                <input class="form-control" id="tc-hero_subtitle-te" placeholder="...">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Button Text</label>
+                                <input class="form-control" id="tc-hero_btn" placeholder="Join Us This Sunday">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Button URL</label>
+                                <input class="form-control" id="tc-hero_btn_link" placeholder="#contact">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>📖 About Section</h2>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group col-2">
+                                <label class="form-label">Section Title (English)</label>
+                                <input class="form-control" id="tc-about_title" placeholder="About Our Church">
+                            </div>
+                            <div class="form-group col-2">
+                                <label class="form-label">శీర్షిక (Telugu)</label>
+                                <input class="form-control" id="tc-about_title-te" placeholder="...">
+                            </div>
+                            <div class="form-group col-2">
+                                <label class="form-label">Paragraph 1 (English)</label>
+                                <textarea class="form-control" id="tc-about_text1" rows="3"></textarea>
+                            </div>
+                            <div class="form-group col-2">
+                                <label class="form-label">పేరా 1 (Telugu)</label>
+                                <textarea class="form-control" id="tc-about_text1-te" rows="3"></textarea>
+                            </div>
+                            <div class="form-group col-2">
+                                <label class="form-label">About Section Image</label>
+                                <div id="tc-about-img-uploader"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>📡 Watch Live</h2>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Section Title</label>
+                                <input class="form-control" id="tc-watch_live_title" placeholder="Watch Live">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Schedule</label>
+                                <input class="form-control" id="tc-watch_live_date" placeholder="Sunday 9:00 AM">
+                            </div>
+                            <div class="form-group col-2">
+                                <label class="form-label">Description</label>
+                                <textarea class="form-control" id="tc-watch_live_desc" rows="2"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Button Text</label>
+                                <input class="form-control" id="tc-watch_btn" placeholder="Watch / Listen">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Watch Live URL</label>
+                                <input class="form-control" type="url" id="tc-watch_live_url"
+                                    placeholder="https://youtube.com/…">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>🖼️ Gallery &amp; YouTube</h2>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Gallery Section Title</label>
+                                <input class="form-control" id="tc-gallery_title" placeholder="Church Gallery">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">YouTube Section Title</label>
+                                <input class="form-control" id="tc-yt_section_title"
+                                    placeholder="Latest Sermons &amp; Videos">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Pastors Section Title</label>
+                                <input class="form-control" id="tc-pastors_title" placeholder="Our Pastors">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Contact Section Title</label>
+                                <input class="form-control" id="tc-contact_title" placeholder="Contact Us">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Youth Testimonials Title</label>
+                                <input class="form-control" id="tc-youth_test_title" placeholder="Youth Testimonials">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Member Testimonials Title</label>
+                                <input class="form-control" id="tc-member_test_title" placeholder="Member Testimonials">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- NEW CUSTOM SECTIONS TEXT FIELDS -->
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>🙏 Anudhina Kudikalu</h2>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group col-2">
+                                <label class="form-label">Section Title</label>
+                                <input class="form-control" id="tc-anudhina_title" placeholder="Anudhina Kudikalu">
+                            </div>
+                            <div class="form-group col-2">
+                                <label class="form-label">Description Text</label>
+                                <textarea class="form-control" id="tc-anudhina_text" rows="5"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>📚 Sunday School Banner</h2>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group col-2">
+                                <label class="form-label">Banner Image</label>
+                                <div id="tc-ss-img-uploader"></div>
+                            </div>
+                            <div class="form-group col-2">
+                                <label class="form-label">Sunday School Title</label>
+                                <input class="form-control" id="tc-kids_info_title" placeholder="Sunday School & Learning">
+                            </div>
+                            <div class="form-group col-2">
+                                <label class="form-label">Sunday School Description</label>
+                                <textarea class="form-control" id="tc-kids_info_desc" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>🕒 Church Timings</h2>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group col-2">
+                                <label class="form-label">Section Title</label>
+                                <input class="form-control" id="tc-timings_title" placeholder="Church Timings">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Column 1 Title</label>
+                                <input class="form-control" id="tc-timings_c1_title" placeholder="Location 1">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Column 2 Title</label>
+                                <input class="form-control" id="tc-timings_c2_title" placeholder="Location 2">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Column 1 Timings</label>
+                                <textarea class="form-control" id="tc-timings_c1_text" rows="5"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Column 2 Timings</label>
+                                <textarea class="form-control" id="tc-timings_c2_text" rows="5"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>🕊️ About Our Ministry</h2>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group col-2">
+                                <label class="form-label">Section Title</label>
+                                <input class="form-control" id="tc-about_min_title" placeholder="About Our Ministry">
+                            </div>
+                            <div class="form-group col-2">
+                                <label class="form-label">Paragraph 1</label>
+                                <textarea class="form-control" id="tc-about_min_text1" rows="4"></textarea>
+                            </div>
+                            <div class="form-group col-2">
+                                <label class="form-label">Paragraph 2</label>
+                                <textarea class="form-control" id="tc-about_min_text2" rows="4"></textarea>
+                            </div>
+                            <div class="form-group col-2">
+                                <label class="form-label">Support Paragraph</label>
+                                <textarea class="form-control" id="tc-about_min_support" rows="4"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-accent" id="tc-save-btn">💾 Save All Text Changes</button>
+                </div>
+
+                <!-- ═══ PASTORS ════════════════════════════════════════════ -->
+                <div id="tab-pastors" class="tab-panel">
+                    <div class="page-title">
+                        <h1>👔 Pastors</h1>
+                        <p>Add, edit, and reorder church pastors.</p>
+                    </div>
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>Pastors List</h2>
+                            <button class="btn btn-accent btn-sm" id="add-pastor-btn">+ Add Pastor</button>
+                        </div>
+                        <ul id="pastors-list" class="item-list"></ul>
+                    </div>
+                </div>
+
+                <!-- ═══ MINISTRIES ════════════════════════════════════════ -->
+                <div id="tab-ministries" class="tab-panel">
+                    <div class="page-title">
+                        <h1>✝️ Ministries</h1>
+                        <p>Manage church ministry departments.</p>
+                    </div>
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>All Ministries</h2>
+                            <button class="btn btn-accent btn-sm" id="add-ministry-btn">+ Add Ministry</button>
+                        </div>
+                        <ul id="ministries-list" class="item-list">
+                            <li class="muted-note">No ministries added yet.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- ═══ KIDS PROGRAMS ══════════════════════════════════════ -->
+                <div id="tab-kids" class="tab-panel">
+                    <div class="page-title">
+                        <h1>🌟 Kids Programs</h1>
+                        <p>Manage children's ministry programs and photos.</p>
+                    </div>
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>Programs</h2>
+                            <button class="btn btn-accent btn-sm" id="add-kids-btn">+ Add Program</button>
+                        </div>
+                        <ul id="kids-list" class="item-list">
+                            <li class="muted-note">No programs added yet.</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>Kids Gallery</h2>
+                        </div>
+                        <label class="upload-zone upload-zone-sm" for="kids-gallery-input">
+                            <input type="file" id="kids-gallery-input" accept="image/*" multiple>
+                            📸 <strong>Click to upload kids photos</strong>
+                        </label>
+                        <div class="media-grid" id="kids-gallery-grid">
+                            <p class="muted-note">No kids photos yet.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══ PRAYER REQUESTS ═══════════════════════════════════ -->
+                <div id="tab-prayer" class="tab-panel">
+                    <div class="page-title">
+                        <h1>🙏 Prayer Requests</h1>
+                        <p>Review and respond to prayer submissions.</p>
+                    </div>
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>Requests</h2>
+                            <select class="filter-input" id="prayer-status-filter">
+                                <option value="pending">Pending</option>
+                                <option value="prayed">Prayed For</option>
+                                <option value="archived">Archived</option>
+                            </select>
+                        </div>
+                        <ul id="prayer-list" class="item-list">
+                            <li class="muted-note">No prayer requests yet.</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>Email Notifications</h2>
+                        </div>
+                        <p class="field-hint">Specify which email addresses should receive a copy of new prayer requests.</p>
+                        <div class="form-group">
+                            <label class="form-label">Notification Status</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="prayer-notify-toggle" checked>
+                                <span class="toggle-track"></span>
+                            </label>
+                            <span style="font-size:0.85rem; margin-left:10px">Send email when a new request is submitted</span>
+                        </div>
+                        <div class="form-group" style="margin-top:1rem">
+                            <label class="form-label">Recipient Emails</label>
+                            <div style="display:flex; gap:0.5rem">
+                                <input class="form-control" id="prayer-recipient-input" placeholder="pastor@church.com">
+                                <button class="btn btn-accent btn-sm" onclick="addPrayerRecipient()">+ Add</button>
+                            </div>
+                        </div>
+                        <div id="prayer-recipients-list" class="resource-list">
+                            <!-- Recipient pills here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══ SITE SETTINGS ══════════════════════════════════════ -->
+                <div id="tab-siteinfo" class="tab-panel">
+                    <div class="page-title">
+                        <h1>⚙️ Site Settings</h1>
+                        <p>Update your church's contact info and social links.</p>
+                    </div>
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>Church Information</h2>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Church Name</label>
+                                <input class="form-control" id="si-name" placeholder="Our Church">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Lead Pastor</label>
+                                <input class="form-control" id="si-pastor" placeholder="Pastor Name">
+                            </div>
+                            <div class="form-group col-2">
+                                <label class="form-label">Address</label>
+                                <input class="form-control" id="si-address" placeholder="123 Faith Street, City">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Phone</label>
+                                <input class="form-control" type="tel" id="si-phone" placeholder="+1 (555) 000-0000">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Email</label>
+                                <input class="form-control" type="email" id="si-email" placeholder="info@church.com">
+                            </div>
+                            <div class="form-group col-2">
+                                <label class="form-label">Service Times</label>
+                                <input class="form-control" id="si-service" placeholder="Sunday 10:00 AM &amp; 6:00 PM">
+                            </div>
+                            <div class="form-group col-2">
+                                <label class="form-label">Google Maps Embed URL</label>
+                                <input class="form-control" id="si-map" placeholder="https://maps.google.com/embed?…">
+                            </div>
+                        </div>
+                        <div class="section-head" style="margin-top:1.25rem">
+                            <h2>Social Links</h2>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">YouTube</label>
+                                <input class="form-control" id="si-youtube" placeholder="https://youtube.com/@church">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Facebook</label>
+                                <input class="form-control" id="si-facebook" placeholder="https://facebook.com/…">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Instagram</label>
+                                <input class="form-control" id="si-instagram" placeholder="https://instagram.com/…">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">WhatsApp</label>
+                                <input class="form-control" id="si-whatsapp" placeholder="+1 555 000 0000">
+                            </div>
+                        </div>
+
+                        <div class="section-head" style="margin-top:1.25rem">
+                            <h2>🔧 System Maintenance</h2>
+                        </div>
+                        <div class="form-group" style="padding-bottom: 1rem;">
+                            <button class="btn btn-outline" id="clear-cache-btn">🗑 Clear Local Cache</button>
+                            <span class="field-hint" style="display:block; margin-top:5px">Fixes "Local cache full" errors by clearing browser storage. Your cloud data is safe.</span>
+                        </div>
+
+                        <button class="btn btn-accent" id="si-save-btn">💾 Save Settings</button>
+                    </div>
+                </div>
+
+                <!-- ═══ SEO ════════════════════════════════════════════════ -->
+                <div id="tab-seo" class="tab-panel">
+                    <div class="page-title">
+                        <h1>🔍 SEO Controls</h1>
+                        <p>Optimize each page for search engines.</p>
+                    </div>
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>Page SEO</h2>
+                            <select class="filter-input" id="seo-page-select">
+                                <option value="home">Homepage</option>
+                                <option value="testimonials">Testimonials</option>
+                                <option value="lyrics">Lyrics</option>
+                                <option value="kids">Kids Programs</option>
+                            </select>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group col-2">
+                                <label class="form-label">Page Title <span class="char-hint"
+                                        id="seo-title-count">0/60</span></label>
+                                <input class="form-control" id="seo-title" maxlength="70">
+                            </div>
+                            <div class="form-group col-2">
+                                <label class="form-label">Meta Description <span class="char-hint"
+                                        id="seo-desc-count">0/155</span></label>
+                                <textarea class="form-control" id="seo-description" rows="3"></textarea>
+                            </div>
+                            <div class="form-group col-2">
+                                <label class="form-label">Keywords</label>
+                                <input class="form-control" id="seo-keywords" placeholder="church, worship, community…">
+                            </div>
+                        </div>
+                        <div class="seo-preview-box">
+                            <div class="seo-preview-label">Google Preview</div>
+                            <div class="seo-google-title" id="seo-prev-title">Page Title</div>
+                            <div class="seo-google-url">yourchurch.com › page</div>
+                            <div class="seo-google-desc" id="seo-prev-desc">Your meta description will appear here.
+                            </div>
+                        </div>
+                        <button class="btn btn-accent" id="seo-save-btn">💾 Save SEO</button>
+                    </div>
+                </div>
+
+                <!-- ═══ USERS ══════════════════════════════════════════════ -->
+                <div id="tab-users" class="tab-panel">
+                    <div class="page-title">
+                        <h1>👥 User Roles</h1>
+                        <p>Manage admin accounts and permission levels.</p>
+                    </div>
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>Admin Users</h2>
+                            <button class="btn btn-accent btn-sm" id="add-user-btn">+ Add User</button>
+                        </div>
+                        <ul id="users-list" class="item-list"></ul>
+                    </div>
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>Role Permissions</h2>
+                        </div>
+                        <div class="perm-table-wrap" id="permissions-table"></div>
+                    </div>
+                </div>
+
+                <!-- ═══ ANALYTICS ══════════════════════════════════════════ -->
+                <div id="tab-analytics" class="tab-panel">
+                    <div class="page-title">
+                        <h1>📈 Analytics</h1>
+                        <p>CMS activity and content statistics.</p>
+                    </div>
+                    <div class="stats-grid" id="analytics-stats"></div>
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>Top Content</h2>
+                        </div>
+                        <ul id="analytics-list" class="item-list"></ul>
+                    </div>
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>Weekly Activity</h2>
+                        </div>
+                        <div class="heat-grid" id="analytics-chart"></div>
+                    </div>
+                </div>
+
+                <!-- ═══ BACKUPS ════════════════════════════════════════════ -->
+                <div id="tab-backups" class="tab-panel">
+                    <div class="page-title">
+                        <h1>💾 Backups</h1>
+                        <p>Create and restore full CMS data backups.</p>
+                    </div>
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>Backup History</h2>
+                            <button class="btn btn-accent btn-sm" id="create-backup-btn">⬇ Create Backup</button>
+                        </div>
+                        <ul id="backup-list" class="item-list">
+                            <li class="muted-note">No backups yet.</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>Restore from Backup</h2>
+                        </div>
+                        <p class="field-hint">Select a previously downloaded <code>.json</code> backup file.</p>
+                        <label class="upload-zone upload-zone-sm" for="restore-file">
+                            <input type="file" id="restore-file" accept=".json">
+                            📂 Select backup .json file
+                        </label>
+                        <button class="btn btn-danger-outline" id="restore-btn" style="margin-top:.75rem">⚠️ Restore
+                            This
+                            Backup</button>
+                    </div>
+                </div>
+
+                <!-- ═══ ACTIVITY LOG ════════════════════════════════════════ -->
+                <div id="tab-activitylog" class="tab-panel">
+                    <div class="page-title">
+                        <h1>📋 Activity Log</h1>
+                        <p>A complete history of all admin content changes.</p>
+                    </div>
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>All Actions</h2>
+                            <button class="btn btn-outline btn-sm" id="clear-log-btn">🗑 Clear Log</button>
+                        </div>
+                        <ul id="activity-log-list" class="activity-list">
+                            <li class="muted-note">No activity recorded yet.</li>
+                        </ul>
+                    </div>
+                    <div class="card" style="margin-top:2rem; border-top:2px solid var(--danger-light)">
+                        <div class="section-head">
+                            <h2 style="color:var(--danger)">⚠️ Error Logs</h2>
+                        </div>
+                        <ul id="error-log-list" class="activity-list">
+                            <li class="muted-note">No errors logged. All good!</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div><!-- /content-wrap -->
+        </div><!-- /main-area -->
+    </div><!-- /dashboard-wrap -->
+
+    <!-- TOAST STACK -->
+    <div id="toast-stack"></div>
+
+    <!-- MODAL -->
+    <div id="modal-overlay" hidden>
+        <div class="modal-box">
+            <button class="modal-close" id="modal-close-btn">&times;</button>
+            <div class="modal-title" id="modal-title">Edit</div>
+            <div class="modal-body" id="modal-body"></div>
+            <div class="modal-footer" id="modal-footer">
+                <button class="modal-cancel" id="modal-cancel-btn">Cancel</button>
+                <button class="modal-save" id="modal-save-btn">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- IMAGE PREVIEW -->
+    <div id="img-preview-overlay" hidden>
+        <button id="img-preview-close">&times;</button>
+        <img id="img-preview-src" src="" alt="Preview">
+    </div>
+
+    <!-- FIREBASE SDK (Compat) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../supabase-shim.js"></script>
+    
+
+    <script src="../translations.js"></script>
+    <script src="admin-core.js"></script>
+    <script src="admin-content.js"></script>
+    <script src="admin-settings.js"></script>
+
+</body>
+
+</html>

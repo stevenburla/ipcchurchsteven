@@ -1,0 +1,33 @@
+# One-time migration tool — never deploy
+migrate-data.html
+
+# Local backups of pre-migration files
+firebase-backup/
+
+# Legacy one-time fix scripts (kept locally for reference)
+fix-content.js
+fix-content-again.js
+fix-emojis.js
+fix-settings.js
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor junk
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+
+# Dependencies
+node_modules/
+
+# Local environment files
+.env
+.env.local

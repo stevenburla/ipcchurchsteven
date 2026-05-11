@@ -1,0 +1,212 @@
+{
+  "galleryAlbums": [
+    {
+      "collageStyle": "bento",
+      "id": 1,
+      "title": "Easter Service 2024"
+    },
+    {
+      "collageStyle": "grid",
+      "id": 2,
+      "title": "Youth Retreat"
+    }
+  ],
+  "kids": {
+    "programs": [
+      {
+        "age": "3-5",
+        "desc": "Fun games and basic Bible stories.",
+        "id": 1,
+        "name": "Little Stars"
+      },
+      {
+        "age": "6-9",
+        "desc": "Interactive lessons and crafts.",
+        "id": 2,
+        "name": "Bible Explorers"
+      }
+    ]
+  },
+  "layout": [
+    "home",
+    "watch-live",
+    "about",
+    "sunday_school",
+    "youtube-feed",
+    "gallery",
+    "pastors",
+    "youth",
+    "testimonials",
+    "anudhina",
+    "timings",
+    "about_ministry",
+    "contact"
+  ],
+  "pastors": [
+    {
+      "id": 1,
+      "name": "Pastor B Steven",
+      "photo": "",
+      "role": "Main Pastor",
+      "status": "published"
+    }
+  ],
+  "sections": {
+    "about": {
+      "icon": "📖",
+      "label": "About Us",
+      "order": 2,
+      "visible": true
+    },
+    "contact": {
+      "icon": "📍",
+      "label": "Contact & Map",
+      "order": 9,
+      "visible": true
+    },
+    "gallery": {
+      "icon": "📷",
+      "label": "Church Gallery",
+      "order": 5,
+      "visible": true
+    },
+    "home": {
+      "icon": "🖼️",
+      "label": "Hero Slider",
+      "order": 0,
+      "visible": true
+    },
+    "pastors": {
+      "icon": "👔",
+      "label": "Pastors",
+      "order": 6,
+      "visible": true
+    },
+    "sunday_school": {
+      "icon": "📚",
+      "label": "Sunday School",
+      "order": 3,
+      "visible": true
+    },
+    "testimonials": {
+      "icon": "🗣️",
+      "label": "Testimonials",
+      "order": 8,
+      "visible": true
+    },
+    "watch-live": {
+      "icon": "📡",
+      "label": "Watch Live",
+      "order": 1,
+      "visible": true
+    },
+    "youth": {
+      "icon": "💬",
+      "label": "Youth Testimonials",
+      "order": 7,
+      "visible": true
+    },
+    "youtube-feed": {
+      "icon": "📺",
+      "label": "Latest Videos",
+      "order": 4,
+      "visible": true
+    }
+  },
+  "seo": {
+    "home": {
+      "description": "Official website of IPC Church led by Pastor B Steven.",
+      "keywords": "IPC, Church, Pastor B Steven, Suryanarayana Colony",
+      "title": "IPC Church Pastor B Steven"
+    }
+  },
+  "siteInfo": {
+    "address": "Suryanarayana Colony, Hyderabad",
+    "email": "info@ipcchurch.org",
+    "facebook": "",
+    "instagram": "",
+    "map": "",
+    "name": "IPC Church - Pastor B Steven",
+    "pastor": "Pastor B Steven",
+    "phone": "+91 00000 00000",
+    "service": "Sunday 6:45 AM & 8:45 AM",
+    "whatsapp": "",
+    "youtube": "https://youtube.com/@7_in_christ"
+  },
+  "testimonials": {
+    "youth": [
+      {
+        "id": 1,
+        "name": "Enosh Burla",
+        "photo": "",
+        "role": "Youth Member",
+        "status": "published",
+        "text": "Praise the Lord, this is Enosh Burla. From the very first day of my life, I believe God’s hand has been upon me. Through it all, Jesus has been my protector.",
+        "visible": true
+      },
+      {
+        "id": 2,
+        "name": "Monica Burla",
+        "photo": "",
+        "role": "Youth Member",
+        "status": "published",
+        "text": "Praise the Lord, my name is Mounica Burla. I accepted Jesus Christ as my personal Savior, took baptism, and am now joyfully serving in His ministry.",
+        "visible": true
+      },
+      {
+        "id": 3,
+        "name": "Anusha Burla",
+        "photo": "",
+        "role": "Youth Member",
+        "status": "published",
+        "text": "Praise the Lord, my name is Anusha Burla, daughter of Pastor Steven Garu. Growing up in a pastor’s family, I have been blessed to serve Him through praise and worship.",
+        "visible": true
+      }
+    ]
+  },
+  "textContent": {
+    "about_img": "",
+    "about_min_support": "Support:\nYour support helps us continue our mission. Every contribution, big or small, makes a meaningful difference.",
+    "about_min_text1": "Our ministry is dedicated to serving God and supporting people in their spiritual journey through worship, teaching, and fellowship.",
+    "about_min_text2": "We believe in caring for others and spreading hope in our community through different programs and outreach efforts.",
+    "about_min_title": "About Our Ministry",
+    "about_text1": "We are a community-driven church focused on spreading the love and teachings of Jesus Christ under the leadership of Pastor B Steven.",
+    "about_text2": "Through our diverse ministries, from Suryanarayana Colony to Subramanyam Colony, we strive to make a positive impact.",
+    "about_title": "About Our Church",
+    "anudhina_text": "In the early days of our ministry, many people showed great interest in listening to the Word of God. Pastor Garu started daily prayer sessions for two hours every day to guide and strengthen them in prayer. Slowly, many believers grew spiritually and became strong prayer warriors.",
+    "anudhina_title": "Anudhina Kudikalu",
+    "contact_title": "Contact Us",
+    "gallery_title": "Church Gallery",
+    "hero_btn": "Join Us This Sunday",
+    "hero_btn_link": "#contact",
+    "hero_subtitle": "A Place of Grace, Faith, and Community",
+    "hero_title": "Welcome to IPC Church",
+    "kids_info_desc": "Training children in the way they should go.",
+    "kids_info_title": "Sunday School",
+    "member_test_title": "Member Testimonials",
+    "pastors_title": "Our Pastors",
+    "ss_img": "",
+    "timings_c1_text": "Sunday Service: 6:45 AM – 9:00 AM\nSunday School & Youth Meeting: 7:00 AM – 8:15 AM\nAnudhina Kudika: 11:00 AM – 12:40 PM",
+    "timings_c1_title": "Suryanarayana Colony",
+    "timings_c2_text": "Sunday Service: 8:45 AM – 11:30 AM\nSunday School & Youth Meeting: 9:00 AM – 10:15 AM\nWhole Night Prayer: 1st Saturday, 9:30 PM onwards",
+    "timings_c2_title": "Subramanyam Colony",
+    "timings_title": "Church Timings",
+    "watch_btn": "Watch / Listen",
+    "watch_live_date": "Next Broadcast: Sunday 9:00 AM",
+    "watch_live_desc": "Join our live service from anywhere in the world on our YouTube channel.",
+    "watch_live_title": "Watch Live",
+    "watch_live_url": "https://youtube.com/@7_in_christ",
+    "youth_test_title": "Youth Testimonials",
+    "yt_section_title": "Latest Sermons & Videos"
+  },
+  "youtube": {
+    "autoRefresh": true,
+    "channels": [
+      "7_in_christ"
+    ],
+    "clickAction": "modal",
+    "layout": "grid-3",
+    "videoCount": 6,
+    "visible": true
+  }
+}

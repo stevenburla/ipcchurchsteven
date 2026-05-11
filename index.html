@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="doc_title">Church Website</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=5">
+    <link rel="stylesheet" href="lyrics.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-shim.js"></script>
+    <script src="translations.js" defer></script>
+    <script src="cms-bridge.js" defer></script>
+    <script src="main.js?v=3" defer></script>
+
+</head>
+
+<body>
+    <!-- Floating Bilingual Toggle -->
+    <button id="lang-toggle" class="lang-toggle">
+        <span class="lang-option active" data-lang="en">EN</span>
+        <span class="lang-option" data-lang="te">తెలుగు</span>
+    </button>
+
+    <!-- Sticky Navigation -->
+    <header class="navbar">
+        <div class="logo">
+            <span class="logo-icon">⛪</span>
+            <span class="logo-text" data-i18n="doc_title">IPC Church</span>
+        </div>
+        <button class="hamburger" id="hamburger-menu" aria-label="Toggle Menu">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </button>
+        <nav class="nav-links" id="nav-links">
+            <a href="index.html#home" data-i18n="nav_home">Home</a>
+            <a href="index.html#about" data-i18n="nav_about">About Us</a>
+            <a href="index.html#pastors" data-i18n="nav_pastors">Pastors</a>
+            <a href="kids-programs.html" data-i18n="nav_kids">Kids Programs</a>
+            <a href="lyrics.html">Lyrics</a>
+            <a href="index.html#youth" data-i18n="nav_youth">Youth</a>
+            <a href="index.html#testimonials" data-i18n="nav_testimonials">Testimonials</a>
+            <a href="index.html#contact" data-i18n="nav_contact">Contact</a>
+        </nav>
+    </header>
+
+    <!-- =====================================================
+         TESTIMONIAL MODAL OVERLAY
+         ===================================================== -->
+    <div id="testimonial-modal" class="t-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="t-modal-name"
+        hidden>
+        <div class="t-modal-card">
+            <button class="t-modal-close" id="t-modal-close" aria-label="Close">&times;</button>
+            <div class="t-modal-photo-wrap">
+                <div class="img-placeholder t-modal-photo" id="t-modal-photo"><span id="t-modal-num"></span></div>
+            </div>
+            <h3 class="t-modal-name" id="t-modal-name"></h3>
+            <div class="t-modal-role" id="t-modal-role"></div>
+            <div class="t-modal-quote-icon">❝</div>
+            <p class="t-modal-text" id="t-modal-text"></p>
+            <a href="testimonials.html" class="primary-btn t-modal-link">View All Testimonials →</a>
+        </div>
+    </div>
+
+    <div class="layout-wrapper">
+        <!-- Main Content Area (Left) -->
+        <main class="main-content">
+            <!-- Hero Section -->
+            <section id="home" class="hero-section fade-in">
+                <div class="hero-slider" id="heroSlider">
+                    <!-- CMS Hero Slides -->
+                </div>
+                <div class="hero-content">
+                    <h1 data-i18n="hero_title" class="title">Welcome</h1>
+                    <p data-i18n="hero_subtitle" class="subtitle">A Place of Grace, Faith, and Community</p>
+                    <button class="primary-btn" data-i18n="hero_btn">Join Us</button>
+                </div>
+            </section>
+
+            <!-- Watch Live Section -->
+            <section id="watch-live" class="watch-live-section fade-in">
+                <div class="watch-live-container">
+                    <div class="watch-live-video">
+                        <div class="video-placeholder">
+                            <svg class="play-icon" viewBox="0 0 24 24" fill="white" width="48" height="48">
+                                <path d="M8 5v14l11-7z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="watch-live-info">
+                        <h2 data-i18n="watch_live_title" class="section-title">Watch Live</h2>
+                        <p class="broadcast-date" data-i18n="watch_live_date">Join our live service</p>
+                        <p class="broadcast-desc" data-i18n="watch_live_desc">Stream our service from anywhere in the world.</p>
+                        <button class="primary-btn live-btn" data-i18n="watch_btn">Watch / Listen</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- About Section -->
+            <section id="about" class="about-section fade-in">
+                <h2 class="section-title" data-i18n="about_title">About Our Church</h2>
+                <div class="about-grid">
+                    <div class="about-text">
+                        <p data-i18n="about_text1">Loading church description...</p>
+                        <p data-i18n="about_text2"></p>
+                    </div>
+                    <div class="about-img-container">
+                        <img src="" alt="" class="about-img" style="display:none">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sunday School -->
+            <section id="sunday_school" class="sunday-school-section fade-in">
+                <div class="sunday-school-banner">
+                    <div class="ss-img-container">
+                        <img src="" alt="" class="ss-img" style="display:none">
+                    </div>
+                    <div class="ss-content-overlay">
+                        <h2 class="section-title" data-i18n="nav_sunday_school">Sunday School & Learning</h2>
+                        <p class="kids-info-desc" data-i18n="kids_info_desc">Our kids programs inspire a lifelong love for Jesus.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Latest Church Videos (Automated by CMS) -->
+            <section id="youtube-feed" class="youtube-section fade-in">
+                <div class="section-container">
+                    <h2 class="section-title" data-i18n="yt_feed_title">Latest Sermons & Church Videos</h2>
+                    <div id="yt-video-grid" class="yt-video-grid">
+                        <div class="yt-loading">
+                            <span class="loader"></span>
+                            <p>Fetching latest videos...</p>
+                        </div>
+                    </div>
+                    <div class="yt-section-footer">
+                        <a href="#" id="yt-channel-link" target="_blank" class="yt-visit-btn">
+                            <span class="yt-btn-icon">▶</span>
+                            <span data-i18n="yt_btn_visit">Visit Our YouTube Channel</span>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <section id="gallery" class="gallery-section fade-in">
+                <h2 class="section-title" data-i18n="gallery_title">Church Gallery</h2>
+                <div class="section-container">
+                    <!-- Albums will be injected here -->
+                </div>
+            </section>
+
+            <section id="pastors" class="pastors-section fade-in content-section">
+                <h2 class="section-title" data-i18n="pastors_title">Our Pastors</h2>
+                <div class="pastors-grid">
+                    <!-- CMS Pastors Cards -->
+                </div>
+            </section>
+
+        </main>
+
+        <aside class="sidebar fade-in delay-1">
+
+            <!-- Prayer Request Form -->
+            <div class="sidebar-widget prayer-widget" id="prayer">
+                <h3 data-i18n="sidebar_prayer_title" class="widget-title">Prayer Request</h3>
+                <form class="prayer-form">
+                    <input type="text" data-i18n-placeholder="sidebar_prayer_name" placeholder="Your Name" required />
+                    <textarea data-i18n-placeholder="sidebar_prayer_msg" placeholder="Your Prayer Request" rows="4"
+                        required></textarea>
+                    <button type="submit" class="primary-btn full-width" data-i18n="sidebar_prayer_btn">Submit
+                        Request</button>
+                </form>
+            </div>
+
+            <!-- Church Timings -->
+            <div class="sidebar-widget timings-widget" id="timings">
+                <h3 data-i18n="sidebar_timings_title" class="widget-title">Church Timings</h3>
+                <ul class="widget-list">
+                    <li><span class="icon">☀️</span> <span data-i18n="timings_sunday">Sunday Service</span></li>
+                    <li><span class="icon">🕯️</span> <span data-i18n="timings_wednesday">Wednesday Fasting Prayer</span></li>
+                    <li><span class="icon">🎸</span> <span data-i18n="timings_friday">Friday Youth Meeting</span></li>
+                </ul>
+            </div>
+
+            <!-- Events Timeline -->
+            <div class="sidebar-widget timeline-widget" id="events">
+                <h3 data-i18n="sidebar_events_title" class="widget-title">Upcoming Events</h3>
+                <div class="timeline-container">
+                    <!-- CMS Events -->
+                </div>
+            </div>
+
+            <!-- Lyrics Banner Card -->
+            <a href="lyrics.html" class="lyrics-banner-card" id="lyrics" aria-label="Go to Song Lyrics page">
+                <div class="lyrics-banner-img"></div>
+                <div class="lyrics-banner-label">
+                    <span class="lyrics-banner-icon">🎶</span>
+                    <span class="lyrics-banner-text">Song Lyrics</span>
+                    <span class="lyrics-banner-arrow">→</span>
+                </div>
+            </a>
+
+            <!-- Contact Info -->
+            <div class="sidebar-widget contact-widget" id="contact">
+                <h3 data-i18n="sidebar_contact_title" class="widget-title">Contact Us</h3>
+                <div class="contact-details">
+                    <p>📍 <span data-i18n="contact_address">Loading address...</span></p>
+                    <p>📞 <span data-i18n="contact_phone">Loading phone...</span></p>
+                    <p>✉️ <span data-i18n="contact_email">Loading email...</span></p>
+                </div>
+            </div>
+
+        </aside>
+    </div>
+
+    <!-- Testimonials Section - Now Full Width & Centered below the main grid -->
+    <div class="full-width-section-container">
+        <section id="youth" class="testimonials-section fade-in">
+            <h2 class="section-title" data-i18n="youth_test_title">Youth Testimonials</h2>
+            <div class="carousel-viewport" id="youth-carousel">
+                <!-- Cards will be injected by CMS/Bridge -->
+            </div>
+            <div class="btn-container">
+                <a href="testimonials.html#youth" class="primary-btn see-more-btn" id="see-more-youth" style="display:none">See More →</a>
+            </div>
+        </section>
+
+        <section id="testimonials" class="testimonials-section fade-in">
+            <h2 class="section-title" data-i18n="member_test_title">Member Testimonials</h2>
+            <div class="carousel-viewport" id="member-carousel">
+                <!-- Cards will be injected by CMS/Bridge -->
+            </div>
+            <div class="btn-container">
+                <a href="testimonials.html#member" class="primary-btn see-more-btn" id="see-more-member" style="display:none">See More →</a>
+            </div>
+        </section>
+    </div>
+
+    <!-- SITE FOOTER -->
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <!-- Brand & Social -->
+            <div class="footer-brand">
+                <div class="footer-logo">⛪ <span data-i18n="doc_title">IPC Church</span></div>
+                <p class="footer-tagline">A Place of Grace, Faith &amp; Community</p>
+                <div class="footer-social">
+                    <a href="#" class="social-link" aria-label="YouTube" title="YouTube">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1C4.5 20.5 12 20.5 12 20.5s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.7 15.5V8.5l6.3 3.5-6.3 3.5z" />
+                        </svg>
+                    </a>
+                    <a href="#" class="social-link" aria-label="Facebook" title="Facebook">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M24 12.1C24 5.4 18.6 0 12 0S0 5.4 0 12.1c0 6 4.4 11 10.1 11.9v-8.4H7.1v-3.5h3V9.4c0-3 1.8-4.6 4.5-4.6 1.3 0 2.7.2 2.7.2v3h-1.5c-1.5 0-2 .9-2 1.8v2.3h3.3l-.5 3.5h-2.8v8.4C19.6 23.1 24 18.1 24 12.1z" />
+                        </svg>
+                    </a>
+                    <a href="#" class="social-link" aria-label="Instagram" title="Instagram">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M12 2.2c3.2 0 3.6 0 4.9.1 3.3.1 4.8 1.7 4.9 4.9.1 1.3.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 3.2-1.7 4.8-4.9 4.9-1.3.1-1.6.1-4.9.1s-3.6 0-4.8-.1c-3.3-.1-4.8-1.7-4.9-4.9C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.8C2.4 3.9 4 2.4 7.2 2.3 8.4 2.2 8.8 2.2 12 2.2zM12 0C8.7 0 8.3 0 7.1.1 2.7.3.3 2.7.1 7.1 0 8.3 0 8.7 0 12s0 3.7.1 4.9c.2 4.4 2.6 6.8 7 7C8.3 24 8.7 24 12 24s3.7 0 4.9-.1c4.4-.2 6.8-2.6 7-7 .1-1.2.1-1.6.1-4.9s0-3.7-.1-4.9c-.2-4.4-2.6-6.8-7-7C15.7 0 15.3 0 12 0zm0 5.8a6.2 6.2 0 1 0 0 12.4A6.2 6.2 0 0 0 12 5.8zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.4-11.8a1.4 1.4 0 1 0 0 2.8 1.4 1.4 0 0 0 0-2.8z" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="footer-links-col">
+                <h4 class="footer-col-title">Quick Links</h4>
+                <ul>
+                    <li><a href="index.html#home">Home</a></li>
+                    <li><a href="index.html#about">About Us</a></li>
+                    <li><a href="index.html#pastors">Pastors</a></li>
+                    <li><a href="kids-programs.html">Kids Programs</a></li>
+                    <li><a href="lyrics.html">Lyrics</a></li>
+                    <li><a href="testimonials.html">Testimonials</a></li>
+                </ul>
+            </div>
+
+            <!-- Contact -->
+            <div class="footer-contact-col">
+                <h4 class="footer-col-title">Contact Us</h4>
+                <ul class="footer-contact-list">
+                    <li>📍 <span data-i18n="contact_address">123 Church Street, City, State 12345</span></li>
+                    <li>📞 <span data-i18n="contact_phone">+1 (555) 000-1234</span></li>
+                    <li>✉️ <span data-i18n="contact_email">info@ourchurch.org</span></li>
+                    <li>🕐 Sun: 9 AM &amp; 11:30 AM | Wed &amp; Fri: 7 PM</li>
+                </ul>
+            </div>
+
+            <!-- Map -->
+            <div class="footer-map-col">
+                <h4 class="footer-col-title">Find Us</h4>
+                <div class="footer-map-wrapper">
+                    <iframe
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d387190.2799160891!2d-74.25986752970947!3d40.69767006374209!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c24fa5d33f083b%3A0xc80b8f06e177fe62!2sNew%20York%2C%20NY%2C%20USA!5e0!3m2!1sen!2s!4v1710000000000!5m2!1sen!2s"
+                        width="100%" height="180" style="border:0;" allowfullscreen="" loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade" title="Church location map">
+                    </iframe>
+                </div>
+            </div>
+
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 IPC Church. All rights reserved. | <strong>Version 1.1</strong> | Made with ❤️ for our congregation.</p>
+        </div>
+    </footer>
+
+</body>
+
+</html>
