@@ -46,6 +46,21 @@ const DEFAULT_STATE = {
         ],
         gallery: []
     },
+    support: {
+        title: 'Support Our Ministry',
+        title_te: 'మా ప్రీత్తి ధనసహాయం',
+        description: 'Your generous giving helps us spread the gospel and serve the community.',
+        description_te: 'మీ ఉదార దానం సువార్తను వ్యాపించడానికి సహాయం చేస్తుంది.',
+        image_url: '',
+        upi_id: '',
+        upi_qr_url: '',
+        bank_name: '',
+        bank_account: '',
+        bank_ifsc: '',
+        donate_button_text: 'Donate Now',
+        donate_button_text_te: 'ఇప్పుడే దానం ఇవ్వండి',
+        external_donate_url: ''
+    },
     prayerRequests: [],
     siteInfo: { 
         name: 'IPC Church - Pastor B Steven', 
@@ -219,6 +234,7 @@ function saveState(pushToCloud = true) {
         lyrics: STATE.lyrics,
         kids: STATE.kids,
         ministries: STATE.ministries,
+        support: STATE.support || {},
         prayerRequests: STATE.prayerRequests || []
     };
 
@@ -845,6 +861,7 @@ function setupTabs() {
                     if (typeof renderKids === 'function') renderKids();
                     if (typeof renderKidsGallery === 'function') renderKidsGallery();
                 }
+                if (targetId === 'tab-support' && typeof renderSupport === 'function') renderSupport();
                 if (targetId === 'tab-prayer' && typeof renderPrayer === 'function') renderPrayer();
                 if (targetId === 'tab-siteinfo' && typeof renderSiteInfo === 'function') renderSiteInfo();
                 if (targetId === 'tab-seo' && typeof renderSEO === 'function') renderSEO();

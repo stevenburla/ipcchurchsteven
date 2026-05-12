@@ -88,6 +88,7 @@
 
         applyHeroSection(data);
         applyGallerySection(data);
+        applySupportSection(data);
         applyTestimonials(data);
         applyYouTubeConfig(data);
         applySiteInfo(data);
@@ -382,7 +383,86 @@
         });
     }
 
-    // Quick Lightbox helper
+
+    // ════════════════════════════════════════════════════════════════════════════
+    // SUPPORT / DONATIONS — renders from STATE.support
+    // ════════════════════════════════════════════════════════════════════════════
+    function applySupportSection(data) {
+        const section = document.getElementById('support');
+        if (!section) return;
+        const sup = data.support || {};
+        const lang = document.documentElement.lang || 'en';
+        const pick = (k) => (lang === 'te' && sup[k + '_te']) ? sup[k + '_te'] : sup[k];
+
+        // Section is visible IF support toggle is on AND there's at least basic content
+        const hasContent = pick('title') || sup.upi_id || sup.bank_name || sup.image_url || sup.external_donate_url;
+        const sectionVisible = data.sections?.support?.visible !== false;
+        if (!sectionVisible || !hasContent) {
+            section.style.display = 'none';
+            return;
+        }
+        section.style.display = '';
+
+        // Title + Description
+        const titleEl = section.querySelector('.support-title');
+        if (titleEl) titleEl.textContent = pick('title') || 'Support Our Ministry';
+        const descEl = section.querySelector('.support-description');
+        if (descEl) descEl.textContent = pick('description') || '';
+
+        // Image
+        const img = section.querySelector('.support-image');
+        if (img) {
+            if (sup.image_url) {
+                img.src = sup.image_url;
+                img.style.display = '';
+            } else {
+                img.style.display = 'none';
+            }
+        }
+
+        // Donate button
+        const donateBtn = section.querySelector('.support-donate-btn');
+        if (donateBtn) {
+            if (sup.external_donate_url) {
+                donateBtn.href = sup.external_donate_url;
+                donateBtn.textContent = pick('donate_button_text') || 'Donate Now';
+                donateBtn.style.display = '';
+            } else {
+                donateBtn.style.display = 'none';
+            }
+        }
+
+        // UPI block
+        const upiBlock = section.querySelector('.support-method-upi');
+        if (upiBlock) {
+            if (sup.upi_id || sup.upi_qr_url) {
+                upiBlock.style.display = '';
+                const upiText = upiBlock.querySelector('.support-upi-id');
+                if (upiText) upiText.textContent = sup.upi_id ? ('UPI ID: ' + sup.upi_id) : '';
+                const upiImg = upiBlock.querySelector('.support-upi-qr');
+                if (upiImg) {
+                    if (sup.upi_qr_url) { upiImg.src = sup.upi_qr_url; upiImg.style.display = ''; }
+                    else upiImg.style.display = 'none';
+                }
+            } else upiBlock.style.display = 'none';
+        }
+
+        // Bank block
+        const bankBlock = section.querySelector('.support-method-bank');
+        if (bankBlock) {
+            if (sup.bank_name || sup.bank_account || sup.bank_ifsc) {
+                bankBlock.style.display = '';
+                const nameEl = bankBlock.querySelector('.support-bank-name');
+                const acctEl = bankBlock.querySelector('.support-bank-account');
+                const ifscEl = bankBlock.querySelector('.support-bank-ifsc');
+                if (nameEl) nameEl.textContent = sup.bank_name || '';
+                if (acctEl) acctEl.textContent = sup.bank_account || '';
+                if (ifscEl) ifscEl.textContent = sup.bank_ifsc || '';
+            } else bankBlock.style.display = 'none';
+        }
+    }
+
+        // Quick Lightbox helper
     window.openLightbox = function(url) {
         const overlay = document.createElement('div');
         overlay.style = "position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:99999;display:flex;align-items:center;justify-content:center;cursor:pointer;";

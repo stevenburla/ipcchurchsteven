@@ -262,3 +262,55 @@ function deleteUser(idx) {
         renderUsers();
     }
 }
+
+
+// ─── SUPPORT / DONATIONS ──────────────────────────────────────────────────────
+function renderSupport() {
+    const sup = STATE.support || {};
+    // Populate all sup-* inputs from STATE.support
+    const fields = ['title', 'description', 'donate_button_text', 'external_donate_url',
+                    'upi_id', 'bank_name', 'bank_account', 'bank_ifsc'];
+    fields.forEach(f => {
+        const el = document.getElementById('sup-' + f);
+        if (el) el.value = sup[f] || '';
+        const teEl = document.getElementById('sup-' + f + '-te');
+        if (teEl) teEl.value = sup[f + '_te'] || '';
+    });
+
+    // Image uploaders
+    const supImageContainer = document.getElementById('sup-image-uploader');
+    if (supImageContainer) {
+        supImageContainer.innerHTML = '';
+        supImageContainer.appendChild(createImageUploader(sup.image_url, (res) => {
+            STATE.support = STATE.support || {};
+            STATE.support.image_url = res.url;
+            saveState();
+            toast('Support image updated', 'success');
+        }, 'site'));
+    }
+    const supQrContainer = document.getElementById('sup-upi-qr-uploader');
+    if (supQrContainer) {
+        supQrContainer.innerHTML = '';
+        supQrContainer.appendChild(createImageUploader(sup.upi_qr_url, (res) => {
+            STATE.support = STATE.support || {};
+            STATE.support.upi_qr_url = res.url;
+            saveState();
+            toast('QR code updated', 'success');
+        }, 'site'));
+    }
+}
+
+document.getElementById('sup-save-btn')?.addEventListener('click', () => {
+    STATE.support = STATE.support || {};
+    const fields = ['title', 'description', 'donate_button_text', 'external_donate_url',
+                    'upi_id', 'bank_name', 'bank_account', 'bank_ifsc'];
+    fields.forEach(f => {
+        const el = document.getElementById('sup-' + f);
+        if (el) STATE.support[f] = el.value.trim();
+        const teEl = document.getElementById('sup-' + f + '-te');
+        if (teEl) STATE.support[f + '_te'] = teEl.value.trim();
+    });
+    saveState();
+    logActivity('Support', 'Donation settings updated');
+    toast('Support settings saved!', 'success');
+});

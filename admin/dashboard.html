@@ -105,6 +105,11 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="#" data-tab="tab-support">
+                            <span class="nav-icon">💝</span><span class="nav-text">Support / Donations</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="#" data-tab="tab-prayer">
                             <span class="nav-icon">🙏</span>
                             <span class="nav-text">Prayer Requests</span>
@@ -950,7 +955,94 @@
                     </div>
                 </div>
 
-                <!-- ═══ PRAYER REQUESTS ═══════════════════════════════════ -->
+                <!-- === SUPPORT / DONATIONS ============================== -->
+                <div id="tab-support" class="tab-panel">
+                    <div class="page-title">
+                        <h1>💝 Support / Donations</h1>
+                        <p>Edit donation details, payment methods, and the section image.</p>
+                    </div>
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>Section Text</h2>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Title (English)</label>
+                                <input class="form-control" id="sup-title" placeholder="Support Our Ministry">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Title (తెలుగు)</label>
+                                <input class="form-control" id="sup-title-te" placeholder="మా ప్రీత్తి ధనసహాయం">
+                            </div>
+                            <div class="form-group col-2">
+                                <label class="form-label">Description (English)</label>
+                                <textarea class="form-control" id="sup-description" rows="3" placeholder="Your generous giving helps us..."></textarea>
+                            </div>
+                            <div class="form-group col-2">
+                                <label class="form-label">Description (తెలుగు)</label>
+                                <textarea class="form-control" id="sup-description-te" rows="3"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Donate Button Text (English)</label>
+                                <input class="form-control" id="sup-donate_button_text" placeholder="Donate Now">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Donate Button Text (తెలుగు)</label>
+                                <input class="form-control" id="sup-donate_button_text-te">
+                            </div>
+                            <div class="form-group col-2">
+                                <label class="form-label">External Donate URL (optional)</label>
+                                <input class="form-control" id="sup-external_donate_url" placeholder="https://razorpay.me/@yourchurch or any payment link">
+                                <p class="muted-note" style="font-size:11px;margin-top:.3rem">If set, the Donate button opens this link in a new tab.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>Section Image</h2>
+                        </div>
+                        <p class="muted-note" style="font-size:13px;margin-top:0">A photo for the support section background or side image.</p>
+                        <div id="sup-image-uploader"></div>
+                    </div>
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>UPI Payment</h2>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group col-2">
+                                <label class="form-label">UPI ID</label>
+                                <input class="form-control" id="sup-upi_id" placeholder="yourchurch@upi">
+                            </div>
+                            <div class="form-group col-2">
+                                <label class="form-label">UPI QR Code Image</label>
+                                <div id="sup-upi-qr-uploader"></div>
+                                <p class="muted-note" style="font-size:11px;margin-top:.3rem">Upload a screenshot of your UPI QR code so visitors can scan to pay.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>Bank Transfer</h2>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group col-2">
+                                <label class="form-label">Bank Name</label>
+                                <input class="form-control" id="sup-bank_name" placeholder="State Bank of India">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Account Number</label>
+                                <input class="form-control" id="sup-bank_account" placeholder="12345678901">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">IFSC Code</label>
+                                <input class="form-control" id="sup-bank_ifsc" placeholder="SBIN0001234">
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-accent" id="sup-save-btn">💾 Save Support Settings</button>
+                </div>
+
+                                <!-- ═══ PRAYER REQUESTS ═══════════════════════════════════ -->
                 <div id="tab-prayer" class="tab-panel">
                     <div class="page-title">
                         <h1>🙏 Prayer Requests</h1>
