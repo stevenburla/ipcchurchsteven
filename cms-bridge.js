@@ -655,6 +655,17 @@
             });
         });
 
+        // ALSO: any tc field whose key matches a data-i18n key gets applied automatically.
+        // This lets the admin edit ANY translatable string from the Text Editor without
+        // needing a hard-coded selector in the map above.
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (!key) return;
+            // Prefer Telugu variant when in te mode
+            const v = (lang === 'te' && tc[key + '_te']) ? tc[key + '_te'] : tc[key];
+            if (v) el.textContent = v;
+        });
+
         // Handle Images - apply URL AND remove inline display:none / make container show
         function setSectionImage(selector, url) {
             const img = document.querySelector(selector);

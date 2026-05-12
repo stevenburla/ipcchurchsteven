@@ -1020,16 +1020,14 @@ document.getElementById('kids-gallery-input')?.addEventListener('change', async 
 
 // ─── TEXT EDITOR ──────────────────────────────────────────────────────────────
 function renderTextEditor() {
-    const fields = Object.keys(STATE.textContent).filter(f => !f.endsWith('_te') && !f.endsWith('_img'));
-    
-    // We update existing inputs
-    fields.forEach(f => {
-        const enEl = document.getElementById('tc-' + f);
-        if (enEl) enEl.value = STATE.textContent[f] || '';
-        
-        // Also look for/update Telugu version if it was added to HTML
-        const teEl = document.getElementById('tc-' + f + '-te');
-        if (teEl) teEl.value = STATE.textContent[f + '_te'] || '';
+    // Populate any input with id "tc-{key}" from STATE.textContent[key].
+    // DOM-driven so newly-added fields work without code changes.
+    document.querySelectorAll('input[id^="tc-"], textarea[id^="tc-"]').forEach(el => {
+        const raw = el.id.replace(/^tc-/, '');
+        const key = raw.replace(/-te$/, '_te');
+        if (STATE.textContent[key] !== undefined) {
+            el.value = STATE.textContent[key] || '';
+        }
     });
 
     // Logo image uploader
