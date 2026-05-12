@@ -165,9 +165,6 @@ async function syncWithCloud() {
         const snapshot = await db.ref('church_cms/state').once('value');
         const cloudData = snapshot.val();
         if (cloudData) {
-            // Cloud is the source of truth. Layer cloud over defaults so any
-            // missing keys (sections, kids, etc.) fall back to defaults
-            // without overwriting valid cloud data.
             STATE = deepMerge(deepClone(DEFAULT_STATE), cloudData);
             localStorage.setItem(STORE_KEY, JSON.stringify(STATE));
             toast('Cloud sync complete', 'success');
@@ -199,12 +196,10 @@ function saveState(pushToCloud = true) {
         toast('Waiting for database sync... Please wait.', 'warning');
         return;
     }
-    // Safety: refuse to overwrite cloud with an empty state.
-    // If sections is missing/empty, we never properly merged cloud data.
-    // Abort rather than wipe the cloud row.
+    // Safety: refuse to overwrite cloud with empty STATE
     if (pushToCloud && (!STATE.sections || Object.keys(STATE.sections).length < 3)) {
-        console.warn('saveState aborted: STATE.sections empty - cloud not merged');
-        toast('Save blocked: cloud data not fully loaded. Refresh and try again.', 'error');
+        console.warn('saveState aborted: STATE.sections empty');
+        toast('Save blocked: cloud data not loaded. Refresh and try again.', 'error');
         return;
     }
     // 1. Prepare public snapshot for the website to read
@@ -255,6 +250,9 @@ function saveState(pushToCloud = true) {
         const updates = {};
         updates['church_cms/state'] = STATE;
         updates['church_cms/public'] = publicData;
+
+        // Listener will see 2 echo events; skip them
+        if (typeof _selfWriteCount !== 'undefined') _selfWriteCount += 2;
 
         db.ref().update(updates).then(() => {
             if (publishBtn) publishBtn.classList.remove('loading');
@@ -310,13 +308,17 @@ function exportDataAsJSON() {
     logActivity('System', 'Exported CMS backup');
 }
 
+// Counter incremented each time we push to cloud. The listener uses it
+// to skip echoes of writes that originated in this same tab.
+let _selfWriteCount = 0;
 function initCloudListener() {
     if (!db) return;
     const stateRef = db.ref('church_cms/state');
     stateRef.on('value', (snapshot) => {
         const data = snapshot.val();
         if (!data) return;
-        // Merge defaults + remote so dashboard never has missing keys
+        // Skip echoes of our own writes
+        if (_selfWriteCount > 0) { _selfWriteCount--; return; }
         const merged = deepMerge(deepClone(DEFAULT_STATE), data);
         if (JSON.stringify(merged) === JSON.stringify(STATE)) return;
         STATE = merged;
@@ -563,16 +565,16 @@ async function processFileUploads(files, targetArray, category = 'general') {
                 category: category,
                 date: new Date().toISOString()
             });
-            // Save after each image for better progress visibility
-            saveState(); 
         } catch (e) {
             console.error('Upload error:', e);
-            toast(`Failed to upload ${file.name}`, 'error');
+            toast('Failed to upload ' + file.name, 'error');
         }
     }
-    
-    logActivity('Upload', `Uploaded ${files.length} images to ${category}`);
-    toast(`${files.length} images uploaded!`, 'success');
+    // Single save at end so cloud writes are atomic for the whole batch.
+    // Prevents earlier photos from being dropped by listener races.
+    saveState();
+    logActivity('Upload', 'Uploaded ' + files.length + ' images to ' + category);
+    toast(files.length + ' images uploaded!', 'success');
 }
 
 // ─── DRAG & DROP SORT ─────────────────────────────────────────────────────────
@@ -869,26 +871,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupTabs();
     updateNotifBadge();
 
-    // 1. BLOCK on cloud sync before any rendering or saving so we never
-    //    overwrite cloud data with stale defaults.
     if (typeof syncWithCloud === 'function') {
         await syncWithCloud();
     }
 
-    // 2. Now render with the freshly-merged STATE
     renderOverview();
 
-    // 3. Subscribe to realtime updates so changes from another admin
-    //    (or from the Translation Manager) appear here without refresh.
     if (typeof initCloudListener === 'function') initCloudListener();
 
-    // 4. Seed a notification if there are pending prayer requests
     const pending = (STATE.prayerRequests || []).filter(p => p.status === 'pending').length;
     if (pending > 0 && !(STATE.notifications || []).length) {
         pushNotification(pending + ' pending prayer request(s) need review', 'info');
     }
 
-    // 5. Data Migration: Ensure all Gallery Albums have a photos array
     if (STATE.galleryAlbums) {
         let fixed = false;
         STATE.galleryAlbums.forEach(album => {
