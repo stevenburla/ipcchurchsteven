@@ -295,17 +295,36 @@
         if (!gallerySection) return;
 
         const container = gallerySection.querySelector('.section-container') || gallerySection;
+        const heroCollage = document.getElementById('gallery-hero-collage');
         const albums = (data.galleryAlbums || []).filter(a => a.photos && a.photos.length > 0);
         setVisibility('gallery', albums.length > 0);
 
-        // Clear previous renders to prevent duplicates after cloud refresh
+        // Clear previous renders to prevent duplicates
         container.querySelectorAll('.gallery-album').forEach(el => el.remove());
+        if (heroCollage) heroCollage.innerHTML = '';
+
         if (!albums.length) return;
 
+        // ----- HERO COLLAGE: pick up to 9 photos from across all albums -----
+        if (heroCollage) {
+            const allPhotos = [];
+            albums.forEach(a => (a.photos || []).forEach(p => allPhotos.push(p)));
+            // Take first 9 photos
+            const heroPhotos = allPhotos.slice(0, 9);
+            if (heroPhotos.length >= 3) {
+                heroCollage.innerHTML = heroPhotos.map((p, i) => `
+                    <div class="hero-collage-item hero-collage-item-${i}" onclick="openLightbox('${esc(p.url)}')">
+                        <img src="${esc(p.thumbnail || p.url)}" alt="${esc(p.name || '')}" loading="lazy">
+                    </div>
+                `).join('');
+            }
+        }
+
+        // ----- ALBUM CARDS BELOW -----
         albums.forEach(album => {
             const albumEl = document.createElement('div');
             const style = album.collageStyle || 'grid';
-            albumEl.className = 'gallery-album fade-in collage-wrapper-' + style;
+            albumEl.className = 'gallery-album fade-in';
 
             let eventText = '';
             if (album.eventId && data.events) {
@@ -595,22 +614,23 @@
             yt_feed_title: '#youtube-feed .section-title, [data-i18n="yt_feed_title"]'
         };
 
+        // Pick value based on current page language (en or te)
+        const lang = document.documentElement.lang || 'en';
         Object.entries(map).forEach(([key, selector]) => {
-            if (!tc[key]) return;
-            const el = document.querySelector(selector);
-            if (el) el.textContent = tc[key];
+            // Try Telugu variant first when in Telugu mode
+            const value = (lang === 'te' && tc[key + '_te']) ? tc[key + '_te'] : tc[key];
+            if (!value) return;
+            document.querySelectorAll(selector).forEach(el => {
+                el.textContent = value;
+            });
         });
 
-        // Handle Images -- also remove inline display:none when src is set
+        // Handle Images
         if (tc.about_img) {
             const aboutImg = document.querySelector('.about-img, #about .about-img');
             if (aboutImg) {
-                if (aboutImg.tagName === 'IMG') {
-                    aboutImg.src = tc.about_img;
-                    aboutImg.style.display = '';
-                } else {
-                    aboutImg.style.backgroundImage = `url('${tc.about_img}')`;
-                }
+                if (aboutImg.tagName === 'IMG') aboutImg.src = tc.about_img;
+                else aboutImg.style.backgroundImage = `url('${tc.about_img}')`;
                 aboutImg.style.backgroundSize = 'cover';
                 aboutImg.style.backgroundPosition = 'center';
             }
@@ -618,26 +638,11 @@
         if (tc.ss_img) {
             const ssImg = document.querySelector('.ss-img, #sunday_school .ss-img');
             if (ssImg) {
-                if (ssImg.tagName === 'IMG') {
-                    ssImg.src = tc.ss_img;
-                    ssImg.style.display = '';
-                } else {
-                    ssImg.style.backgroundImage = `url('${tc.ss_img}')`;
-                }
+                if (ssImg.tagName === 'IMG') ssImg.src = tc.ss_img;
+                else ssImg.style.backgroundImage = `url('${tc.ss_img}')`;
                 ssImg.style.backgroundSize = 'cover';
                 ssImg.style.backgroundPosition = 'center';
             }
-        }
-        // Logo from CMS textContent
-        if (tc.logo_url) {
-            document.querySelectorAll('.logo-icon, .footer-logo-icon').forEach(el => {
-                el.innerHTML = `<img src="${esc(tc.logo_url)}" alt="logo" style="width:1.6em;height:1.6em;object-fit:contain;vertical-align:middle;">`;
-            });
-        }
-        if (tc.logo_text) {
-            document.querySelectorAll('.logo-text, .footer-logo-text').forEach(el => {
-                el.textContent = tc.logo_text;
-            });
         }
     }
 
@@ -748,6 +753,16 @@
 
     // ── Expose for manual re-apply ──────────────────
     window.reapplyCMS = applyAllCMSData;
+
+    // Re-apply when language changes so admin-textContent stays correct
+    new MutationObserver(muts => {
+        for (const m of muts) {
+            if (m.attributeName === 'lang') {
+                if (window._CMS_DATA) applyTextContent(window._CMS_DATA);
+                break;
+            }
+        }
+    }).observe(document.documentElement, { attributes: true });
 
 })();
 

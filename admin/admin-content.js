@@ -1025,7 +1025,7 @@ function renderTextEditor() {
         if (teEl) teEl.value = STATE.textContent[f + '_te'] || '';
     });
 
-    // Logo image uploader (NEW)
+    // Logo image uploader
     const logoImgContainer = document.getElementById('tc-logo-img-uploader');
     if (logoImgContainer) {
         logoImgContainer.innerHTML = '';

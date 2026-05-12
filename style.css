@@ -635,9 +635,13 @@ p { color: var(--ink-700); }
 .about-img {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
   object-fit: cover;
   border-radius: var(--radius-md);
+}
+.about-img-container {
+  aspect-ratio: 16 / 11;
+  min-height: 0;
 }
 .about-img-container:has(img:not([style*="display:none"])) {
   border: none;
@@ -1553,7 +1557,7 @@ p { color: var(--ink-700); }
 }
 
 /* ============================================================
-   COLLAGE LAYOUTS for gallery albums (Fix #4)
+   COLLAGE LAYOUTS for gallery albums
    ============================================================ */
 .gallery-album {
   margin-bottom: 2rem;
@@ -1563,31 +1567,18 @@ p { color: var(--ink-700); }
   box-shadow: 0 2px 14px rgba(0,0,0,0.05);
 }
 .gallery-album .album-header {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  margin-bottom: 0.9rem;
-  gap: 0.5rem;
+  display: flex; align-items: baseline; justify-content: space-between;
+  flex-wrap: wrap; margin-bottom: 0.9rem; gap: 0.5rem;
 }
 .gallery-album .album-title {
-  margin: 0;
-  font-size: 1.15rem;
-  font-weight: 600;
-  color: var(--ink-900);
+  margin: 0; font-size: 1.15rem; font-weight: 600; color: var(--ink-900);
 }
-.gallery-album .album-meta {
-  color: var(--ink-600);
-  font-size: 0.85rem;
-}
+.gallery-album .album-meta { color: var(--ink-600); font-size: 0.85rem; }
 
 .collage { display: grid; gap: 6px; }
 .collage-item {
-  position: relative;
-  overflow: hidden;
-  border-radius: 6px;
-  cursor: pointer;
-  background: #f4f0e8;
+  position: relative; overflow: hidden; border-radius: 6px;
+  cursor: pointer; background: #f4f0e8;
 }
 .collage-item img {
   width: 100%; height: 100%; object-fit: cover; display: block;
@@ -1595,29 +1586,18 @@ p { color: var(--ink-700); }
 }
 .collage-item:hover img { transform: scale(1.06); }
 .collage-overlay {
-  position: absolute; inset: 0;
-  background: rgba(0,0,0,0.55);
-  color: white;
+  position: absolute; inset: 0; background: rgba(0,0,0,0.55); color: white;
   display: flex; align-items: center; justify-content: center;
   opacity: 0; transition: opacity 0.25s ease;
   font-weight: 600; font-size: 0.9rem;
 }
 .collage-item:hover .collage-overlay { opacity: 1; }
 
-/* GRID style: even 3 columns, square items */
-.collage-grid {
-  grid-template-columns: repeat(3, 1fr);
-}
+.collage-grid { grid-template-columns: repeat(3, 1fr); }
 .collage-grid .collage-item { aspect-ratio: 1 / 1; }
-@media (max-width: 600px) {
-  .collage-grid { grid-template-columns: repeat(2, 1fr); }
-}
+@media (max-width: 600px) { .collage-grid { grid-template-columns: repeat(2, 1fr); } }
 
-/* BENTO style: feature first image large, then mix of sizes */
-.collage-bento {
-  grid-template-columns: repeat(4, 1fr);
-  grid-auto-rows: 110px;
-}
+.collage-bento { grid-template-columns: repeat(4, 1fr); grid-auto-rows: 110px; }
 .collage-bento .collage-item-0 { grid-column: span 2; grid-row: span 2; }
 .collage-bento .collage-item-3 { grid-column: span 2; }
 .collage-bento .collage-item-6 { grid-row: span 2; }
@@ -1628,34 +1608,151 @@ p { color: var(--ink-700); }
   .collage-bento .collage-item-6 { grid-row: auto; }
 }
 
-/* MASONRY style: variable heights via grid-auto-rows + spans */
-.collage-masonry {
-  grid-template-columns: repeat(3, 1fr);
-  grid-auto-rows: 90px;
-  grid-auto-flow: dense;
-}
+.collage-masonry { grid-template-columns: repeat(3, 1fr); grid-auto-rows: 90px; grid-auto-flow: dense; }
 .collage-masonry .collage-item { grid-row: span 2; }
 .collage-masonry .collage-item:nth-child(3n+1) { grid-row: span 3; }
 .collage-masonry .collage-item:nth-child(5n) { grid-row: span 2; grid-column: span 2; }
-@media (max-width: 600px) {
-  .collage-masonry { grid-template-columns: repeat(2, 1fr); }
-}
+@media (max-width: 600px) { .collage-masonry { grid-template-columns: repeat(2, 1fr); } }
 
-/* CAROUSEL style: horizontal scroll strip */
 .collage-carousel {
-  grid-auto-flow: column;
-  grid-auto-columns: 220px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  padding-bottom: 8px;
+  grid-auto-flow: column; grid-auto-columns: 220px;
+  overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 8px;
 }
-.collage-carousel .collage-item {
-  height: 200px;
-  scroll-snap-align: start;
+.collage-carousel .collage-item { height: 200px; scroll-snap-align: start; }
+
+.collage-strip { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+.collage-strip .collage-item { aspect-ratio: 3 / 4; }
+
+/* ============================================================
+   GALLERY HERO COLLAGE (top of Church Gallery section)
+   ============================================================ */
+.gallery-hero-collage {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: 140px;
+  gap: 8px;
+  margin: 0 auto 2rem auto;
+  max-width: 1100px;
+  padding: 0 1rem;
+}
+.hero-collage-item {
+  overflow: hidden; border-radius: 10px; cursor: pointer; background: #f4f0e8;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.07);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.hero-collage-item img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  transition: transform 0.5s ease;
+}
+.hero-collage-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+}
+.hero-collage-item:hover img { transform: scale(1.05); }
+
+/* Bento-style layout for hero */
+.hero-collage-item-0 { grid-column: span 2; grid-row: span 2; }
+.hero-collage-item-3 { grid-row: span 2; }
+.hero-collage-item-6 { grid-column: span 2; }
+
+@media (max-width: 700px) {
+  .gallery-hero-collage { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 120px; }
+  .hero-collage-item-0 { grid-column: span 2; grid-row: span 2; }
+  .hero-collage-item-3 { grid-row: auto; }
+  .hero-collage-item-6 { grid-column: auto; }
 }
 
-/* STRIP style: tall vertical photos in a row */
-.collage-strip {
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+/* ============================================================
+   SUNDAY SCHOOL clickable section
+   ============================================================ */
+.ss-clickable {
+  text-decoration: none;
+  color: inherit;
+  display: grid;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
-.collage-strip .collage-item { aspect-ratio: 3 / 4; }
+.ss-clickable:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+.ss-cta {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background: rgba(244,106,0,0.1);
+  color: #F46A00;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  align-self: flex-start;
+}
+
+/* ============================================================
+   LYRICS section polish (sidebar widget enhancement)
+   ============================================================ */
+.lyrics-widget,
+.sidebar-widget.lyrics-widget {
+  background: linear-gradient(135deg, #C8956D 0%, #A87648 100%);
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+.lyrics-widget::before {
+  content: "\01F3B6";
+  position: absolute;
+  font-size: 8rem;
+  opacity: 0.08;
+  bottom: -1rem;
+  right: -1rem;
+  transform: rotate(-15deg);
+  pointer-events: none;
+}
+.lyrics-widget .widget-title { color: white; }
+.lyrics-widget a {
+  display: flex; justify-content: space-between; align-items: center;
+  background: rgba(255,255,255,0.12);
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background 0.2s ease;
+  position: relative;
+  z-index: 1;
+}
+.lyrics-widget a:hover {
+  background: rgba(255,255,255,0.22);
+}
+
+/* ============================================================
+   YouTube grid polish — make cards more YouTube-like
+   ============================================================ */
+.yt-video-grid.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+.yt-video-grid.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
+.yt-video-grid.list  { display: grid; grid-template-columns: 1fr; gap: 0.8rem; }
+@media (max-width: 900px) { .yt-video-grid.grid-3 { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .yt-video-grid.grid-3, .yt-video-grid.grid-2 { grid-template-columns: 1fr; } }
+
+.yt-card {
+  background: white; border-radius: 10px; overflow: hidden; cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.yt-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(0,0,0,0.12); }
+.yt-thumb-wrapper { position: relative; aspect-ratio: 16/9; background: #000; }
+.yt-thumb-wrapper img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.yt-play-overlay {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0); transition: background 0.25s ease;
+}
+.yt-card:hover .yt-play-overlay { background: rgba(0,0,0,0.25); }
+.play-icon-circ {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: rgba(255,0,0,0.85); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+  transition: transform 0.2s ease;
+}
+.yt-card:hover .play-icon-circ { transform: scale(1.08); }
+.yt-info { padding: 0.9rem 1rem; }
+.yt-title { margin: 0 0 0.4rem; font-size: 0.95rem; font-weight: 600; line-height: 1.3; color: #1A1A1A; }
+.yt-meta { display: flex; flex-wrap: wrap; gap: 0.7rem; font-size: 0.78rem; color: #777; }

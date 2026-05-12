@@ -65,27 +65,30 @@ document.addEventListener('DOMContentLoaded', () => {
             const allVideos = [];
             const seenIds = new Set();
 
-            // Build the right RSS feed URL for each channel.
-            // Accepts: UC... channel ID, @handle, or bare handle/custom-url
-            function buildFeedUrls(raw) {
-                const v = String(raw || '').trim();
+            // Build candidate feed URLs for each channel.
+            // Accepts: UC... channel ID, @handle, user name, or full channel URL
+            function buildFeedCandidates(raw) {
+                let v = String(raw || '').trim();
                 if (!v) return [];
-                // UC... = direct channel ID
+                // Strip protocol/host if user pasted a URL
+                v = v.replace(/^https?:\/\/(?:www\.)?youtube\.com\/?/i, '');
+                v = v.replace(/^channel\//i, '');
+                v = v.replace(/^@/, '');
+                // UC channel ID
                 if (/^UC[A-Za-z0-9_-]{20,}$/.test(v)) {
-                    return ['https://www.youtube.com/feeds/videos.xml?channel_id=' + v];
+                    return [{ url: 'https://www.youtube.com/feeds/videos.xml?channel_id=' + v, hint: 'channel_id' }];
                 }
-                // @handle or bare handle/custom name -- try both user= and embedding URL form
-                const handle = v.startsWith('@') ? v.slice(1) : v;
+                // Handle/username
                 return [
-                    'https://www.youtube.com/feeds/videos.xml?user=' + handle,
-                    'https://rsshub.app/youtube/user/@' + handle
+                    { url: 'https://www.youtube.com/feeds/videos.xml?user=' + encodeURIComponent(v), hint: 'user' }
                 ];
             }
 
+            // Fetch from each channel in parallel
             await Promise.all(channels.map(async (channelId) => {
-                const candidateFeeds = buildFeedUrls(channelId);
-                for (const feedUrl of candidateFeeds) {
-                    const rssUrl = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(feedUrl);
+                const candidates = buildFeedCandidates(channelId);
+                for (const cand of candidates) {
+                    const rssUrl = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(cand.url) + '&count=20';
                     try {
                         const res = await fetch(rssUrl, { signal: AbortSignal.timeout(7000) });
                         const data = await res.json();
@@ -101,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             });
                             const visitBtn = document.getElementById('yt-channel-link');
                             if (visitBtn && data.feed.link) visitBtn.href = data.feed.link;
-                            break; // success -- stop trying further feed URLs
+                            break;
                         }
                     } catch (e) { /* try next candidate */ }
                 }
@@ -111,7 +114,10 @@ document.addEventListener('DOMContentLoaded', () => {
             allVideos.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
 
             if (!allVideos.length) {
-                grid.innerHTML = '<p style="text-align:center;color:#7a7a7a;grid-column:1/-1;padding:3rem;">Unable to load videos at this time. Visit our channel directly.</p>';
+                grid.innerHTML = `
+                    <div class="yt-empty-state" style="grid-column:1/-1;padding:2rem;text-align:center;color:#7a7a7a;">
+                        <p data-i18n="yt_unable_load">Unable to load videos right now. Visit our channel for the latest content.</p>
+                    </div>`;
                 return;
             }
 
@@ -538,7 +544,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // =========================================================
-    // HERO SLIDESHOW (restartable; called by cms-bridge after slides inject)
+    // HERO SLIDESHOW (restartable - called by cms-bridge after slides inject)
     // =========================================================
     let _heroInterval = null;
     window.startHeroSlideshow = function() {
@@ -546,7 +552,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!slider) return;
         const slides = slider.querySelectorAll('.slide');
         if (slides.length <= 1) return;
-        // Restart cleanly
         if (_heroInterval) { clearInterval(_heroInterval); _heroInterval = null; }
 
         let currentSlide = 0;
@@ -570,6 +575,5 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => { isAnimating = false; }, 1200);
         }, 5000);
     };
-    // Best-effort initial start (no-op if 0/1 slides yet -- bridge will retry)
     window.startHeroSlideshow();
 });

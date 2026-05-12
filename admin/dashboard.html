@@ -504,6 +504,23 @@
                         <h1>✏️ Text Editor</h1>
                         <p>Edit all headings, descriptions, and button text.</p>
                     </div>
+                    <!-- LOGO / BRANDING -->
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>🏛️ Site Logo &amp; Branding</h2>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group col-2">
+                                <label class="form-label">Site Name / Logo Text</label>
+                                <input class="form-control" id="tc-logo_text" placeholder="IPC Church">
+                            </div>
+                            <div class="form-group col-2">
+                                <label class="form-label">Logo Image</label>
+                                <div id="tc-logo-img-uploader"></div>
+                                <p class="muted-note" style="font-size:11px;margin-top:.3rem">PNG/SVG with transparent background works best. Leave empty for default emoji.</p>
+                            </div>
+                        </div>
+                    </div>
                     <div class="card">
                         <div class="section-head">
                             <h2>🏠 Hero Section</h2>
@@ -712,6 +729,40 @@
                         </div>
                     </div>
                     
+                    <!-- CHURCH TIMINGS (override Translation Manager strings) -->
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>⏰ Church Timings (Sidebar)</h2>
+                        </div>
+                        <p class="muted-note" style="font-size:13px;margin-top:0">These appear in the "Church Timings" sidebar widget on the homepage.</p>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Sunday Service (English)</label>
+                                <input class="form-control" id="tc-timings_sunday" placeholder="Suryanarayana: 6:45 AM - 9:00 AM">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Sunday Service (తెలుగు)</label>
+                                <input class="form-control" id="tc-timings_sunday-te" placeholder="సూర్యనారాయణ కాలనీ: ఉదయం 6:45 - 9:00">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Wednesday Service (English)</label>
+                                <input class="form-control" id="tc-timings_wednesday" placeholder="Subramanyam: 8:45 AM - 11:30 AM">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Wednesday Service (తెలుగు)</label>
+                                <input class="form-control" id="tc-timings_wednesday-te" placeholder="సుబ్రహ్మణ్యం కాలనీ: ఉదయం 8:45 - 11:30">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Friday Service (English)</label>
+                                <input class="form-control" id="tc-timings_friday" placeholder="Daily Prayer: 11:00 AM - 12:40 PM">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Friday Service (తెలుగు)</label>
+                                <input class="form-control" id="tc-timings_friday-te" placeholder="రోజువారీ ప్రార్థన: ఉదయం 11:00 - మధ్యాహ్నం 12:40">
+                            </div>
+                        </div>
+                    </div>
+
                     <button class="btn btn-accent" id="tc-save-btn">💾 Save All Text Changes</button>
                 </div>
 

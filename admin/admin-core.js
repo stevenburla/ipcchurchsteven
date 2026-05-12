@@ -196,7 +196,6 @@ function saveState(pushToCloud = true) {
         toast('Waiting for database sync... Please wait.', 'warning');
         return;
     }
-    // Safety: refuse to overwrite cloud with empty STATE
     if (pushToCloud && (!STATE.sections || Object.keys(STATE.sections).length < 3)) {
         console.warn('saveState aborted: STATE.sections empty');
         toast('Save blocked: cloud data not loaded. Refresh and try again.', 'error');
@@ -251,7 +250,6 @@ function saveState(pushToCloud = true) {
         updates['church_cms/state'] = STATE;
         updates['church_cms/public'] = publicData;
 
-        // Listener will see 2 echo events; skip them
         if (typeof _selfWriteCount !== 'undefined') _selfWriteCount += 2;
 
         db.ref().update(updates).then(() => {
@@ -308,7 +306,7 @@ function exportDataAsJSON() {
     logActivity('System', 'Exported CMS backup');
 }
 
-// Counter incremented each time we push to cloud. The listener uses it
+// Counter incremented each time we push to cloud; the listener uses it
 // to skip echoes of writes that originated in this same tab.
 let _selfWriteCount = 0;
 function initCloudListener() {
@@ -317,7 +315,6 @@ function initCloudListener() {
     stateRef.on('value', (snapshot) => {
         const data = snapshot.val();
         if (!data) return;
-        // Skip echoes of our own writes
         if (_selfWriteCount > 0) { _selfWriteCount--; return; }
         const merged = deepMerge(deepClone(DEFAULT_STATE), data);
         if (JSON.stringify(merged) === JSON.stringify(STATE)) return;
