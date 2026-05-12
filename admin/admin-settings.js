@@ -40,19 +40,82 @@ function renderChannelPills() {
     });
 }
 
-document.getElementById('yt-add-btn')?.addEventListener('click', () => {
+// Resolve any YouTube input (URL, @handle, channel name) to a UC... channel ID.
+// Uses public CORS proxies so the resolution happens entirely inside the browser,
+// no external admin tools needed.
+async function resolveYouTubeChannelId(input) {
+    const raw = String(input || '').trim();
+    if (!raw) return null;
+
+    // Case 1: already a UC channel ID
+    if (/^UC[A-Za-z0-9_-]{20,}$/.test(raw)) return raw;
+
+    // Case 2: extract channel/UC... from a URL
+    const ucInUrl = raw.match(/channel\/(UC[A-Za-z0-9_-]{20,})/);
+    if (ucInUrl) return ucInUrl[1];
+
+    // Case 3: handle (@something) or URL form -- need to fetch the channel page
+    let handle = raw;
+    handle = handle.replace(/^https?:\/\/(www\.)?youtube\.com\//, '');
+    handle = handle.replace(/^@/, '').replace(/\/.*$/, '');
+
+    const channelUrl = 'https://www.youtube.com/@' + encodeURIComponent(handle);
+
+    // Try multiple CORS proxies in order
+    const proxies = [
+        url => 'https://corsproxy.io/?' + encodeURIComponent(url),
+        url => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
+        url => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url)
+    ];
+
+    for (const proxy of proxies) {
+        try {
+            const res = await fetch(proxy(channelUrl), { signal: AbortSignal.timeout(8000) });
+            if (!res.ok) continue;
+            const html = await res.text();
+            // Extract UC ID from any of several places in the page
+            const candidates = [
+                html.match(/"externalId":"(UC[A-Za-z0-9_-]{20,})"/),
+                html.match(/<link rel="canonical" href="https:\/\/www\.youtube\.com\/channel\/(UC[A-Za-z0-9_-]{20,})"/),
+                html.match(/<meta property="og:url" content="https:\/\/www\.youtube\.com\/channel\/(UC[A-Za-z0-9_-]{20,})"/),
+                html.match(/\/channel\/(UC[A-Za-z0-9_-]{20,})/)
+            ];
+            for (const m of candidates) {
+                if (m && m[1]) return m[1];
+            }
+        } catch (e) { /* try next proxy */ }
+    }
+    return null;
+}
+
+document.getElementById('yt-add-btn')?.addEventListener('click', async () => {
     const input = document.getElementById('yt-channel-input');
+    const addBtn = document.getElementById('yt-add-btn');
     const val = input?.value?.trim();
     if (!val) return;
-    let channelId = val;
-    const m = val.match(/(?:channel\/|@)([\w-]+)/);
-    if (m) channelId = m[1];
-    if (STATE.youtube.channels.includes(channelId)) { toast('Channel already added.', 'error'); return; }
+
+    const originalBtnText = addBtn ? addBtn.textContent : '';
+    if (addBtn) { addBtn.disabled = true; addBtn.textContent = 'Resolving...'; }
+    toast('Resolving channel ID from YouTube...', 'info');
+
+    const channelId = await resolveYouTubeChannelId(val);
+
+    if (addBtn) { addBtn.disabled = false; addBtn.textContent = originalBtnText; }
+
+    if (!channelId) {
+        toast('Could not resolve channel. Check the handle/URL or try again.', 'error');
+        return;
+    }
+    if (STATE.youtube.channels.includes(channelId)) {
+        toast('Channel already added.', 'error');
+        return;
+    }
     STATE.youtube.channels.push(channelId);
-    logActivity('YouTube', `Channel added: ${channelId}`);
+    logActivity('YouTube', 'Channel added: ' + channelId);
     if (input) input.value = '';
     renderChannelPills();
-    toast('Channel added!', 'success');
+    saveState();
+    toast('Channel resolved and added! (' + channelId + ')', 'success');
 });
 
 document.getElementById('yt-save-btn')?.addEventListener('click', () => {

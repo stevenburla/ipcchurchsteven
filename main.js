@@ -48,119 +48,122 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!grid) return;
 
         const currentCms = getCMS();
+        const channels = (currentCms?.youtube?.channels?.length) ? currentCms.youtube.channels : [];
 
-        // Determine channel IDs: from CMS config, else from a fallback default
-        const channels = (currentCms?.youtube?.channels?.length)
-            ? currentCms.youtube.channels
-            : []; 
-
-        // If CMS says hide the section, hide it
         if (currentCms?.youtube?.visible === false) {
             const section = document.getElementById('youtube-feed');
             if (section) section.style.display = 'none';
             return;
         }
 
+        if (!channels.length) {
+            grid.innerHTML = '<p style="text-align:center;color:#7a7a7a;grid-column:1/-1;padding:3rem;">No channel configured. Add one in the admin YouTube Feed tab.</p>';
+            return;
+        }
+
+        // Multi-attempt fetcher.  Accepts:
+        //  - UC... full channel ID  (preferred, always works)
+        //  - @handle  (tries to resolve handle -> UC via a community resolver)
+        //  - bare handle or username
+        async function tryFetch(channelInput) {
+            const raw = String(channelInput || '').trim().replace(/^@/, '');
+
+            // Build all feed URL candidates we will try
+            const candidates = [];
+            if (/^UC[A-Za-z0-9_-]{20,}$/.test(raw)) {
+                candidates.push('https://www.youtube.com/feeds/videos.xml?channel_id=' + raw);
+            } else {
+                candidates.push('https://www.youtube.com/feeds/videos.xml?user=' + encodeURIComponent(raw));
+            }
+
+            for (const feedUrl of candidates) {
+                const rssUrl = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(feedUrl) + '&count=20';
+                try {
+                    const res = await fetch(rssUrl, { signal: AbortSignal.timeout(8000) });
+                    const data = await res.json();
+                    if (data && data.status === 'ok' && data.items && data.items.length) {
+                        return data;
+                    }
+                } catch (e) {}
+            }
+            return null;
+        }
+
         try {
             const allVideos = [];
             const seenIds = new Set();
+            let firstFeedLink = null;
 
-            // Build candidate feed URLs for each channel.
-            // Accepts: UC... channel ID, @handle, user name, or full channel URL
-            function buildFeedCandidates(raw) {
-                let v = String(raw || '').trim();
-                if (!v) return [];
-                // Strip protocol/host if user pasted a URL
-                v = v.replace(/^https?:\/\/(?:www\.)?youtube\.com\/?/i, '');
-                v = v.replace(/^channel\//i, '');
-                v = v.replace(/^@/, '');
-                // UC channel ID
-                if (/^UC[A-Za-z0-9_-]{20,}$/.test(v)) {
-                    return [{ url: 'https://www.youtube.com/feeds/videos.xml?channel_id=' + v, hint: 'channel_id' }];
-                }
-                // Handle/username
-                return [
-                    { url: 'https://www.youtube.com/feeds/videos.xml?user=' + encodeURIComponent(v), hint: 'user' }
-                ];
-            }
-
-            // Fetch from each channel in parallel
-            await Promise.all(channels.map(async (channelId) => {
-                const candidates = buildFeedCandidates(channelId);
-                for (const cand of candidates) {
-                    const rssUrl = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(cand.url) + '&count=20';
-                    try {
-                        const res = await fetch(rssUrl, { signal: AbortSignal.timeout(7000) });
-                        const data = await res.json();
-                        if (data && data.status === 'ok' && data.items && data.items.length) {
-                            data.items.forEach(v => {
-                                if (!seenIds.has(v.guid)) {
-                                    seenIds.add(v.guid);
-                                    allVideos.push(Object.assign({}, v, {
-                                        channelTitle: data.feed.title,
-                                        channelLink: data.feed.link
-                                    }));
-                                }
-                            });
-                            const visitBtn = document.getElementById('yt-channel-link');
-                            if (visitBtn && data.feed.link) visitBtn.href = data.feed.link;
-                            break;
-                        }
-                    } catch (e) { /* try next candidate */ }
-                }
+            await Promise.all(channels.map(async (ch) => {
+                const data = await tryFetch(ch);
+                if (!data) return;
+                data.items.forEach(v => {
+                    if (!seenIds.has(v.guid)) {
+                        seenIds.add(v.guid);
+                        allVideos.push(Object.assign({}, v, {
+                            channelTitle: data.feed.title,
+                            channelLink: data.feed.link
+                        }));
+                    }
+                });
+                if (!firstFeedLink && data.feed.link) firstFeedLink = data.feed.link;
             }));
 
-            // Sort newest first
-            allVideos.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+            const visitBtn = document.getElementById('yt-channel-link');
+            if (visitBtn && firstFeedLink) visitBtn.href = firstFeedLink;
+
+            // Manual ordering: if admin set a videoOrder array, sort accordingly
+            const manualOrder = currentCms?.youtube?.videoOrder || [];
+            if (manualOrder.length) {
+                allVideos.sort((a, b) => {
+                    const ai = manualOrder.indexOf(a.guid);
+                    const bi = manualOrder.indexOf(b.guid);
+                    if (ai === -1 && bi === -1) return new Date(b.pubDate) - new Date(a.pubDate);
+                    if (ai === -1) return 1;
+                    if (bi === -1) return -1;
+                    return ai - bi;
+                });
+            } else {
+                allVideos.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+            }
 
             if (!allVideos.length) {
-                grid.innerHTML = `
-                    <div class="yt-empty-state" style="grid-column:1/-1;padding:2rem;text-align:center;color:#7a7a7a;">
-                        <p data-i18n="yt_unable_load">Unable to load videos right now. Visit our channel for the latest content.</p>
-                    </div>`;
+                grid.innerHTML = '<div class="yt-empty-state" style="grid-column:1/-1;padding:2rem;text-align:center;color:#7a7a7a;">' +
+                    '<p style="margin:0 0 .5rem">Could not load videos right now.</p>' +
+                    '<p style="margin:0;font-size:.85rem;opacity:.8">Check that your channel handle is correct, or paste the UC... channel ID directly. You can find it at <a href="https://commentpicker.com/youtube-channel-id.php" target="_blank" rel="noopener">commentpicker.com</a>.</p>' +
+                    '</div>';
                 return;
             }
 
             grid.innerHTML = '';
             const limit = currentCms?.youtube?.videoCount || 6;
-            const layout = currentCms?.youtube?.layout || 'grid-3'; // grid-3, grid-2, list, collage
+            const layout = currentCms?.youtube?.layout || 'grid-3';
             const clickAction = currentCms?.youtube?.clickAction || 'modal';
 
-            // Apply layout class
-            grid.className = `yt-video-grid ${layout}`;
+            grid.className = 'yt-video-grid ' + layout;
 
             allVideos.slice(0, limit).forEach(video => {
                 const date = new Date(video.pubDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
                 const card = document.createElement('div');
                 card.className = 'yt-card';
-                card.innerHTML = `
-                    <div class="yt-thumb-wrapper">
-                        <img src="${video.thumbnail}" alt="${video.title}" loading="lazy">
-                        <div class="yt-play-overlay">
-                            <div class="play-icon-circ">&#9658;</div>
-                        </div>
-                    </div>
-                    <div class="yt-info">
-                        <h4 class="yt-title">${video.title}</h4>
-                        <div class="yt-meta">
-                            <span class="yt-date">📅 ${date}</span>
-                            <span class="yt-channel">📺 ${video.channelTitle || 'Church TV'}</span>
-                        </div>
-                    </div>`;
-                
-                const play = () => {
-                    const videoId = video.guid; // guid usually contains the ID or link
-                    const finalUrl = video.link;
-                    if (clickAction === 'modal') {
-                        openVideoModal(finalUrl);
-                    } else {
-                        window.open(finalUrl, '_blank');
-                    }
-                };
-                card.addEventListener('click', play);
+                card.innerHTML =
+                    '<div class="yt-thumb-wrapper">' +
+                        '<img src="' + video.thumbnail + '" alt="' + (video.title || '').replace(/"/g, '&quot;') + '" loading="lazy">' +
+                        '<div class="yt-play-overlay"><div class="play-icon-circ">\u25B6</div></div>' +
+                    '</div>' +
+                    '<div class="yt-info">' +
+                        '<h4 class="yt-title">' + (video.title || '') + '</h4>' +
+                        '<div class="yt-meta">' +
+                            '<span class="yt-date">\ud83d\udcc5 ' + date + '</span>' +
+                            '<span class="yt-channel">\ud83d\udcfa ' + (video.channelTitle || 'Church TV') + '</span>' +
+                        '</div>' +
+                    '</div>';
+                card.addEventListener('click', () => {
+                    if (clickAction === 'modal') openVideoModal(video.link);
+                    else window.open(video.link, '_blank');
+                });
                 grid.appendChild(card);
             });
-
 
         } catch (err) {
             console.error('YouTube feed error:', err);

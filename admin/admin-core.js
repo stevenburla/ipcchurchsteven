@@ -16,6 +16,8 @@ const DEFAULT_STATE = {
         youth: { label: 'Youth Testimonials', icon: '💬', visible: true, order: 7 },
         testimonials: { label: 'Testimonials', icon: '🗣️', visible: true, order: 8 },
         contact: { label: 'Contact & Map', icon: '📍', visible: true, order: 9 },
+        events: { label: 'Upcoming Events', icon: '📅', visible: true, order: 10 },
+        support: { label: 'Support / Donations', icon: '💝', visible: true, order: 11 },
     },
     hero: [],
     pastors: [

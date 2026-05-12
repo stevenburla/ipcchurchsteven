@@ -380,6 +380,13 @@ function renderPastors() {
     });
 }
 
+// Missing handler - wire up "Add Event" button (was not wired before)
+document.getElementById('add-event-btn')?.addEventListener('click', () => openEventModal());
+
+// Event filter / search re-render
+document.getElementById('event-status-filter')?.addEventListener('change', renderEvents);
+document.getElementById('event-search')?.addEventListener('input', renderEvents);
+
 document.getElementById('add-pastor-btn')?.addEventListener('click', () => {
     openPastorModal();
 });

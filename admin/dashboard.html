@@ -399,9 +399,18 @@
                         <div class="section-head">
                             <h2>Channels</h2>
                         </div>
+                        <p class="muted-note" style="font-size:13px;margin-top:0">
+                            Paste any of these formats - the channel ID will be auto-resolved:
+                        </p>
+                        <ul class="muted-note" style="font-size:12px;margin:.25rem 0 .75rem 1.2rem;line-height:1.6">
+                            <li><code>@your_handle</code></li>
+                            <li><code>https://www.youtube.com/@your_handle</code></li>
+                            <li><code>https://www.youtube.com/channel/UCxxx...</code></li>
+                            <li><code>UCxxx...</code> (direct channel ID)</li>
+                        </ul>
                         <div class="yt-channel-add">
                             <input class="form-control" type="text" id="yt-channel-input"
-                                placeholder="Paste YouTube channel URL or ID…">
+                                placeholder="@your_handle or paste the channel URL">
                             <button class="btn btn-accent btn-sm" id="yt-add-btn">+ Add</button>
                         </div>
                         <ul class="channel-list" id="yt-channels-list"></ul>

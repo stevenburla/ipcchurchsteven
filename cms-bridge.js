@@ -625,24 +625,35 @@
             });
         });
 
-        // Handle Images
-        if (tc.about_img) {
-            const aboutImg = document.querySelector('.about-img, #about .about-img');
-            if (aboutImg) {
-                if (aboutImg.tagName === 'IMG') aboutImg.src = tc.about_img;
-                else aboutImg.style.backgroundImage = `url('${tc.about_img}')`;
-                aboutImg.style.backgroundSize = 'cover';
-                aboutImg.style.backgroundPosition = 'center';
+        // Handle Images - apply URL AND remove inline display:none / make container show
+        function setSectionImage(selector, url) {
+            const img = document.querySelector(selector);
+            if (!img) return;
+            if (img.tagName === 'IMG') {
+                img.src = url;
+                img.style.display = '';
+                img.removeAttribute('hidden');
+                if (img.parentElement) {
+                    img.parentElement.classList.add('has-image');
+                }
+            } else {
+                img.style.backgroundImage = "url('" + url + "')";
+                img.style.backgroundSize = 'cover';
+                img.style.backgroundPosition = 'center';
             }
         }
-        if (tc.ss_img) {
-            const ssImg = document.querySelector('.ss-img, #sunday_school .ss-img');
-            if (ssImg) {
-                if (ssImg.tagName === 'IMG') ssImg.src = tc.ss_img;
-                else ssImg.style.backgroundImage = `url('${tc.ss_img}')`;
-                ssImg.style.backgroundSize = 'cover';
-                ssImg.style.backgroundPosition = 'center';
-            }
+        if (tc.about_img) setSectionImage('.about-img, #about .about-img', tc.about_img);
+        if (tc.ss_img)    setSectionImage('.ss-img, #sunday_school .ss-img', tc.ss_img);
+        // Logo
+        if (tc.logo_url) {
+            document.querySelectorAll('.logo-icon, .footer-logo-icon').forEach(el => {
+                el.innerHTML = '<img src="' + esc(tc.logo_url) + '" alt="logo" style="width:1.6em;height:1.6em;object-fit:contain;vertical-align:middle;">';
+            });
+        }
+        if (tc.logo_text) {
+            document.querySelectorAll('.logo-text, .footer-logo-text').forEach(el => {
+                el.textContent = tc.logo_text;
+            });
         }
     }
 
