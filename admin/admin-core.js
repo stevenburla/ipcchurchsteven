@@ -159,27 +159,26 @@ document.addEventListener('DOMContentLoaded', () => {
  * Syncs the local state with Firebase Realtime Database
  */
 async function syncWithCloud() {
-    if (!db) return;
+    if (!db) { cloudSynced = false; updateSyncStatus('Local Only'); return; }
     try {
+        updateSyncStatus('Connecting...');
         const snapshot = await db.ref('church_cms/state').once('value');
         const cloudData = snapshot.val();
         if (cloudData) {
-            // SAFETY: Do not blindly overwrite if local has more data
-            // Pull system data (users) but treat content as potential drafts
-            if (cloudData.users) STATE.users = cloudData.users;
-            
-            // Merge cloud over local so freshly published changes appear
-            STATE = deepMerge(deepClone(DEFAULT_STATE), deepMerge(STATE, cloudData));
-            
-            cloudSynced = true;
+            // Cloud is the source of truth. Layer cloud over defaults so any
+            // missing keys (sections, kids, etc.) fall back to defaults
+            // without overwriting valid cloud data.
+            STATE = deepMerge(deepClone(DEFAULT_STATE), cloudData);
             localStorage.setItem(STORE_KEY, JSON.stringify(STATE));
-            toast('Cloud Sync: Data Loaded', 'info');
-        } else {
-            cloudSynced = true; // No cloud data yet, so local is fresh
+            toast('Cloud sync complete', 'success');
         }
+        cloudSynced = true;
+        updateSyncStatus('Synced');
     } catch (err) {
-        console.error('Firebase sync error:', err);
-        toast('Database sync failed. Working locally.', 'warning');
+        console.error('Cloud sync error:', err);
+        cloudSynced = false;
+        updateSyncStatus('Error');
+        toast('Cloud sync failed: ' + err.message + ' (working locally)', 'warning');
     }
 }
 
@@ -198,6 +197,14 @@ function loadState() {
 function saveState(pushToCloud = true) {
     if (pushToCloud && !cloudSynced) {
         toast('Waiting for database sync... Please wait.', 'warning');
+        return;
+    }
+    // Safety: refuse to overwrite cloud with an empty state.
+    // If sections is missing/empty, we never properly merged cloud data.
+    // Abort rather than wipe the cloud row.
+    if (pushToCloud && (!STATE.sections || Object.keys(STATE.sections).length < 3)) {
+        console.warn('saveState aborted: STATE.sections empty - cloud not merged');
+        toast('Save blocked: cloud data not fully loaded. Refresh and try again.', 'error');
         return;
     }
     // 1. Prepare public snapshot for the website to read
@@ -304,24 +311,18 @@ function exportDataAsJSON() {
 }
 
 function initCloudListener() {
-    if (!db) {
-        updateSyncStatus('Local Only');
-        return;
-    }
-    updateSyncStatus('Connecting...');
+    if (!db) return;
     const stateRef = db.ref('church_cms/state');
     stateRef.on('value', (snapshot) => {
         const data = snapshot.val();
-        if (data && !cloudSynced) {
-            console.log('CMS: Initial Cloud Sync Complete');
-            STATE = deepMerge(deepClone(DEFAULT_STATE), data);
-            cloudSynced = true;
-            updateSyncStatus('Synced');
-            // Re-render current tab
-            const activeTab = document.querySelector('.nav-link.active')?.dataset.tab;
-            if (activeTab) switchTab(activeTab);
-            toast('Cloud data synchronized', 'success');
-        }
+        if (!data) return;
+        // Merge defaults + remote so dashboard never has missing keys
+        const merged = deepMerge(deepClone(DEFAULT_STATE), data);
+        if (JSON.stringify(merged) === JSON.stringify(STATE)) return;
+        STATE = merged;
+        localStorage.setItem(STORE_KEY, JSON.stringify(STATE));
+        const activeTab = document.querySelector('.nav-link.active')?.dataset.tab;
+        if (activeTab) switchTab(activeTab);
     }, (err) => {
         logError('Sync Listener', err.message);
         updateSyncStatus('Error');
@@ -439,7 +440,7 @@ function updateNotifBadge() {
         cnt.classList.toggle('show', unread > 0);
     }
     const prayerBadge = document.getElementById('prayer-badge');
-    const pendingPrayer = (STATE.prayer || []).filter(p => p.status === 'pending').length;
+    const pendingPrayer = (STATE.prayerRequests || []).filter(p => p.status === 'pending').length;
     if (prayerBadge) {
         prayerBadge.textContent = pendingPrayer;
         prayerBadge.classList.toggle('show', pendingPrayer > 0);
@@ -720,7 +721,7 @@ function renderOverview() {
             { label: 'Upcoming Events', value: STATE.events.length, icon: '📅' },
             { label: 'Songs in Library', value: (STATE.lyrics.song?.length || 0) + (STATE.lyrics.sunday?.length || 0), icon: '🎶' },
             { label: 'Testimonials', value: (STATE.testimonials.youth?.length || 0) + (STATE.testimonials.member?.length || 0), icon: '💬' },
-            { label: 'Prayer Requests', value: STATE.prayer.filter(p => p.status === 'pending').length, icon: '🙏' },
+            { label: 'Prayer Requests', value: (STATE.prayerRequests || []).filter(p => p.status === 'pending').length, icon: '🙏' },
         ];
         statsRow.innerHTML = stats.map(s => `
             <div class="stat-card">
@@ -860,28 +861,34 @@ function setupTabs() {
 }
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     if (!document.body.classList.contains('dashboard-body')) return;
     currentUser = getSessionUser();
     if (!currentUser) { window.location.href = 'login.html'; return; }
 
     setupTabs();
-    renderOverview();
     updateNotifBadge();
-    
-    // Sync with Firebase Cloud
+
+    // 1. BLOCK on cloud sync before any rendering or saving so we never
+    //    overwrite cloud data with stale defaults.
     if (typeof syncWithCloud === 'function') {
-        syncWithCloud().then(() => {
-            renderOverview(); // re-render after cloud data arrives
-        });
+        await syncWithCloud();
     }
 
-    // Seed a notification if there are pending prayer requests
-    if (STATE.prayer.filter(p => p.status === 'pending').length > 0 && !STATE.notifications.length) {
-        pushNotification(`${STATE.prayer.filter(p => p.status === 'pending').length} pending prayer request(s) need review`, 'info');
+    // 2. Now render with the freshly-merged STATE
+    renderOverview();
+
+    // 3. Subscribe to realtime updates so changes from another admin
+    //    (or from the Translation Manager) appear here without refresh.
+    if (typeof initCloudListener === 'function') initCloudListener();
+
+    // 4. Seed a notification if there are pending prayer requests
+    const pending = (STATE.prayerRequests || []).filter(p => p.status === 'pending').length;
+    if (pending > 0 && !(STATE.notifications || []).length) {
+        pushNotification(pending + ' pending prayer request(s) need review', 'info');
     }
 
-    // Data Migration: Ensure all Gallery Albums have a photos array
+    // 5. Data Migration: Ensure all Gallery Albums have a photos array
     if (STATE.galleryAlbums) {
         let fixed = false;
         STATE.galleryAlbums.forEach(album => {
