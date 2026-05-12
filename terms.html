@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="terms_doc_title">Terms of Use - IPC Church</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=5">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-shim.js"></script>
+    <script src="translations.js" defer></script>
+    <script src="cms-bridge.js" defer></script>
+    <script src="main.js?v=3" defer></script>
+</head>
+
+<body>
+    <button id="lang-toggle" class="lang-toggle">
+        <span class="lang-option active" data-lang="en">EN</span>
+        <span class="lang-option" data-lang="te">తెలుగు</span>
+    </button>
+
+    <header class="navbar">
+        <div class="logo">
+            <span class="logo-icon">⛪</span>
+            <span class="logo-text" data-i18n="doc_title">IPC Church</span>
+        </div>
+        <button class="hamburger" id="hamburger-menu" aria-label="Toggle Menu">
+            <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+        </button>
+        <nav class="nav-links" id="nav-links">
+            <a href="index.html#home" data-i18n="nav_home">Home</a>
+            <a href="index.html#about" data-i18n="nav_about">About Us</a>
+            <a href="index.html#pastors" data-i18n="nav_pastors">Pastors</a>
+            <a href="kids-programs.html" data-i18n="nav_kids">Kids Programs</a>
+            <a href="testimonials.html" data-i18n="nav_testimonials">Testimonials</a>
+            <a href="index.html#contact" data-i18n="nav_contact">Contact</a>
+        </nav>
+    </header>
+
+    <main class="legal-page">
+        <section class="legal-section">
+            <h1 class="section-title" data-i18n="terms_title">Terms of Use</h1>
+            <p class="legal-updated" data-i18n="terms_last_updated">Last updated: May 2026</p>
+            <div class="legal-content" id="terms-content">
+                <h2 data-i18n="terms_intro_heading">Acceptance of Terms</h2>
+                <p data-i18n="terms_intro">By accessing and using the IPC Church website, you agree to these Terms of Use. If you do not agree, please do not use the site.</p>
+
+                <h2 data-i18n="terms_purpose_heading">Purpose of the Site</h2>
+                <p data-i18n="terms_purpose">This site exists to share information about IPC Church, our services and ministries, to provide spiritual resources, and to enable visitors to contact us or submit prayer requests. The content is for personal, non-commercial use only.</p>
+
+                <h2 data-i18n="terms_content_heading">Content &amp; Copyright</h2>
+                <p data-i18n="terms_content">All text, images, audio, video, and design on this site are the property of IPC Church or used with permission. You may share individual pages for non-commercial purposes provided you include a link back to the source. You may not reproduce, modify, or redistribute the site's content for commercial purposes without prior written permission.</p>
+
+                <h2 data-i18n="terms_donations_heading">Donations</h2>
+                <p data-i18n="terms_donations">Donations made via UPI, bank transfer, or any payment link displayed on this site go directly to IPC Church. Donations are voluntary, non-refundable, and used solely for the ministry's work. We do not store your payment card details.</p>
+
+                <h2 data-i18n="terms_conduct_heading">User Conduct</h2>
+                <p data-i18n="terms_conduct">When submitting prayer requests, contact messages, or any other content, you agree not to send anything unlawful, abusive, defamatory, or that infringes on others' rights. We reserve the right to remove such submissions and to refuse service.</p>
+
+                <h2 data-i18n="terms_thirdparty_heading">Third-Party Links</h2>
+                <p data-i18n="terms_thirdparty">Our site may link to external services like YouTube, Google Maps, or payment gateways. We are not responsible for the content, accuracy, or privacy practices of those third parties.</p>
+
+                <h2 data-i18n="terms_disclaimer_heading">Disclaimer</h2>
+                <p data-i18n="terms_disclaimer">This website is provided "as is." We make reasonable efforts to keep information accurate and up to date but make no warranties. The site is for general information and inspirational purposes; it does not constitute legal, medical, financial, or counseling advice.</p>
+
+                <h2 data-i18n="terms_changes_heading">Changes to These Terms</h2>
+                <p data-i18n="terms_changes">We may update these terms occasionally. The "Last updated" date will reflect the most recent revision. Continued use of the site after changes means you accept them.</p>
+
+                <h2 data-i18n="terms_law_heading">Governing Law</h2>
+                <p data-i18n="terms_law">These terms are governed by the laws of India. Any disputes will be subject to the jurisdiction of the courts in Andhra Pradesh, India.</p>
+
+                <h2 data-i18n="terms_contact_heading">Contact</h2>
+                <p data-i18n="terms_contact">If you have questions about these terms, email us at: <a href="mailto:contact@ipcchurchsteven.com">contact@ipcchurchsteven.com</a></p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <div class="footer-logo">⛪ <span data-i18n="doc_title">IPC Church</span></div>
+                <p class="footer-tagline" data-i18n="footer_tagline">A Place of Grace, Faith &amp; Community</p>
+            </div>
+            <div class="footer-links-col">
+                <h4 class="footer-col-title" data-i18n="footer_quick_links">Quick Links</h4>
+                <ul>
+                    <li><a href="index.html#home" data-i18n="nav_home">Home</a></li>
+                    <li><a href="index.html#about" data-i18n="nav_about">About Us</a></li>
+                    <li><a href="index.html#pastors" data-i18n="nav_pastors">Pastors</a></li>
+                    <li><a href="kids-programs.html" data-i18n="nav_kids">Kids Programs</a></li>
+                    <li><a href="lyrics.html" data-i18n="nav_lyrics">Lyrics</a></li>
+                    <li><a href="testimonials.html" data-i18n="nav_testimonials">Testimonials</a></li>
+                </ul>
+            </div>
+            <div class="footer-links-col">
+                <h4 class="footer-col-title" data-i18n="footer_legal_links">Legal</h4>
+                <ul>
+                    <li><a href="privacy.html" data-i18n="privacy_link">Privacy Policy</a></li>
+                    <li><a href="terms.html" data-i18n="terms_link">Terms of Use</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p><span data-i18n="footer_copyright_full">© 2026 IPC Church. All rights reserved.</span></p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="privacy_doc_title">Privacy Policy - IPC Church</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=5">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-shim.js"></script>
+    <script src="translations.js" defer></script>
+    <script src="cms-bridge.js" defer></script>
+    <script src="main.js?v=3" defer></script>
+</head>
+
+<body>
+    <button id="lang-toggle" class="lang-toggle">
+        <span class="lang-option active" data-lang="en">EN</span>
+        <span class="lang-option" data-lang="te">తెలుగు</span>
+    </button>
+
+    <header class="navbar">
+        <div class="logo">
+            <span class="logo-icon">⛪</span>
+            <span class="logo-text" data-i18n="doc_title">IPC Church</span>
+        </div>
+        <button class="hamburger" id="hamburger-menu" aria-label="Toggle Menu">
+            <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+        </button>
+        <nav class="nav-links" id="nav-links">
+            <a href="index.html#home" data-i18n="nav_home">Home</a>
+            <a href="index.html#about" data-i18n="nav_about">About Us</a>
+            <a href="index.html#pastors" data-i18n="nav_pastors">Pastors</a>
+            <a href="kids-programs.html" data-i18n="nav_kids">Kids Programs</a>
+            <a href="testimonials.html" data-i18n="nav_testimonials">Testimonials</a>
+            <a href="index.html#contact" data-i18n="nav_contact">Contact</a>
+        </nav>
+    </header>
+
+    <main class="legal-page">
+        <section class="legal-section">
+            <h1 class="section-title" data-i18n="privacy_title">Privacy Policy</h1>
+            <p class="legal-updated" data-i18n="privacy_last_updated">Last updated: May 2026</p>
+            <div class="legal-content" id="privacy-content">
+                <h2 data-i18n="privacy_intro_heading">Our Commitment</h2>
+                <p data-i18n="privacy_intro">IPC Church respects your privacy. This Privacy Policy explains what personal information we collect when you visit our website, how we use it, and the rights you have over your data. By using this website, you agree to the practices described here.</p>
+
+                <h2 data-i18n="privacy_what_heading">What We Collect</h2>
+                <p data-i18n="privacy_what">We collect only the information you choose to provide, such as: your name and prayer request text (when you submit a Prayer Request); your email address or phone number (when you contact us); and standard technical information (browser type, IP address) automatically logged by our hosting provider.</p>
+
+                <h2 data-i18n="privacy_how_heading">How We Use It</h2>
+                <p data-i18n="privacy_how">We use your information only to respond to your requests, pray for you when asked, send updates if you request them, and improve our website. We do not sell, rent, or trade your personal information to any third party for marketing purposes.</p>
+
+                <h2 data-i18n="privacy_share_heading">Who We Share It With</h2>
+                <p data-i18n="privacy_share">Your prayer requests and contact details are visible only to the pastoral team. Technical service providers (Supabase for data storage and Cloudflare for hosting) process information on our behalf under their own privacy commitments. Payment information for donations is handled directly by your bank or UPI app — we do not store card numbers.</p>
+
+                <h2 data-i18n="privacy_rights_heading">Your Rights</h2>
+                <p data-i18n="privacy_rights">Under India's Digital Personal Data Protection Act 2023, you have the right to access, correct, or request deletion of your personal data, and to withdraw consent at any time. To exercise any of these rights, please email us at the address below.</p>
+
+                <h2 data-i18n="privacy_cookies_heading">Cookies &amp; Third Party Content</h2>
+                <p data-i18n="privacy_cookies">Our site embeds content from YouTube (video feed) and Google Maps (location). These services may set their own cookies. Refer to their privacy policies for details.</p>
+
+                <h2 data-i18n="privacy_children_heading">Children</h2>
+                <p data-i18n="privacy_children">We do not knowingly collect personal data from children under 18 without parental consent. Photos of children at church events are published only with parental permission.</p>
+
+                <h2 data-i18n="privacy_changes_heading">Changes to This Policy</h2>
+                <p data-i18n="privacy_changes">We may update this policy occasionally. The "Last updated" date at the top will reflect any change. Significant changes will be announced on our home page.</p>
+
+                <h2 data-i18n="privacy_contact_heading">Contact</h2>
+                <p data-i18n="privacy_contact">For any privacy question or to exercise your data rights, contact us at: <a href="mailto:contact@ipcchurchsteven.com">contact@ipcchurchsteven.com</a></p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <div class="footer-logo">⛪ <span data-i18n="doc_title">IPC Church</span></div>
+                <p class="footer-tagline" data-i18n="footer_tagline">A Place of Grace, Faith &amp; Community</p>
+            </div>
+            <div class="footer-links-col">
+                <h4 class="footer-col-title" data-i18n="footer_quick_links">Quick Links</h4>
+                <ul>
+                    <li><a href="index.html#home" data-i18n="nav_home">Home</a></li>
+                    <li><a href="index.html#about" data-i18n="nav_about">About Us</a></li>
+                    <li><a href="index.html#pastors" data-i18n="nav_pastors">Pastors</a></li>
+                    <li><a href="kids-programs.html" data-i18n="nav_kids">Kids Programs</a></li>
+                    <li><a href="lyrics.html" data-i18n="nav_lyrics">Lyrics</a></li>
+                    <li><a href="testimonials.html" data-i18n="nav_testimonials">Testimonials</a></li>
+                </ul>
+            </div>
+            <div class="footer-links-col">
+                <h4 class="footer-col-title" data-i18n="footer_legal_links">Legal</h4>
+                <ul>
+                    <li><a href="privacy.html" data-i18n="privacy_link">Privacy Policy</a></li>
+                    <li><a href="terms.html" data-i18n="terms_link">Terms of Use</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p><span data-i18n="footer_copyright_full">© 2026 IPC Church. All rights reserved.</span></p>
+        </div>
+    </footer>
+</body>
+</html>

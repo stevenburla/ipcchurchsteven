@@ -1851,3 +1851,52 @@ p { color: var(--ink-700); }
   border-radius: 8px;
   margin-top: 0.6rem;
 }
+
+/* ============================================================
+   LEGAL PAGES (Privacy Policy, Terms of Use)
+   ============================================================ */
+.legal-page {
+  max-width: 850px;
+  margin: 2rem auto 3rem;
+  padding: 0 1.25rem;
+}
+.legal-section {
+  background: white;
+  border-radius: var(--radius-md);
+  padding: 2.25rem 2rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+@media (max-width: 600px) {
+  .legal-section { padding: 1.5rem 1.1rem; }
+}
+.legal-section .section-title {
+  margin: 0 0 0.4rem;
+  font-size: 2rem;
+}
+.legal-updated {
+  color: var(--ink-600);
+  font-size: 0.85rem;
+  margin: 0 0 1.5rem;
+  font-style: italic;
+}
+.legal-content h2 {
+  margin: 1.6rem 0 0.55rem;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--ink-900);
+  font-family: 'Playfair Display', serif;
+}
+.legal-content h2:first-of-type { margin-top: 0; }
+.legal-content p {
+  line-height: 1.65;
+  color: var(--ink-700);
+  margin: 0 0 0.7rem;
+  font-size: 0.95rem;
+}
+.legal-content a {
+  color: var(--accent, #C8521E);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+.legal-content a:hover { opacity: 0.8; }
