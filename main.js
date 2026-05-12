@@ -43,50 +43,58 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(fetchYouTubeVideos, 300000);
 
     // 2. Fetch YouTube videos from ALL channels stored by admin
+    // Cache resolved channel IDs in memory so we don't re-fetch on every refresh
+    const _ytChannelCache = {};
+
+    async function resolveChannelIdFront(input) {
+        const raw = String(input || '').trim();
+        if (!raw) return null;
+        if (/^UC[A-Za-z0-9_-]{20,}$/.test(raw)) return raw;
+        if (_ytChannelCache[raw]) return _ytChannelCache[raw];
+
+        const ucMatch = raw.match(/channel\/(UC[A-Za-z0-9_-]{20,})/);
+        if (ucMatch) { _ytChannelCache[raw] = ucMatch[1]; return ucMatch[1]; }
+
+        let handle = raw;
+        handle = handle.replace(/^https?:\/\/(www\.)?youtube\.com\//, '');
+        handle = handle.replace(/^@/, '').replace(/\/.*$/, '');
+
+        const channelUrl = 'https://www.youtube.com/@' + encodeURIComponent(handle);
+        const proxies = [
+            'https://corsproxy.io/?',
+            'https://api.allorigins.win/raw?url=',
+            'https://api.codetabs.com/v1/proxy?quest='
+        ];
+        for (const p of proxies) {
+            try {
+                const res = await fetch(p + encodeURIComponent(channelUrl), { signal: AbortSignal.timeout(8000) });
+                if (!res.ok) continue;
+                const html = await res.text();
+                const m = html.match(/"externalId":"(UC[A-Za-z0-9_-]{20,})"/) ||
+                          html.match(/\/channel\/(UC[A-Za-z0-9_-]{20,})/);
+                if (m && m[1]) { _ytChannelCache[raw] = m[1]; return m[1]; }
+            } catch (e) {}
+        }
+        return null;
+    }
+
     async function fetchYouTubeVideos() {
         const grid = document.getElementById('yt-video-grid');
         if (!grid) return;
 
         const currentCms = getCMS();
-        const channels = (currentCms?.youtube?.channels?.length) ? currentCms.youtube.channels : [];
+        const channels = (currentCms && currentCms.youtube && currentCms.youtube.channels && currentCms.youtube.channels.length)
+            ? currentCms.youtube.channels : [];
 
-        if (currentCms?.youtube?.visible === false) {
+        if (currentCms && currentCms.youtube && currentCms.youtube.visible === false) {
             const section = document.getElementById('youtube-feed');
             if (section) section.style.display = 'none';
             return;
         }
 
         if (!channels.length) {
-            grid.innerHTML = '<p style="text-align:center;color:#7a7a7a;grid-column:1/-1;padding:3rem;">No channel configured. Add one in the admin YouTube Feed tab.</p>';
+            grid.innerHTML = '<p style="text-align:center;color:#7a7a7a;grid-column:1/-1;padding:3rem;">No channel configured yet.</p>';
             return;
-        }
-
-        // Multi-attempt fetcher.  Accepts:
-        //  - UC... full channel ID  (preferred, always works)
-        //  - @handle  (tries to resolve handle -> UC via a community resolver)
-        //  - bare handle or username
-        async function tryFetch(channelInput) {
-            const raw = String(channelInput || '').trim().replace(/^@/, '');
-
-            // Build all feed URL candidates we will try
-            const candidates = [];
-            if (/^UC[A-Za-z0-9_-]{20,}$/.test(raw)) {
-                candidates.push('https://www.youtube.com/feeds/videos.xml?channel_id=' + raw);
-            } else {
-                candidates.push('https://www.youtube.com/feeds/videos.xml?user=' + encodeURIComponent(raw));
-            }
-
-            for (const feedUrl of candidates) {
-                const rssUrl = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(feedUrl) + '&count=20';
-                try {
-                    const res = await fetch(rssUrl, { signal: AbortSignal.timeout(8000) });
-                    const data = await res.json();
-                    if (data && data.status === 'ok' && data.items && data.items.length) {
-                        return data;
-                    }
-                } catch (e) {}
-            }
-            return null;
         }
 
         try {
@@ -94,26 +102,34 @@ document.addEventListener('DOMContentLoaded', () => {
             const seenIds = new Set();
             let firstFeedLink = null;
 
-            await Promise.all(channels.map(async (ch) => {
-                const data = await tryFetch(ch);
-                if (!data) return;
-                data.items.forEach(v => {
-                    if (!seenIds.has(v.guid)) {
-                        seenIds.add(v.guid);
-                        allVideos.push(Object.assign({}, v, {
-                            channelTitle: data.feed.title,
-                            channelLink: data.feed.link
-                        }));
+            await Promise.all(channels.map(async (chRaw) => {
+                const ucId = await resolveChannelIdFront(chRaw);
+                if (!ucId) return;
+
+                const feedUrl = 'https://www.youtube.com/feeds/videos.xml?channel_id=' + ucId;
+                const rssUrl = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(feedUrl) + '&count=30';
+                try {
+                    const res = await fetch(rssUrl, { signal: AbortSignal.timeout(8000) });
+                    const data = await res.json();
+                    if (data && data.status === 'ok' && data.items && data.items.length) {
+                        data.items.forEach(v => {
+                            if (!seenIds.has(v.guid)) {
+                                seenIds.add(v.guid);
+                                allVideos.push(Object.assign({}, v, {
+                                    channelTitle: data.feed.title,
+                                    channelLink: data.feed.link
+                                }));
+                            }
+                        });
+                        if (!firstFeedLink && data.feed.link) firstFeedLink = data.feed.link;
                     }
-                });
-                if (!firstFeedLink && data.feed.link) firstFeedLink = data.feed.link;
+                } catch (e) {}
             }));
 
             const visitBtn = document.getElementById('yt-channel-link');
             if (visitBtn && firstFeedLink) visitBtn.href = firstFeedLink;
 
-            // Manual ordering: if admin set a videoOrder array, sort accordingly
-            const manualOrder = currentCms?.youtube?.videoOrder || [];
+            const manualOrder = (currentCms && currentCms.youtube && currentCms.youtube.videoOrder) || [];
             if (manualOrder.length) {
                 allVideos.sort((a, b) => {
                     const ai = manualOrder.indexOf(a.guid);
@@ -129,17 +145,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!allVideos.length) {
                 grid.innerHTML = '<div class="yt-empty-state" style="grid-column:1/-1;padding:2rem;text-align:center;color:#7a7a7a;">' +
-                    '<p style="margin:0 0 .5rem">Could not load videos right now.</p>' +
-                    '<p style="margin:0;font-size:.85rem;opacity:.8">Check that your channel handle is correct, or paste the UC... channel ID directly. You can find it at <a href="https://commentpicker.com/youtube-channel-id.php" target="_blank" rel="noopener">commentpicker.com</a>.</p>' +
+                    '<p style="margin:0 0 .5rem">Unable to load videos right now. Please try again shortly.</p>' +
                     '</div>';
                 return;
             }
 
             grid.innerHTML = '';
-            const limit = currentCms?.youtube?.videoCount || 6;
-            const layout = currentCms?.youtube?.layout || 'grid-3';
-            const clickAction = currentCms?.youtube?.clickAction || 'modal';
-
+            const limit = (currentCms && currentCms.youtube && currentCms.youtube.videoCount) || 6;
+            const layout = (currentCms && currentCms.youtube && currentCms.youtube.layout) || 'grid-3';
+            const clickAction = (currentCms && currentCms.youtube && currentCms.youtube.clickAction) || 'modal';
             grid.className = 'yt-video-grid ' + layout;
 
             allVideos.slice(0, limit).forEach(video => {
@@ -149,13 +163,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 card.innerHTML =
                     '<div class="yt-thumb-wrapper">' +
                         '<img src="' + video.thumbnail + '" alt="' + (video.title || '').replace(/"/g, '&quot;') + '" loading="lazy">' +
-                        '<div class="yt-play-overlay"><div class="play-icon-circ">\u25B6</div></div>' +
+                        '<div class="yt-play-overlay"><div class="play-icon-circ">▶</div></div>' +
                     '</div>' +
                     '<div class="yt-info">' +
                         '<h4 class="yt-title">' + (video.title || '') + '</h4>' +
                         '<div class="yt-meta">' +
-                            '<span class="yt-date">\ud83d\udcc5 ' + date + '</span>' +
-                            '<span class="yt-channel">\ud83d\udcfa ' + (video.channelTitle || 'Church TV') + '</span>' +
+                            '<span class="yt-date">' + date + '</span>' +
+                            '<span class="yt-channel">' + (video.channelTitle || 'Church TV') + '</span>' +
                         '</div>' +
                     '</div>';
                 card.addEventListener('click', () => {
@@ -164,14 +178,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 grid.appendChild(card);
             });
-
         } catch (err) {
             console.error('YouTube feed error:', err);
-            grid.innerHTML = '<p style="text-align:center;color:#7a7a7a;grid-column:1/-1;padding:3rem;">Unable to load videos. Visit our channel for the latest content.</p>';
+            grid.innerHTML = '<p style="text-align:center;color:#7a7a7a;grid-column:1/-1;padding:3rem;">Unable to load videos right now. Please try again shortly.</p>';
         }
     }
 
-    // 3. Video Modal Player
+        // 3. Video Modal Player
     function openVideoModal(videoUrl) {
         let videoId = '';
         try {
