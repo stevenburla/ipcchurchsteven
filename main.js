@@ -107,23 +107,43 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!ucId) return;
 
                 const feedUrl = 'https://www.youtube.com/feeds/videos.xml?channel_id=' + ucId;
-                const rssUrl = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(feedUrl) + '&count=30';
-                try {
-                    const res = await fetch(rssUrl, { signal: AbortSignal.timeout(8000) });
-                    const data = await res.json();
-                    if (data && data.status === 'ok' && data.items && data.items.length) {
-                        data.items.forEach(v => {
-                            if (!seenIds.has(v.guid)) {
-                                seenIds.add(v.guid);
-                                allVideos.push(Object.assign({}, v, {
-                                    channelTitle: data.feed.title,
-                                    channelLink: data.feed.link
-                                }));
-                            }
-                        });
-                        if (!firstFeedLink && data.feed.link) firstFeedLink = data.feed.link;
-                    }
-                } catch (e) {}
+                // Fetch XML directly through CORS proxies (avoids rss2json rate limits)
+                const ytProxies = [
+                    'https://corsproxy.io/?',
+                    'https://api.allorigins.win/raw?url=',
+                    'https://api.codetabs.com/v1/proxy?quest='
+                ];
+                let xmlText = null;
+                for (const p of ytProxies) {
+                    try {
+                        const r = await fetch(p + encodeURIComponent(feedUrl), { signal: AbortSignal.timeout(8000) });
+                        if (!r.ok) continue;
+                        xmlText = await r.text();
+                        if (xmlText && xmlText.indexOf('<entry') > -1) break;
+                        xmlText = null;
+                    } catch (e) {}
+                }
+                if (xmlText) {
+                    const xml = new DOMParser().parseFromString(xmlText, 'application/xml');
+                    const feedTitle = (xml.querySelector('feed > title') || {}).textContent || 'Church TV';
+                    const feedLinkEl = xml.querySelector('feed > link[rel=\"alternate\"]');
+                    const feedLink = (feedLinkEl ? feedLinkEl.getAttribute('href') : null) || ('https://www.youtube.com/channel/' + ucId);
+                    if (!firstFeedLink) firstFeedLink = feedLink;
+                    xml.querySelectorAll('entry').forEach(entry => {
+                        const idEl = entry.getElementsByTagName('yt:videoId')[0] || entry.querySelector('videoId');
+                        const videoId   = idEl ? idEl.textContent : '';
+                        const title     = (entry.querySelector('title') || {}).textContent || '';
+                        const linkEl    = entry.querySelector('link');
+                        const link      = (linkEl ? linkEl.getAttribute('href') : null) || ('https://www.youtube.com/watch?v=' + videoId);
+                        const pubDate   = (entry.querySelector('published') || {}).textContent || '';
+                        const thumbnail = videoId ? ('https://i.ytimg.com/vi/' + videoId + '/hqdefault.jpg') : '';
+                        const guid      = videoId || link;
+                        if (!seenIds.has(guid)) {
+                            seenIds.add(guid);
+                            allVideos.push({ guid, title, link, pubDate, thumbnail, channelTitle: feedTitle, channelLink: feedLink });
+                        }
+                    });
+                }
             }));
 
             const visitBtn = document.getElementById('yt-channel-link');
