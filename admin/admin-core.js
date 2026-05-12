@@ -168,10 +168,8 @@ async function syncWithCloud() {
             // Pull system data (users) but treat content as potential drafts
             if (cloudData.users) STATE.users = cloudData.users;
             
-            // Only merge content if local is empty/minimal
-            if (!STATE.testimonials?.youth?.length || STATE.testimonials.youth.length < cloudData.testimonials?.youth?.length) {
-                STATE = deepMerge(STATE, cloudData);
-            }
+            // Merge cloud over local so freshly published changes appear
+            STATE = deepMerge(deepClone(DEFAULT_STATE), deepMerge(STATE, cloudData));
             
             cloudSynced = true;
             localStorage.setItem(STORE_KEY, JSON.stringify(STATE));
@@ -316,7 +314,7 @@ function initCloudListener() {
         const data = snapshot.val();
         if (data && !cloudSynced) {
             console.log('CMS: Initial Cloud Sync Complete');
-            STATE = data;
+            STATE = deepMerge(deepClone(DEFAULT_STATE), data);
             cloudSynced = true;
             updateSyncStatus('Synced');
             // Re-render current tab
