@@ -305,18 +305,48 @@
 
         if (!albums.length) return;
 
-        // ----- HERO COLLAGE: pick up to 9 photos from across all albums -----
+        // ----- HERO COLLAGE: 6 tiles in a clean bento, auto-rotate photos -----
         if (heroCollage) {
             const allPhotos = [];
             albums.forEach(a => (a.photos || []).forEach(p => allPhotos.push(p)));
-            // Take first 9 photos
-            const heroPhotos = allPhotos.slice(0, 9);
-            if (heroPhotos.length >= 3) {
-                heroCollage.innerHTML = heroPhotos.map((p, i) => `
-                    <div class="hero-collage-item hero-collage-item-${i}" onclick="openLightbox('${esc(p.url)}')">
-                        <img src="${esc(p.thumbnail || p.url)}" alt="${esc(p.name || '')}" loading="lazy">
-                    </div>
-                `).join('');
+            const TILE_COUNT = 6;
+            if (allPhotos.length >= 3) {
+                // Initial render: 6 tiles (use what we have, repeat if fewer)
+                const initial = [];
+                for (let i = 0; i < TILE_COUNT; i++) {
+                    initial.push(allPhotos[i % allPhotos.length]);
+                }
+                heroCollage.innerHTML = initial.map((p, i) =>
+                    '<div class="hero-collage-item hero-collage-item-' + i + '" data-tile="' + i + '" onclick="openLightbox(\'' + esc(p.url) + '\')">' +
+                        '<img src="' + esc(p.thumbnail || p.url) + '" alt="' + esc(p.name || '') + '" loading="lazy">' +
+                    '</div>'
+                ).join('');
+
+                // Clear any previous rotator
+                if (window._heroCollageRotator) clearInterval(window._heroCollageRotator);
+
+                // Auto-rotate: every 3 seconds, swap one tile's photo
+                if (allPhotos.length > TILE_COUNT) {
+                    let nextPoolIdx = TILE_COUNT;
+                    let nextTileIdx = 0;
+                    window._heroCollageRotator = setInterval(() => {
+                        const tiles = heroCollage.querySelectorAll('.hero-collage-item');
+                        if (!tiles.length) return;
+                        const tile = tiles[nextTileIdx % tiles.length];
+                        const img = tile.querySelector('img');
+                        const newPhoto = allPhotos[nextPoolIdx % allPhotos.length];
+                        if (!img || !newPhoto) return;
+                        // Fade out, swap src, fade in
+                        img.classList.add('fade-out');
+                        setTimeout(() => {
+                            img.src = newPhoto.thumbnail || newPhoto.url;
+                            tile.setAttribute('onclick', "openLightbox('" + esc(newPhoto.url) + "')");
+                            img.classList.remove('fade-out');
+                        }, 500);
+                        nextTileIdx++;
+                        nextPoolIdx++;
+                    }, 3000);
+                }
             }
         }
 

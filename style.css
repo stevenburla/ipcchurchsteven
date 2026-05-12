@@ -1629,37 +1629,42 @@ p { color: var(--ink-700); }
 .gallery-hero-collage {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  grid-auto-rows: 140px;
+  grid-auto-rows: 150px;
+  grid-auto-flow: dense;
   gap: 8px;
   margin: 0 auto 2rem auto;
   max-width: 1100px;
   padding: 0 1rem;
 }
 .hero-collage-item {
+  position: relative;
   overflow: hidden; border-radius: 10px; cursor: pointer; background: #f4f0e8;
   box-shadow: 0 4px 14px rgba(0,0,0,0.07);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 .hero-collage-item img {
+  position: absolute; inset: 0;
   width: 100%; height: 100%; object-fit: cover; display: block;
-  transition: transform 0.5s ease;
+  transition: opacity 0.9s ease;
 }
-.hero-collage-item:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 24px rgba(0,0,0,0.12);
-}
-.hero-collage-item:hover img { transform: scale(1.05); }
+.hero-collage-item img.fade-out { opacity: 0; }
+.hero-collage-item:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(0,0,0,0.12); }
+.hero-collage-item:hover img { transform: scale(1.03); }
 
-/* Bento-style layout for hero */
-.hero-collage-item-0 { grid-column: span 2; grid-row: span 2; }
-.hero-collage-item-3 { grid-row: span 2; }
-.hero-collage-item-6 { grid-column: span 2; }
+/* Clean bento layout - 6 tiles that fill 4x3 grid with no gaps */
+.hero-collage-item-0 { grid-column: span 2; grid-row: span 2; }   /* big left top */
+.hero-collage-item-1 { grid-column: span 2; }                      /* top-right wide */
+.hero-collage-item-2 { grid-row: span 2; }                          /* tall middle */
+.hero-collage-item-3 { }                                            /* normal */
+.hero-collage-item-4 { grid-column: span 2; }                       /* bottom wide */
+.hero-collage-item-5 { }                                            /* normal */
 
 @media (max-width: 700px) {
-  .gallery-hero-collage { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 120px; }
+  .gallery-hero-collage { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 130px; }
   .hero-collage-item-0 { grid-column: span 2; grid-row: span 2; }
-  .hero-collage-item-3 { grid-row: auto; }
-  .hero-collage-item-6 { grid-column: auto; }
+  .hero-collage-item-1 { grid-column: span 2; }
+  .hero-collage-item-2 { grid-row: auto; }
+  .hero-collage-item-4 { grid-column: auto; }
 }
 
 /* ============================================================
