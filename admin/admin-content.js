@@ -1025,6 +1025,16 @@ function renderTextEditor() {
         if (teEl) teEl.value = STATE.textContent[f + '_te'] || '';
     });
 
+    // Logo image uploader (NEW)
+    const logoImgContainer = document.getElementById('tc-logo-img-uploader');
+    if (logoImgContainer) {
+        logoImgContainer.innerHTML = '';
+        logoImgContainer.appendChild(createImageUploader(STATE.textContent.logo_url, (res) => {
+            STATE.textContent.logo_url = res.url;
+            saveState();
+        }, 'site'));
+    }
+
     const aboutImgContainer = document.getElementById('tc-about-img-uploader');
     if (aboutImgContainer) {
         aboutImgContainer.innerHTML = '';

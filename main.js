@@ -65,25 +65,46 @@ document.addEventListener('DOMContentLoaded', () => {
             const allVideos = [];
             const seenIds = new Set();
 
-            // Fetch from each channel in parallel
+            // Build the right RSS feed URL for each channel.
+            // Accepts: UC... channel ID, @handle, or bare handle/custom-url
+            function buildFeedUrls(raw) {
+                const v = String(raw || '').trim();
+                if (!v) return [];
+                // UC... = direct channel ID
+                if (/^UC[A-Za-z0-9_-]{20,}$/.test(v)) {
+                    return ['https://www.youtube.com/feeds/videos.xml?channel_id=' + v];
+                }
+                // @handle or bare handle/custom name -- try both user= and embedding URL form
+                const handle = v.startsWith('@') ? v.slice(1) : v;
+                return [
+                    'https://www.youtube.com/feeds/videos.xml?user=' + handle,
+                    'https://rsshub.app/youtube/user/@' + handle
+                ];
+            }
+
             await Promise.all(channels.map(async (channelId) => {
-                const feedUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
-                const rssUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}`;
-                try {
-                    const res = await fetch(rssUrl, { signal: AbortSignal.timeout(5000) });
-                    const data = await res.json();
-                    if (data.status === 'ok') {
-                        data.items.forEach(v => {
-                            if (!seenIds.has(v.guid)) {
-                                seenIds.add(v.guid);
-                                allVideos.push({ ...v, channelTitle: data.feed.title, channelLink: data.feed.link });
-                            }
-                        });
-                        // Update "Visit Channel" button with first channel found
-                        const visitBtn = document.getElementById('yt-channel-link');
-                        if (visitBtn && data.feed.link) visitBtn.href = data.feed.link;
-                    }
-                } catch { /* silent fail per channel */ }
+                const candidateFeeds = buildFeedUrls(channelId);
+                for (const feedUrl of candidateFeeds) {
+                    const rssUrl = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(feedUrl);
+                    try {
+                        const res = await fetch(rssUrl, { signal: AbortSignal.timeout(7000) });
+                        const data = await res.json();
+                        if (data && data.status === 'ok' && data.items && data.items.length) {
+                            data.items.forEach(v => {
+                                if (!seenIds.has(v.guid)) {
+                                    seenIds.add(v.guid);
+                                    allVideos.push(Object.assign({}, v, {
+                                        channelTitle: data.feed.title,
+                                        channelLink: data.feed.link
+                                    }));
+                                }
+                            });
+                            const visitBtn = document.getElementById('yt-channel-link');
+                            if (visitBtn && data.feed.link) visitBtn.href = data.feed.link;
+                            break; // success -- stop trying further feed URLs
+                        }
+                    } catch (e) { /* try next candidate */ }
+                }
             }));
 
             // Sort newest first
@@ -517,47 +538,38 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // =========================================================
-    // HERO SLIDESHOW LOGIC
+    // HERO SLIDESHOW (restartable; called by cms-bridge after slides inject)
     // =========================================================
-    function initHeroSlideshow() {
+    let _heroInterval = null;
+    window.startHeroSlideshow = function() {
         const slider = document.getElementById('heroSlider');
         if (!slider) return;
-
         const slides = slider.querySelectorAll('.slide');
         if (slides.length <= 1) return;
+        // Restart cleanly
+        if (_heroInterval) { clearInterval(_heroInterval); _heroInterval = null; }
 
         let currentSlide = 0;
         let isAnimating = false;
-
-        setInterval(() => {
+        _heroInterval = setInterval(() => {
+            const live = slider.querySelectorAll('.slide');
+            if (live.length <= 1) return;
             if (isAnimating) return;
             isAnimating = true;
-
             const previousSlide = currentSlide;
-            currentSlide = (currentSlide + 1) % slides.length;
-
-            // Immediately position the new slide to the right
-            slides[currentSlide].classList.remove('active', 'last-active');
-            slides[currentSlide].classList.add('next');
-
-            // Force reflow so the browser applies the 'next' position instantly
-            void slides[currentSlide].offsetWidth;
-
-            // Animate it to center
-            slides[currentSlide].classList.remove('next');
-            slides[currentSlide].classList.add('active');
-
-            // Animate old slide to the left
-            slides[previousSlide].classList.remove('active');
-            slides[previousSlide].classList.add('last-active');
-
-            // Wait for transition to finish before allowing another tick
-            setTimeout(() => {
-                isAnimating = false;
-            }, 1200);
-        }, 5000); // 5 seconds interval
-    }
-
-    // Start slider
-    initHeroSlideshow();
+            currentSlide = (currentSlide + 1) % live.length;
+            live[currentSlide].classList.remove('active', 'last-active');
+            live[currentSlide].classList.add('next');
+            void live[currentSlide].offsetWidth;
+            live[currentSlide].classList.remove('next');
+            live[currentSlide].classList.add('active');
+            if (live[previousSlide]) {
+                live[previousSlide].classList.remove('active');
+                live[previousSlide].classList.add('last-active');
+            }
+            setTimeout(() => { isAnimating = false; }, 1200);
+        }, 5000);
+    };
+    // Best-effort initial start (no-op if 0/1 slides yet -- bridge will retry)
+    window.startHeroSlideshow();
 });

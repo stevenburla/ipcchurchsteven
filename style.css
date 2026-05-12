@@ -1551,3 +1551,111 @@ p { color: var(--ink-700); }
 @media (max-width: 1024px) {
   .nav-links.nav-active { display: flex; }
 }
+
+/* ============================================================
+   COLLAGE LAYOUTS for gallery albums (Fix #4)
+   ============================================================ */
+.gallery-album {
+  margin-bottom: 2rem;
+  background: white;
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1rem;
+  box-shadow: 0 2px 14px rgba(0,0,0,0.05);
+}
+.gallery-album .album-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-bottom: 0.9rem;
+  gap: 0.5rem;
+}
+.gallery-album .album-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--ink-900);
+}
+.gallery-album .album-meta {
+  color: var(--ink-600);
+  font-size: 0.85rem;
+}
+
+.collage { display: grid; gap: 6px; }
+.collage-item {
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #f4f0e8;
+}
+.collage-item img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  transition: transform 0.4s ease;
+}
+.collage-item:hover img { transform: scale(1.06); }
+.collage-overlay {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.55);
+  color: white;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.25s ease;
+  font-weight: 600; font-size: 0.9rem;
+}
+.collage-item:hover .collage-overlay { opacity: 1; }
+
+/* GRID style: even 3 columns, square items */
+.collage-grid {
+  grid-template-columns: repeat(3, 1fr);
+}
+.collage-grid .collage-item { aspect-ratio: 1 / 1; }
+@media (max-width: 600px) {
+  .collage-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* BENTO style: feature first image large, then mix of sizes */
+.collage-bento {
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: 110px;
+}
+.collage-bento .collage-item-0 { grid-column: span 2; grid-row: span 2; }
+.collage-bento .collage-item-3 { grid-column: span 2; }
+.collage-bento .collage-item-6 { grid-row: span 2; }
+@media (max-width: 600px) {
+  .collage-bento { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 100px; }
+  .collage-bento .collage-item-0 { grid-column: span 2; grid-row: span 2; }
+  .collage-bento .collage-item-3 { grid-column: span 1; }
+  .collage-bento .collage-item-6 { grid-row: auto; }
+}
+
+/* MASONRY style: variable heights via grid-auto-rows + spans */
+.collage-masonry {
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 90px;
+  grid-auto-flow: dense;
+}
+.collage-masonry .collage-item { grid-row: span 2; }
+.collage-masonry .collage-item:nth-child(3n+1) { grid-row: span 3; }
+.collage-masonry .collage-item:nth-child(5n) { grid-row: span 2; grid-column: span 2; }
+@media (max-width: 600px) {
+  .collage-masonry { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* CAROUSEL style: horizontal scroll strip */
+.collage-carousel {
+  grid-auto-flow: column;
+  grid-auto-columns: 220px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 8px;
+}
+.collage-carousel .collage-item {
+  height: 200px;
+  scroll-snap-align: start;
+}
+
+/* STRIP style: tall vertical photos in a row */
+.collage-strip {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+.collage-strip .collage-item { aspect-ratio: 3 / 4; }

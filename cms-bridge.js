@@ -280,6 +280,10 @@
                 }
                 slider.appendChild(slide);
             });
+            // After slides injected, (re)start auto-cycle
+            if (typeof window.startHeroSlideshow === 'function') {
+                window.startHeroSlideshow();
+            }
         }
     }
 
@@ -293,19 +297,20 @@
         const container = gallerySection.querySelector('.section-container') || gallerySection;
         const albums = (data.galleryAlbums || []).filter(a => a.photos && a.photos.length > 0);
         setVisibility('gallery', albums.length > 0);
+
+        // Clear previous renders to prevent duplicates after cloud refresh
+        container.querySelectorAll('.gallery-album').forEach(el => el.remove());
         if (!albums.length) return;
 
         albums.forEach(album => {
-            if (!album.photos || album.photos.length === 0) return;
-
             const albumEl = document.createElement('div');
-            albumEl.className = 'gallery-album fade-in';
-            
-            // Album Header
+            const style = album.collageStyle || 'grid';
+            albumEl.className = 'gallery-album fade-in collage-wrapper-' + style;
+
             let eventText = '';
             if (album.eventId && data.events) {
                 const ev = data.events.find(e => e.id == album.eventId);
-                if (ev) eventText = ` • Event: ${ev.title}`;
+                if (ev) eventText = ' • Event: ' + ev.title;
             }
 
             albumEl.innerHTML = `
@@ -313,10 +318,10 @@
                     <h3 class="album-title">${esc(album.title)}</h3>
                     <div class="album-meta">${album.photos.length} Photos${esc(eventText)}</div>
                 </div>
-                <div class="collage-${album.collageStyle || 'grid'}">
-                    ${album.photos.map(photo => `
-                        <div class="collage-item" onclick="openLightbox('${esc(photo.url)}')">
-                            <img src="${esc(photo.thumbnail || photo.url)}" alt="${esc(photo.name)}" loading="lazy" decoding="async">
+                <div class="collage collage-${style}">
+                    ${album.photos.map((photo, idx) => `
+                        <div class="collage-item collage-item-${idx}" onclick="openLightbox('${esc(photo.url)}')">
+                            <img src="${esc(photo.thumbnail || photo.url)}" alt="${esc(photo.name || '')}" loading="lazy" decoding="async">
                             <div class="collage-overlay">
                                 <span>🔍 View Larger</span>
                             </div>
@@ -596,12 +601,16 @@
             if (el) el.textContent = tc[key];
         });
 
-        // Handle Images
+        // Handle Images -- also remove inline display:none when src is set
         if (tc.about_img) {
             const aboutImg = document.querySelector('.about-img, #about .about-img');
             if (aboutImg) {
-                if (aboutImg.tagName === 'IMG') aboutImg.src = tc.about_img;
-                else aboutImg.style.backgroundImage = `url('${tc.about_img}')`;
+                if (aboutImg.tagName === 'IMG') {
+                    aboutImg.src = tc.about_img;
+                    aboutImg.style.display = '';
+                } else {
+                    aboutImg.style.backgroundImage = `url('${tc.about_img}')`;
+                }
                 aboutImg.style.backgroundSize = 'cover';
                 aboutImg.style.backgroundPosition = 'center';
             }
@@ -609,11 +618,26 @@
         if (tc.ss_img) {
             const ssImg = document.querySelector('.ss-img, #sunday_school .ss-img');
             if (ssImg) {
-                if (ssImg.tagName === 'IMG') ssImg.src = tc.ss_img;
-                else ssImg.style.backgroundImage = `url('${tc.ss_img}')`;
+                if (ssImg.tagName === 'IMG') {
+                    ssImg.src = tc.ss_img;
+                    ssImg.style.display = '';
+                } else {
+                    ssImg.style.backgroundImage = `url('${tc.ss_img}')`;
+                }
                 ssImg.style.backgroundSize = 'cover';
                 ssImg.style.backgroundPosition = 'center';
             }
+        }
+        // Logo from CMS textContent
+        if (tc.logo_url) {
+            document.querySelectorAll('.logo-icon, .footer-logo-icon').forEach(el => {
+                el.innerHTML = `<img src="${esc(tc.logo_url)}" alt="logo" style="width:1.6em;height:1.6em;object-fit:contain;vertical-align:middle;">`;
+            });
+        }
+        if (tc.logo_text) {
+            document.querySelectorAll('.logo-text, .footer-logo-text').forEach(el => {
+                el.textContent = tc.logo_text;
+            });
         }
     }
 
