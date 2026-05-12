@@ -368,12 +368,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Initial setup
         requestAnimationFrame(() => {
-            updateCenterCard();
-            // Center the first card initially
-            if (cards[0]) {
-               const scrollTo = cards[0].offsetLeft - (viewport.offsetWidth / 2) + (cards[0].offsetWidth / 2);
+            // Start centered on the MIDDLE card so user sees peek on BOTH sides
+            const middleIdx = Math.floor(cards.length / 2);
+            const startCard = cards[middleIdx] || cards[0];
+            if (startCard) {
+               const scrollTo = startCard.offsetLeft - (viewport.offsetWidth / 2) + (startCard.offsetWidth / 2);
                viewport.scrollLeft = scrollTo;
             }
+            updateCenterCard();
         });
 
         window.addEventListener('resize', onScroll);

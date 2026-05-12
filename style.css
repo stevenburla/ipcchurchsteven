@@ -1128,10 +1128,10 @@ p { color: var(--ink-700); }
   .carousel-card .testimonial-photo-wrapper { width: 170px; height: 170px; }
 }
 @media (max-width: 600px) {
-  .carousel-card { flex: 0 0 85vw; min-height: 480px; }
-  .carousel-viewport { gap: 1.25rem; padding: 3rem 0 4rem; }
+  .carousel-card { flex: 0 0 78vw; min-height: 480px; }
+  .carousel-viewport { gap: 1.1rem; padding: 3rem 0 4rem; }
   .carousel-viewport::before,
-  .carousel-viewport::after { flex: 0 0 calc(50% - 42.5vw); }
+  .carousel-viewport::after { flex: 0 0 calc(50% - 39vw); }
   .carousel-card .testimonial-photo-wrapper { width: 150px; height: 150px; }
 }
 
