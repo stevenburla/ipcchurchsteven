@@ -321,7 +321,7 @@
                 }
                 heroCollage.innerHTML = initial.map((p, i) =>
                     '<div class="hero-collage-item hero-collage-item-' + i + '" data-tile="' + i + '" onclick="openLightbox(\'' + esc(p.url) + '\')">' +
-                        '<img src="' + esc(p.thumbnail || p.url) + '" alt="' + esc(p.name || '') + '" loading="lazy">' +
+                        '<img src="' + esc(p.url || p.thumbnail) + '" alt="' + esc(p.name || '') + '" loading="lazy">' +
                     '</div>'
                 ).join('');
 
@@ -342,7 +342,7 @@
                         // Fade out, swap src, fade in
                         img.classList.add('fade-out');
                         setTimeout(() => {
-                            img.src = newPhoto.thumbnail || newPhoto.url;
+                            img.src = newPhoto.url || newPhoto.thumbnail;
                             tile.setAttribute('onclick', "openLightbox('" + esc(newPhoto.url) + "')");
                             img.classList.remove('fade-out');
                         }, 500);
