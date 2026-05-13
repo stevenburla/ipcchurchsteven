@@ -1306,6 +1306,12 @@ function fmtTime(iso) {
 // ════════════════════════════════════════════════════════════════════════════════
 // POSTS / UPDATES — flexible content posts with multiple sections per post
 // ════════════════════════════════════════════════════════════════════════════════
+// HTML-escape helper for Posts module (esc was only defined in cms-bridge.js)
+function esc(s) {
+    if (s == null) return '';
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
 function renderPosts() {
     STATE.posts = STATE.posts || [];
     const ul = document.getElementById('posts-list');
