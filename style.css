@@ -2007,3 +2007,41 @@ p { color: var(--ink-700); }
   transition: transform 0.4s ease;
 }
 .album-modal-photo:hover img { transform: scale(1.06); }
+
+/* ============================================================
+   SUNDAY SCHOOL — clickable banner
+   ============================================================ */
+.sunday-school-banner.ss-clickable {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.sunday-school-banner.ss-clickable:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+}
+.sunday-school-banner.ss-clickable:hover .ss-img {
+  transform: scale(1.04);
+}
+.sunday-school-banner.ss-clickable .ss-img {
+  transition: transform 0.5s ease;
+}
+.ss-cta-arrow {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.6rem 1.2rem;
+  background: rgba(255,255,255,0.95);
+  color: var(--accent, #C8521E);
+  font-weight: 700;
+  border-radius: 24px;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.sunday-school-banner.ss-clickable:hover .ss-cta-arrow {
+  background: var(--accent, #C8521E);
+  color: white;
+  transform: translateX(4px);
+}

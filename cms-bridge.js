@@ -494,7 +494,7 @@
                 <div class="album-modal-grid">
                     ${(album.photos || []).map(photo => `
                         <div class="album-modal-photo" onclick="openLightbox('${esc(photo.url)}')">
-                            <img src="${esc(photo.thumbnail || photo.url)}" alt="${esc(photo.name || '')}" loading="lazy">
+                            <img src="${esc(photo.url || photo.thumbnail)}" alt="${esc(photo.name || '')}" loading="lazy">
                         </div>
                     `).join('')}
                 </div>

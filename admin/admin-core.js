@@ -476,7 +476,7 @@ function truncate(str, n = 60) { return str && str.length > n ? str.substring(0,
 // ─── IMAGE OPTIMIZATION (client-side) ────────────────────────────────────────
 // Aggressive optimization to keep Firebase Realtime Database snappy
 // Upgraded for Firebase Storage & Thumbnails
-function optimizeImage(file, { maxW = 1200, thumbW = 300, quality = 0.7 } = {}) {
+function optimizeImage(file, { maxW = 1920, thumbW = 600, quality = 0.88 } = {}) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onerror = () => reject(new Error('Failed to read file'));
