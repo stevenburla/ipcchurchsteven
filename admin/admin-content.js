@@ -442,6 +442,7 @@ document.getElementById('add-pastor-btn')?.addEventListener('click', () => {
 });
 
 function openPastorModal(id = null) {
+    window._draftPastorId = null; // reset any stale draft from previous open
     const p = id ? STATE.pastors.find(item => item.id === id) : null;
     let photoUrl = p?.photo || '';
     openModal(id ? '✏ Edit Pastor' : '+ Add Pastor', `
@@ -456,22 +457,70 @@ function openPastorModal(id = null) {
             status: 'published'
         };
         if (!data.name) return;
-        if (id) { Object.assign(STATE.pastors.find(item => item.id === id), data); }
-        else { STATE.pastors.push({ id: genId(), ...data }); }
+        if (id) {
+            Object.assign(STATE.pastors.find(item => item.id === id), data);
+        } else if (window._draftPastorId) {
+            // Draft was already created during photo upload; just update its fields
+            const draft = STATE.pastors.find(p => p.id === window._draftPastorId);
+            if (draft) Object.assign(draft, data);
+            else STATE.pastors.push({ id: window._draftPastorId, ...data });
+            window._draftPastorId = null;
+        } else {
+            STATE.pastors.push({ id: genId(), ...data });
+        }
         saveState(); closeModal(); renderPastors();
     });
-    document.getElementById('_p-photo-container').appendChild(createImageUploader(photoUrl, (res) => { 
+    document.getElementById('_p-photo-container').appendChild(createImageUploader(photoUrl, async (res) => {
         photoUrl = res.url;
-        // AUTO-SAVE: if editing an EXISTING pastor, persist photo immediately
-        // so closing the modal accidentally doesn't lose the upload.
+        console.log('🟢 [pastor] Photo upload complete:', res.url);
+        
+        // ALWAYS save to STATE immediately, both Edit and Add mode
         if (id) {
+            // Edit existing pastor
             const pastor = STATE.pastors.find(item => item.id === id);
             if (pastor) {
                 pastor.photo = photoUrl;
-                saveState();
-                toast('Photo saved ✓', 'success');
+                console.log('🟢 [pastor] Updated existing:', pastor);
+            }
+        } else {
+            // Add mode: create a draft pastor RIGHT NOW so the photo survives modal close
+            // (form Save will update name/role on this same record)
+            if (!window._draftPastorId) {
+                window._draftPastorId = genId();
+                const nameVal = document.getElementById('_p-name')?.value.trim() || 'New Pastor';
+                const roleVal = document.getElementById('_p-role')?.value.trim() || '';
+                STATE.pastors.push({ id: window._draftPastorId, name: nameVal, role: roleVal, photo: photoUrl, status: 'published' });
+                console.log('🟢 [pastor] Created draft:', window._draftPastorId);
+            } else {
+                const draft = STATE.pastors.find(p => p.id === window._draftPastorId);
+                if (draft) draft.photo = photoUrl;
             }
         }
+        
+        // Save to cloud
+        saveState();
+        toast('Photo saved ✓ - verifying...', 'info');
+        
+        // VERIFY: read back from cloud after 2 seconds to confirm photo persisted
+        setTimeout(async () => {
+            try {
+                if (typeof window.supabase === 'undefined') return;
+                const client = window._supabase || (window.supabase.createClient ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null);
+                if (!client) { console.log('🟡 [pastor] No supabase client for verify'); return; }
+                const { data } = await client.from('cms_data').select('value').eq('key', 'state').single();
+                const checkId = id || window._draftPastorId;
+                const cloudPastor = (data?.value?.pastors || []).find(p => p.id === checkId);
+                if (cloudPastor?.photo === photoUrl) {
+                    toast('Photo verified in cloud ✅', 'success');
+                    console.log('🟢 [pastor] Cloud verified:', cloudPastor);
+                } else {
+                    console.log('🔴 [pastor] CLOUD MISMATCH. Expected photo:', photoUrl);
+                    console.log('🔴 [pastor] Cloud has:', cloudPastor?.photo);
+                    toast('⚠ Photo did not save - retrying...', 'warning');
+                    saveState();
+                }
+            } catch (e) { console.error('🔴 verify failed:', e); }
+        }, 2000);
     }, 'pastors'));
 }
 
@@ -880,6 +929,7 @@ document.getElementById('add-testimonial-btn')?.addEventListener('click', () => 
 });
 
 function openTestimonialModal(id = null, cat) {
+    window._draftTestimonialId = null;
     const t = id ? STATE.testimonials[cat].find(item => item.id === id) : null;
     let photoUrl = t?.photo || '';
     openModal(id ? '✏ Edit Testimonial' : '+ Add Testimonial', `
@@ -917,21 +967,64 @@ function openTestimonialModal(id = null, cat) {
         };
         if (!data.name && !data.name_te) return;
         if (!STATE.testimonials[cat]) STATE.testimonials[cat] = [];
-        if (id) { Object.assign(STATE.testimonials[cat].find(item => item.id === id), data); }
-        else { STATE.testimonials[cat].unshift({ id: genId(), ...data }); }
+        if (id) {
+            Object.assign(STATE.testimonials[cat].find(item => item.id === id), data);
+        } else if (window._draftTestimonialId) {
+            const draft = STATE.testimonials[cat].find(t => t.id === window._draftTestimonialId);
+            if (draft) Object.assign(draft, data);
+            else STATE.testimonials[cat].unshift({ id: window._draftTestimonialId, ...data });
+            window._draftTestimonialId = null;
+        } else {
+            STATE.testimonials[cat].unshift({ id: genId(), ...data });
+        }
         saveState(); closeModal(); renderTestimonials();
     });
-    document.getElementById('_t-photo-container').appendChild(createImageUploader(photoUrl, (res) => { 
+    document.getElementById('_t-photo-container').appendChild(createImageUploader(photoUrl, async (res) => {
         photoUrl = res.url;
-        // AUTO-SAVE: if editing an EXISTING testimonial, persist photo immediately
+        console.log('🟢 [testimonial] Photo upload complete:', res.url);
+        
         if (id && STATE.testimonials[cat]) {
             const item = STATE.testimonials[cat].find(t => t.id === id);
             if (item) {
                 item.photo = photoUrl;
-                saveState();
-                toast('Photo saved ✓', 'success');
+                console.log('🟢 [testimonial] Updated existing:', item);
+            }
+        } else if (!id) {
+            // Add mode: create draft testimonial NOW
+            if (!window._draftTestimonialId) {
+                window._draftTestimonialId = genId();
+                const nameVal = document.getElementById('_t-name')?.value.trim() || 'New Testimonial';
+                const roleVal = document.getElementById('_t-role')?.value.trim() || '';
+                const quoteVal = document.getElementById('_t-quote')?.value.trim() || '';
+                STATE.testimonials[cat] = STATE.testimonials[cat] || [];
+                STATE.testimonials[cat].push({ id: window._draftTestimonialId, name: nameVal, role: roleVal, quote: quoteVal, photo: photoUrl });
+                console.log('🟢 [testimonial] Created draft:', window._draftTestimonialId);
+            } else {
+                const draft = STATE.testimonials[cat]?.find(t => t.id === window._draftTestimonialId);
+                if (draft) draft.photo = photoUrl;
             }
         }
+        
+        saveState();
+        toast('Photo saved ✓ - verifying...', 'info');
+        
+        // Verify in cloud
+        setTimeout(async () => {
+            try {
+                const client = window._supabase || (window.supabase?.createClient ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null);
+                if (!client) return;
+                const { data } = await client.from('cms_data').select('value').eq('key', 'state').single();
+                const checkId = id || window._draftTestimonialId;
+                const cloudItem = (data?.value?.testimonials?.[cat] || []).find(t => t.id === checkId);
+                if (cloudItem?.photo === photoUrl) {
+                    toast('Photo verified in cloud ✅', 'success');
+                } else {
+                    console.log('🔴 [testimonial] CLOUD MISMATCH. Expected:', photoUrl, 'Got:', cloudItem?.photo);
+                    toast('⚠ Photo did not save - retrying...', 'warning');
+                    saveState();
+                }
+            } catch (e) { console.error('verify failed:', e); }
+        }, 2000);
     }, 'testimonials'));
 }
 
