@@ -112,6 +112,11 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="#" data-tab="tab-posts">
+                            <span class="nav-icon">📰</span><span class="nav-text">Posts / Updates</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="#" data-tab="tab-prayer">
                             <span class="nav-icon">🙏</span>
                             <span class="nav-text">Prayer Requests</span>
@@ -1044,7 +1049,24 @@
                     <button class="btn btn-accent" id="sup-save-btn">💾 Save Support Settings</button>
                 </div>
 
-                                <!-- ═══ PRAYER REQUESTS ═══════════════════════════════════ -->
+                <!-- === POSTS / UPDATES ================================== -->
+                <div id="tab-posts" class="tab-panel">
+                    <div class="page-title">
+                        <h1>📰 Posts / Updates</h1>
+                        <p>Create flexible posts — event recaps, announcements, sermon highlights, anything. Each post can have multiple sections (e.g. Day 1, Day 2) with their own photos and descriptions.</p>
+                    </div>
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>All Posts</h2>
+                            <button class="btn btn-accent" id="add-post-btn">+ Add New Post</button>
+                        </div>
+                        <ul id="posts-list" class="data-list">
+                            <li class="muted-note">No posts yet. Click + Add New Post to create one.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                                                <!-- ═══ PRAYER REQUESTS ═══════════════════════════════════ -->
                 <div id="tab-prayer" class="tab-panel">
                     <div class="page-title">
                         <h1>🙏 Prayer Requests</h1>

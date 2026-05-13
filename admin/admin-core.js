@@ -21,8 +21,10 @@ const DEFAULT_STATE = {
         prayer: { label: 'Prayer Request', icon: '🙏', visible: true, order: 12 },
         timings: { label: 'Church Timings', icon: '⏰', visible: true, order: 13 },
         lyrics: { label: 'Song Lyrics Banner', icon: '🎵', visible: true, order: 14 },
+        posts: { label: 'Posts / Updates', icon: '📰', visible: true, order: 15 },
     },
     hero: [],
+    posts: [],
     pastors: [
         { id: 1, name: 'Pastor B Steven', role: 'Main Pastor', photo: '', status: 'published' }
     ],
@@ -124,7 +126,7 @@ const DEFAULT_STATE = {
     youtube: { channels: ['7_in_christ'], videoCount: 6, layout: 'grid-3', clickAction: 'modal', autoRefresh: true, visible: true },
     seo: { home: { title: 'IPC Church Pastor B Steven', description: 'Official website of IPC Church led by Pastor B Steven.', keywords: 'IPC, Church, Pastor B Steven, Suryanarayana Colony' } },
     users: [{ id: 1, name: 'Administrator', email: 'stevenburla4@gmail.com', role: 'super-admin', password: 'adminsteven@26', verified: true }],
-    layout: ['home', 'watch-live', 'about', 'sunday_school', 'youtube-feed', 'gallery', 'pastors', 'youth', 'testimonials', 'anudhina', 'timings', 'about_ministry', 'contact'],
+    layout: ['home', 'watch-live', 'about', 'sunday_school', 'youtube-feed', 'gallery', 'pastors', 'youth', 'testimonials', 'anudhina', 'timings', 'about_ministry', 'posts', 'contact'],
     backups: [],
     notifications: [],
     activityLog: [],
@@ -240,6 +242,7 @@ function saveState(pushToCloud = true) {
         kids: STATE.kids,
         ministries: STATE.ministries,
         support: STATE.support || {},
+        posts: STATE.posts || [],
         prayerRequests: STATE.prayerRequests || []
     };
 
@@ -867,6 +870,7 @@ function setupTabs() {
                     if (typeof renderKidsGallery === 'function') renderKidsGallery();
                 }
                 if (targetId === 'tab-support' && typeof renderSupport === 'function') renderSupport();
+                if (targetId === 'tab-posts' && typeof renderPosts === 'function') renderPosts();
                 if (targetId === 'tab-prayer' && typeof renderPrayer === 'function') renderPrayer();
                 if (targetId === 'tab-siteinfo' && typeof renderSiteInfo === 'function') renderSiteInfo();
                 if (targetId === 'tab-seo' && typeof renderSEO === 'function') renderSEO();

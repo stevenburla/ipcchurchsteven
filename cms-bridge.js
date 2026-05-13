@@ -99,6 +99,7 @@
         applyHeroSection(data);
         applyGallerySection(data);
         applySupportSection(data);
+        applyPostsSection(data);
         applyTestimonials(data);
         applyYouTubeConfig(data);
         applySiteInfo(data);
@@ -524,6 +525,118 @@
         observer.observe(document.body, { childList: true });
     };
 
+    
+    // ════════════════════════════════════════════════════════════════════════════
+    // POSTS / UPDATES — renders post cards from STATE.posts
+    // ════════════════════════════════════════════════════════════════════════════
+    function applyPostsSection(data) {
+        const section = document.getElementById('posts');
+        const grid = document.getElementById('posts-grid');
+        if (!section || !grid) return;
+        
+        const posts = (data.posts || []).filter(p => p.status !== 'draft');
+        const sectionVisible = data.sections?.posts?.visible !== false;
+        
+        if (!sectionVisible || !posts.length) {
+            section.style.display = 'none';
+            return;
+        }
+        section.style.display = '';
+        
+        const lang = document.documentElement.lang || 'en';
+        const pick = (obj, k) => (lang === 'te' && obj[k + '_te']) ? obj[k + '_te'] : obj[k];
+        
+        // Sort newest first by date
+        const sorted = [...posts].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+        
+        grid.innerHTML = sorted.map(p => {
+            const title = pick(p, 'title') || 'Untitled';
+            const desc = pick(p, 'description') || '';
+            const photoCount = (p.sections || []).reduce((sum, s) => sum + (s.photos || []).length, 0);
+            const cover = p.coverImage || ((p.sections || []).find(s => s.photos && s.photos.length)?.photos?.[0]?.url) || '';
+            const dateStr = p.date ? new Date(p.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '';
+            
+            return `
+                <article class="post-card" onclick="window.openPostModal('${esc(p.id)}')">
+                    ${cover ? `<div class="post-card-image"><img src="${esc(cover)}" alt="${esc(title)}" loading="lazy"></div>` : ''}
+                    <div class="post-card-content">
+                        ${dateStr ? `<div class="post-card-date">${esc(dateStr)}</div>` : ''}
+                        <h3 class="post-card-title">${esc(title)}</h3>
+                        ${desc ? `<p class="post-card-desc">${esc(desc.slice(0, 140))}${desc.length > 140 ? '...' : ''}</p>` : ''}
+                        <div class="post-card-meta">
+                            ${photoCount > 0 ? `📷 ${photoCount} photo${photoCount === 1 ? '' : 's'} · ` : ''}<span class="post-card-link">Read more →</span>
+                        </div>
+                    </div>
+                </article>
+            `;
+        }).join('');
+    }
+    
+    // POST MODAL — show full post content
+    window.openPostModal = function(postId) {
+        const cms = window._cmsData || {};
+        const post = (cms.posts || []).find(p => String(p.id) === String(postId));
+        if (!post) return;
+        
+        const lang = document.documentElement.lang || 'en';
+        const pick = (obj, k) => (lang === 'te' && obj[k + '_te']) ? obj[k + '_te'] : obj[k];
+        
+        document.getElementById('post-modal')?.remove();
+        const modal = document.createElement('div');
+        modal.id = 'post-modal';
+        modal.className = 'post-modal-overlay';
+        
+        const dateStr = post.date ? new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+        const title = pick(post, 'title');
+        const desc = pick(post, 'description');
+        
+        modal.innerHTML = `
+            <div class="post-modal-content" onclick="event.stopPropagation()">
+                <div class="post-modal-header">
+                    <div>
+                        ${dateStr ? `<div class="post-modal-date">${esc(dateStr)}</div>` : ''}
+                        <h2 class="post-modal-title">${esc(title)}</h2>
+                    </div>
+                    <button class="post-modal-close" onclick="document.getElementById('post-modal').remove()">×</button>
+                </div>
+                <div class="post-modal-body">
+                    ${post.coverImage ? `<img class="post-modal-cover" src="${esc(post.coverImage)}" alt="">` : ''}
+                    ${desc ? `<p class="post-modal-description">${esc(desc)}</p>` : ''}
+                    ${(post.sections || []).map((s, idx) => {
+                        const sTitle = pick(s, 'title');
+                        const sText = pick(s, 'text');
+                        const photos = s.photos || [];
+                        return `
+                            <div class="post-section">
+                                ${sTitle ? `<h3 class="post-section-title">${esc(sTitle)}</h3>` : ''}
+                                ${sText ? `<p class="post-section-text">${esc(sText)}</p>` : ''}
+                                ${photos.length ? `
+                                    <div class="post-section-photos">
+                                        ${photos.map(ph => `
+                                            <div class="post-section-photo" onclick="openLightbox('${esc(ph.url)}')">
+                                                <img src="${esc(ph.thumbnail || ph.url)}" alt="" loading="lazy">
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        `;
+        modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+        document.body.appendChild(modal);
+        document.body.style.overflow = 'hidden';
+        const observer = new MutationObserver(() => {
+            if (!document.getElementById('post-modal')) {
+                document.body.style.overflow = '';
+                observer.disconnect();
+            }
+        });
+        observer.observe(document.body, { childList: true });
+    };
+    
         // Quick Lightbox helper
     window.openLightbox = function(url) {
         const overlay = document.createElement('div');

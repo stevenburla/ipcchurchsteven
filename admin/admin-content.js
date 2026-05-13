@@ -1301,3 +1301,318 @@ function fmtTime(iso) {
     const d = new Date(iso);
     return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
+
+
+// ════════════════════════════════════════════════════════════════════════════════
+// POSTS / UPDATES — flexible content posts with multiple sections per post
+// ════════════════════════════════════════════════════════════════════════════════
+function renderPosts() {
+    STATE.posts = STATE.posts || [];
+    const ul = document.getElementById('posts-list');
+    if (!ul) return;
+    
+    if (!STATE.posts.length) {
+        ul.innerHTML = '<li class="muted-note">No posts yet. Click + Add New Post to create one.</li>';
+        return;
+    }
+    
+    // Sort newest first
+    const sorted = [...STATE.posts].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    
+    ul.innerHTML = sorted.map(p => {
+        const photoCount = (p.sections || []).reduce((sum, s) => sum + (s.photos || []).length, 0);
+        const sectionCount = (p.sections || []).length;
+        return `
+            <li class="data-item">
+                ${p.coverImage ? `<img src="${esc(p.coverImage)}" style="width:60px;height:60px;object-fit:cover;border-radius:8px;margin-right:0.75rem">` : ''}
+                <div style="flex:1;min-width:0">
+                    <strong>${esc(p.title || 'Untitled Post')}</strong>
+                    <div style="font-size:12px;color:var(--muted)">
+                        ${p.date ? esc(p.date) + ' · ' : ''}${sectionCount} section${sectionCount === 1 ? '' : 's'} · ${photoCount} photo${photoCount === 1 ? '' : 's'}
+                        ${p.status === 'draft' ? '<span style="color:#f59e0b;font-weight:600"> · DRAFT</span>' : ''}
+                    </div>
+                </div>
+                <div class="action-icons">
+                    <button class="action-btn action-edit" data-id="${p.id}">✏️</button>
+                    <button class="action-btn action-del" data-id="${p.id}">🗑️</button>
+                </div>
+            </li>
+        `;
+    }).join('');
+    
+    ul.querySelectorAll('.action-edit').forEach(btn => {
+        btn.onclick = () => openPostModal(btn.dataset.id);
+    });
+    ul.querySelectorAll('.action-del').forEach(btn => {
+        btn.onclick = () => {
+            const post = STATE.posts.find(p => String(p.id) === btn.dataset.id);
+            if (!post) return;
+            if (confirm(`Delete post "${post.title}"?`)) {
+                STATE.posts = STATE.posts.filter(p => String(p.id) !== btn.dataset.id);
+                saveState();
+                renderPosts();
+                toast(`Deleted "${post.title}"`, 'info');
+            }
+        };
+    });
+}
+
+document.getElementById('add-post-btn')?.addEventListener('click', () => openPostModal());
+
+function openPostModal(id = null) {
+    STATE.posts = STATE.posts || [];
+    id = id ? String(id) : null;
+    let post = id ? STATE.posts.find(p => String(p.id) === id) : null;
+    let isNew = false;
+    
+    if (!post) {
+        // Create new draft post
+        isNew = true;
+        post = {
+            id: genId(),
+            title: '',
+            title_te: '',
+            description: '',
+            description_te: '',
+            date: new Date().toISOString().slice(0, 10),
+            coverImage: '',
+            status: 'published',
+            sections: []
+        };
+        STATE.posts.push(post);
+        id = String(post.id);
+    }
+    
+    let coverUrl = post.coverImage || '';
+    
+    openModal(isNew ? '📰 New Post' : '✏️ Edit Post', `
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label">Title (English)</label>
+                <input class="form-control" id="_post-title" value="${esc(post.title)}" placeholder="e.g. Easter Service 2026">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Title (తెలుగు)</label>
+                <input class="form-control" id="_post-title-te" value="${esc(post.title_te || '')}">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Date</label>
+                <input class="form-control" id="_post-date" type="date" value="${esc(post.date)}">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Status</label>
+                <select class="form-control" id="_post-status">
+                    <option value="published" ${post.status === 'published' ? 'selected' : ''}>Published</option>
+                    <option value="draft" ${post.status === 'draft' ? 'selected' : ''}>Draft (hidden)</option>
+                </select>
+            </div>
+            <div class="form-group col-2">
+                <label class="form-label">Description (English)</label>
+                <textarea class="form-control" id="_post-desc" rows="3" placeholder="Overall description of the post...">${esc(post.description)}</textarea>
+            </div>
+            <div class="form-group col-2">
+                <label class="form-label">Description (తెలుగు)</label>
+                <textarea class="form-control" id="_post-desc-te" rows="3">${esc(post.description_te || '')}</textarea>
+            </div>
+            <div class="form-group col-2">
+                <label class="form-label">Cover Image</label>
+                <div id="_post-cover-container"></div>
+            </div>
+        </div>
+        
+        <hr style="margin:1.5rem 0; border:none; border-top:1px solid #eee">
+        
+        <div class="section-head">
+            <h2>Sections (${post.sections.length})</h2>
+            <button class="btn btn-outline" type="button" id="_post-add-section">+ Add Section</button>
+        </div>
+        <p class="muted-note" style="font-size:13px;margin-top:0">Each section can be a "Day 1", "Morning Service", or any subdivision. Add photos to each section. For simple posts, use just one section.</p>
+        <ul id="_post-sections-list" class="data-list"></ul>
+    `, () => {
+        // Save post
+        post.title = document.getElementById('_post-title').value.trim();
+        post.title_te = document.getElementById('_post-title-te').value.trim();
+        post.date = document.getElementById('_post-date').value;
+        post.status = document.getElementById('_post-status').value;
+        post.description = document.getElementById('_post-desc').value.trim();
+        post.description_te = document.getElementById('_post-desc-te').value.trim();
+        post.coverImage = coverUrl;
+        
+        if (!post.title) {
+            if (isNew) STATE.posts = STATE.posts.filter(p => String(p.id) !== id);
+            toast('Title required', 'error');
+            saveState();
+            return;
+        }
+        
+        saveState();
+        closeModal();
+        renderPosts();
+        toast(isNew ? 'Post created!' : 'Post updated', 'success');
+    }, 'Save Post');
+    
+    // Cover image uploader
+    document.getElementById('_post-cover-container').appendChild(createImageUploader(coverUrl, (res) => {
+        coverUrl = res.url;
+        post.coverImage = coverUrl;
+        saveState();
+        toast('Cover image saved ✓', 'success');
+    }, 'posts'));
+    
+    // Render sections list
+    renderPostSections(post, id);
+    
+    // Add section button
+    document.getElementById('_post-add-section').onclick = () => {
+        closeModal();
+        openPostSectionModal(id, null);
+    };
+}
+
+function renderPostSections(post, postId) {
+    const ul = document.getElementById('_post-sections-list');
+    if (!ul) return;
+    
+    if (!post.sections.length) {
+        ul.innerHTML = '<li class="muted-note">No sections yet. Click + Add Section to create one.</li>';
+        return;
+    }
+    
+    ul.innerHTML = post.sections.map((s, idx) => `
+        <li class="data-item">
+            <div style="flex:1;min-width:0">
+                <strong>${idx + 1}. ${esc(s.title || 'Untitled section')}</strong>
+                <div style="font-size:12px;color:var(--muted)">
+                    ${(s.photos || []).length} photo${(s.photos || []).length === 1 ? '' : 's'}
+                </div>
+            </div>
+            <div class="action-icons">
+                <button class="action-btn _post-section-edit" data-id="${s.id}">✏️</button>
+                <button class="action-btn _post-section-del" data-id="${s.id}">🗑️</button>
+            </div>
+        </li>
+    `).join('');
+    
+    ul.querySelectorAll('._post-section-edit').forEach(btn => {
+        btn.onclick = () => {
+            closeModal();
+            openPostSectionModal(postId, btn.dataset.id);
+        };
+    });
+    ul.querySelectorAll('._post-section-del').forEach(btn => {
+        btn.onclick = () => {
+            const section = post.sections.find(x => String(x.id) === btn.dataset.id);
+            if (!section) return;
+            if (confirm(`Delete section "${section.title}"? This removes its photos too.`)) {
+                post.sections = post.sections.filter(x => String(x.id) !== btn.dataset.id);
+                saveState();
+                renderPostSections(post, postId);
+                toast('Section deleted', 'info');
+            }
+        };
+    });
+}
+
+function openPostSectionModal(postId, sectionId) {
+    const post = STATE.posts.find(p => String(p.id) === String(postId));
+    if (!post) return;
+    
+    let section = sectionId ? post.sections.find(s => String(s.id) === String(sectionId)) : null;
+    let isNew = false;
+    
+    if (!section) {
+        isNew = true;
+        section = {
+            id: genId(),
+            title: '',
+            title_te: '',
+            text: '',
+            text_te: '',
+            photos: []
+        };
+        post.sections.push(section);
+    }
+    
+    openModal(isNew ? '+ New Section' : '✏️ Edit Section', `
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label">Section Title (English)</label>
+                <input class="form-control" id="_sect-title" value="${esc(section.title)}" placeholder="e.g. Day 1 or Morning Service">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Section Title (తెలుగు)</label>
+                <input class="form-control" id="_sect-title-te" value="${esc(section.title_te || '')}">
+            </div>
+            <div class="form-group col-2">
+                <label class="form-label">Description (English)</label>
+                <textarea class="form-control" id="_sect-text" rows="3" placeholder="What happened in this section...">${esc(section.text)}</textarea>
+            </div>
+            <div class="form-group col-2">
+                <label class="form-label">Description (తెలుగు)</label>
+                <textarea class="form-control" id="_sect-text-te" rows="3">${esc(section.text_te || '')}</textarea>
+            </div>
+        </div>
+        
+        <hr style="margin:1.5rem 0; border:none; border-top:1px solid #eee">
+        
+        <div class="section-head">
+            <h2>Photos (${section.photos.length})</h2>
+            <button class="btn btn-outline" type="button" id="_sect-add-photos">+ Upload Photos</button>
+            <input type="file" id="_sect-file-input" multiple accept="image/*" style="display:none">
+        </div>
+        <div id="_sect-photos-grid" class="photo-grid"></div>
+    `, () => {
+        section.title = document.getElementById('_sect-title').value.trim();
+        section.title_te = document.getElementById('_sect-title-te').value.trim();
+        section.text = document.getElementById('_sect-text').value.trim();
+        section.text_te = document.getElementById('_sect-text-te').value.trim();
+        saveState();
+        closeModal();
+        // Reopen the post modal to show updated sections
+        setTimeout(() => openPostModal(postId), 100);
+        toast(isNew ? 'Section added' : 'Section updated', 'success');
+    }, 'Save Section');
+    
+    renderSectionPhotos(section, postId);
+    
+    document.getElementById('_sect-add-photos').onclick = () => {
+        document.getElementById('_sect-file-input').click();
+    };
+    document.getElementById('_sect-file-input').onchange = async (e) => {
+        const files = e.target.files;
+        if (!files || !files.length) return;
+        toast(`Uploading ${files.length} photo(s)...`, 'info');
+        await processFileUploads(files, section.photos, 'posts');
+        saveState();
+        renderSectionPhotos(section, postId);
+        toast(`Uploaded ${files.length} photo(s) ✓`, 'success');
+    };
+}
+
+function renderSectionPhotos(section, postId) {
+    const grid = document.getElementById('_sect-photos-grid');
+    if (!grid) return;
+    
+    if (!section.photos || !section.photos.length) {
+        grid.innerHTML = '<p class="muted-note">No photos in this section yet. Click + Upload Photos to add.</p>';
+        return;
+    }
+    
+    grid.innerHTML = section.photos.map((p, idx) => `
+        <div class="photo-thumb" style="position:relative">
+            <img src="${esc(p.thumbnail || p.url)}" style="width:100%;height:100%;object-fit:cover;border-radius:6px">
+            <button class="photo-del-btn" data-idx="${idx}" style="position:absolute;top:4px;right:4px;background:rgba(220,38,38,0.9);color:white;border:0;width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:14px">×</button>
+        </div>
+    `).join('');
+    
+    grid.querySelectorAll('.photo-del-btn').forEach(btn => {
+        btn.onclick = () => {
+            const idx = parseInt(btn.dataset.idx, 10);
+            section.photos.splice(idx, 1);
+            saveState();
+            renderSectionPhotos(section, postId);
+            toast('Photo removed', 'info');
+        };
+    });
+}
+
