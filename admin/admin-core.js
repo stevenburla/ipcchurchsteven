@@ -209,9 +209,11 @@ function loadState() {
 }
 
 function saveState(pushToCloud = true) {
+    // Don't bail out if cloudSynced is false - that was silently losing
+    // toggle changes when the sync flag wasn't set yet.
+    // Just warn and continue with local save + cloud attempt.
     if (pushToCloud && !cloudSynced) {
-        toast('Waiting for database sync... Please wait.', 'warning');
-        return;
+        console.log('[saveState] cloudSynced=false, attempting save anyway');
     }
     if (pushToCloud && (!STATE.sections || Object.keys(STATE.sections).length < 3)) {
         console.warn('saveState aborted: STATE.sections empty');
