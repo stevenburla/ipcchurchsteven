@@ -2045,3 +2045,144 @@ p { color: var(--ink-700); }
   color: white;
   transform: translateX(4px);
 }
+
+/* ============================================================
+   MOBILE POLISH PASS — tighten spacing, better hierarchy
+   ============================================================ */
+@media (max-width: 600px) {
+  /* TIGHTER LAYOUT: less padding around the main page */
+  .layout-wrapper {
+    padding: 0.5rem 0.75rem 1.5rem !important;
+    gap: 1rem !important;
+  }
+  .main-content { gap: 1rem !important; }
+
+  /* SECTIONS: less internal padding */
+  .gallery-section,
+  .testimonials-section,
+  .pastors-section,
+  .youtube-section,
+  .sunday-school-section,
+  .support-section,
+  .hero-section {
+    padding: 1.25rem 0.75rem !important;
+    margin: 0 !important;
+  }
+
+  /* SECTION TITLES: smaller + tighter */
+  .section-title {
+    font-size: 1.5rem !important;
+    margin: 0 0 0.85rem !important;
+    text-align: left;
+    padding: 0 0.25rem;
+  }
+
+  /* HERO CONTENT */
+  .hero-content { padding: 1.5rem 1rem 1rem !important; gap: 0.6rem; }
+  .hero-content .title, .hero-content h1 { font-size: 1.85rem !important; }
+  .hero-content p, .hero-content .subtitle { font-size: 0.95rem !important; }
+
+  /* WATCH LIVE / SECONDARY CARDS */
+  .live-banner, .watch-live, .live-broadcast-card {
+    padding: 1rem !important;
+    margin: 0.75rem 0 !important;
+  }
+
+  /* ABOUT IMAGE: smaller, less margin */
+  .about-img, .about-image {
+    max-height: 220px;
+    object-fit: cover;
+    margin: 0.5rem 0 !important;
+  }
+  .about-section { padding: 1rem 0.75rem !important; }
+  .about-section p { font-size: 0.95rem; line-height: 1.55; }
+
+  /* GALLERY HERO COLLAGE: smaller tiles on phone */
+  .gallery-hero-collage {
+    grid-template-columns: repeat(2, 1fr) !important;
+    grid-auto-rows: 110px !important;
+    gap: 5px !important;
+    padding: 0 !important;
+    margin: 0 0 1rem !important;
+  }
+  .gallery-section { padding: 1.25rem 0.5rem !important; }
+
+  /* ALBUM CARDS: tighter */
+  .gallery-album {
+    margin: 0 0 1rem !important;
+    padding: 1rem 0.85rem !important;
+  }
+  .album-title { font-size: 1.05rem !important; }
+  .album-meta { font-size: 0.78rem !important; }
+  .album-clickable { padding: 0.4rem 0.5rem !important; margin: -0.4rem -0.5rem 0.4rem !important; }
+  .gallery-album .collage {
+    grid-template-columns: repeat(3, 1fr) !important;
+    grid-auto-rows: 85px !important;
+    gap: 4px !important;
+  }
+  .album-view-all-link { font-size: 0.78rem !important; }
+
+  /* PASTORS: larger photo, tighter card */
+  .pastors-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.85rem !important;
+  }
+  .pastor-card {
+    padding: 0.85rem !important;
+  }
+  .pastor-card h3 { font-size: 1rem !important; margin: 0.6rem 0 0.15rem !important; }
+  .pastor-role { font-size: 0.78rem !important; }
+  .pastor-img-wrapper { height: 180px !important; border-radius: 10px !important; }
+
+  /* SUNDAY SCHOOL banner */
+  .sunday-school-banner { min-height: 180px !important; }
+  .ss-content-overlay { padding: 1.25rem 1rem !important; }
+  .ss-content-overlay .section-title { font-size: 1.4rem !important; text-align: center; }
+  .ss-content-overlay .kids-info-desc { font-size: 0.9rem !important; text-align: center; margin: 0.3rem 0 0.75rem; }
+  .ss-cta-arrow { display: inline-block; margin: 0.5rem auto 0; padding: 0.55rem 1.1rem !important; font-size: 0.85rem; }
+
+  /* YOUTUBE FEED: 1-column on mobile, full-bleed cards */
+  .yt-video-grid.grid-2,
+  .yt-video-grid.grid-3,
+  .yt-video-grid { grid-template-columns: 1fr 1fr !important; gap: 0.7rem !important; }
+  .yt-card { padding: 0 !important; }
+  .yt-thumb-wrapper { aspect-ratio: 16/9; border-radius: 8px !important; }
+  .yt-title { font-size: 0.82rem !important; line-height: 1.3 !important; -webkit-line-clamp: 2; }
+  .yt-meta { font-size: 0.7rem !important; }
+  .yt-info { padding: 0.5rem 0.25rem !important; }
+
+  /* SUPPORT SECTION: tighter */
+  .support-section { padding: 1.5rem 1rem !important; margin: 1rem 0 !important; }
+  .support-title { font-size: 1.5rem !important; }
+  .support-description { font-size: 0.95rem !important; }
+  .support-method { padding: 0.85rem !important; }
+  .support-method h4 { font-size: 0.9rem !important; }
+
+  /* TESTIMONIALS: smaller carousel cards on mobile */
+  .testimonials-section { padding: 1.25rem 0 !important; }
+  .testimonials-section .section-title { padding: 0 0.75rem; }
+
+  /* LYRICS BANNER */
+  .lyrics-banner-card {
+    margin: 0.5rem 0 !important;
+    padding: 1rem !important;
+    min-height: auto !important;
+  }
+  .lyrics-banner-text { font-size: 1.15rem !important; }
+
+  /* SIDEBAR cards (Watch Live, Prayer, Timings) */
+  .sidebar .card,
+  .sidebar > div {
+    padding: 1rem 0.85rem !important;
+    margin: 0 !important;
+  }
+  .sidebar h2, .sidebar h3 { font-size: 1rem !important; margin-bottom: 0.5rem !important; }
+}
+
+/* Tighter still on very small phones */
+@media (max-width: 380px) {
+  .pastors-grid { grid-template-columns: 1fr !important; }
+  .pastor-img-wrapper { height: 220px !important; }
+  .yt-video-grid { grid-template-columns: 1fr !important; }
+  .gallery-hero-collage { grid-auto-rows: 100px !important; }
+}
