@@ -18,6 +18,9 @@ const DEFAULT_STATE = {
         contact: { label: 'Contact & Map', icon: '📍', visible: true, order: 9 },
         events: { label: 'Upcoming Events', icon: '📅', visible: true, order: 10 },
         support: { label: 'Support / Donations', icon: '💝', visible: true, order: 11 },
+        prayer: { label: 'Prayer Request', icon: '🙏', visible: true, order: 12 },
+        timings: { label: 'Church Timings', icon: '⏰', visible: true, order: 13 },
+        lyrics: { label: 'Song Lyrics Banner', icon: '🎵', visible: true, order: 14 },
     },
     hero: [],
     pastors: [

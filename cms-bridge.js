@@ -87,6 +87,10 @@
 
         // Apply shared sections visibility first
         if (data.sections) {
+            // Ensure new section keys exist with default-visible for legacy cloud states
+            ['prayer', 'timings', 'lyrics'].forEach(id => {
+                if (!data.sections[id]) data.sections[id] = { visible: true };
+            });
             Object.entries(data.sections).forEach(([id, cfg]) => {
                 setVisibility(id, cfg.visible !== false);
             });
@@ -652,13 +656,12 @@
 
         const yt = cms.youtube || {};
 
-        // Section visibility
+        // Section visibility - use setVisibility which respects admin toggle
+        // (the youtube.visible flag also gets respected via the admin section toggle)
         const ytSection = document.getElementById('youtube-feed');
-        if (ytSection && yt.visible === false) {
-            ytSection.style.display = 'none';
-            return;
-        }
-        if (ytSection) ytSection.style.display = '';
+        const ytShouldShow = yt.visible !== false;
+        setVisibility('youtube-feed', ytShouldShow);
+        if (!ytShouldShow) return;
 
         // Channel link button
         if (yt.channels && yt.channels.length > 0) {
