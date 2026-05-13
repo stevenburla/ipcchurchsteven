@@ -2659,3 +2659,121 @@ p { color: var(--ink-700); }
   overflow: hidden;
   background: #f0f0f0;
 }
+
+/* ============================================================
+   KIDS PROGRAM PHOTOS (per-program gallery)
+   ============================================================ */
+.kids-program-photos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 90px;
+  gap: 4px;
+  margin-top: 1rem;
+  position: relative;
+}
+.kids-program-photo {
+  overflow: hidden;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #f4f0e8;
+  transition: transform 0.2s ease;
+}
+.kids-program-photo:hover { transform: scale(1.02); }
+.kids-program-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.kids-program-more {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  background: rgba(0,0,0,0.75);
+  color: white;
+  padding: 0.35rem 0.7rem;
+  border-radius: 18px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  pointer-events: none;
+}
+@media (max-width: 600px) {
+  .kids-program-photos { grid-auto-rows: 80px; gap: 3px; }
+}
+
+/* ============================================================
+   WATCH LIVE — video embed + status
+   ============================================================ */
+.watch-live-section { padding: 2rem 1rem; }
+.watch-live-container {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 2rem;
+  max-width: 1100px;
+  margin: 0 auto;
+  align-items: center;
+}
+.watch-live-video {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: #1a1a1a;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+.watch-live-video iframe,
+.watch-live-video .video-placeholder {
+  width: 100%; height: 100%;
+  border: 0;
+  display: block;
+}
+.watch-live-video .video-placeholder {
+  background: #1a1a1a url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><circle cx="100" cy="100" r="60" fill="rgba(244,106,0,0.85)"/><polygon points="85,75 85,125 130,100" fill="white"/></svg>') center/120px no-repeat;
+}
+.watch-live-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.75rem;
+}
+.watch-live-status.is-live {
+  background: #dc2626;
+  color: white;
+}
+.watch-live-status.is-live::before {
+  content: '';
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: white;
+  animation: livePulse 1.5s infinite;
+}
+@keyframes livePulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+.watch-live-status.is-offline {
+  background: #e5e7eb;
+  color: #555;
+}
+.watch-live-info h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  margin: 0.5rem 0;
+}
+.watch-live-info p { color: var(--ink-700, #555); line-height: 1.55; }
+.watch-live-next {
+  margin-top: 1rem;
+  padding: 0.85rem 1rem;
+  background: rgba(244,106,0,0.08);
+  border-left: 3px solid var(--accent, #C8521E);
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 700px) {
+  .watch-live-container { grid-template-columns: 1fr; gap: 1.25rem; }
+  .watch-live-info h2 { font-size: 1.35rem; }
+}

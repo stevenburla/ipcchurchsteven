@@ -1128,15 +1128,109 @@ document.getElementById('add-kids-btn')?.addEventListener('click', () => {
 });
 
 function openKidsModal(id = null) {
-    const p = id ? STATE.kids.programs.find(item => item.id === id) : null;
-    openModal(id ? '✏ Edit Program' : '+ Add Program', `
-        <div class="form-group"><label class="form-label">Program Name</label><input class="form-control" id="_kp-name" value="${p?.name || ''}"></div>
-        <div class="form-group span-2"><label class="form-label">Description</label><textarea class="form-control" id="_kp-desc" rows="4">${p?.desc || ''}</textarea></div>
+    STATE.kids = STATE.kids || { programs: [], gallery: [] };
+    let p = id ? STATE.kids.programs.find(item => item.id === id) : null;
+    let isNew = false;
+    
+    if (!p) {
+        isNew = true;
+        p = { id: genId(), name: '', name_te: '', age: '', desc: '', desc_te: '', photos: [] };
+        STATE.kids.programs.push(p);
+        id = p.id;
+    }
+    p.photos = p.photos || [];
+    
+    openModal(isNew ? '+ Add Program' : '✏ Edit Program', `
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label">Program Name (English)</label>
+                <input class="form-control" id="_kp-name" value="${esc(p.name)}" placeholder="e.g. Bible Fair">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Program Name (తెలుగు)</label>
+                <input class="form-control" id="_kp-name-te" value="${esc(p.name_te || '')}">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Age Range</label>
+                <input class="form-control" id="_kp-age" value="${esc(p.age || '')}" placeholder="e.g. 3-5 or All ages">
+            </div>
+            <div class="form-group"></div>
+            <div class="form-group col-2">
+                <label class="form-label">Description (English)</label>
+                <textarea class="form-control" id="_kp-desc" rows="4">${esc(p.desc)}</textarea>
+            </div>
+            <div class="form-group col-2">
+                <label class="form-label">Description (తెలుగు)</label>
+                <textarea class="form-control" id="_kp-desc-te" rows="4">${esc(p.desc_te || '')}</textarea>
+            </div>
+        </div>
+        
+        <hr style="margin:1.5rem 0; border:none; border-top:1px solid #eee">
+        
+        <div class="section-head">
+            <h2>Photos (${p.photos.length})</h2>
+            <button class="btn btn-outline" type="button" id="_kp-add-photos">+ Upload Photos</button>
+            <input type="file" id="_kp-file-input" multiple accept="image/*" style="display:none">
+        </div>
+        <p class="muted-note" style="font-size:13px;margin-top:0">Upload photos specific to this program (e.g. Bible Fair photos go here, not in the general Kids Gallery).</p>
+        <div id="_kp-photos-grid" class="photo-grid"></div>
     `, () => {
-        const data = { name: document.getElementById('_kp-name').value.trim(), desc: document.getElementById('_kp-desc').value.trim() };
-        if (id) { Object.assign(STATE.kids.programs.find(item => item.id === id), data); }
-        else { STATE.kids.programs.push({ id: genId(), ...data }); }
-        saveState(); closeModal(); renderKids();
+        p.name = document.getElementById('_kp-name').value.trim();
+        p.name_te = document.getElementById('_kp-name-te').value.trim();
+        p.age = document.getElementById('_kp-age').value.trim();
+        p.desc = document.getElementById('_kp-desc').value.trim();
+        p.desc_te = document.getElementById('_kp-desc-te').value.trim();
+        
+        if (!p.name) {
+            if (isNew) STATE.kids.programs = STATE.kids.programs.filter(x => x.id !== id);
+            saveState();
+            toast('Program name required', 'error');
+            return;
+        }
+        
+        saveState();
+        closeModal();
+        renderKids();
+        toast(isNew ? 'Program created!' : 'Program updated', 'success');
+    }, 'Save Program');
+    
+    renderKidsProgramPhotos(p);
+    
+    document.getElementById('_kp-add-photos').onclick = () => {
+        document.getElementById('_kp-file-input').click();
+    };
+    document.getElementById('_kp-file-input').onchange = async (e) => {
+        const files = e.target.files;
+        if (!files || !files.length) return;
+        toast('Uploading ' + files.length + ' photo(s)...', 'info');
+        await processFileUploads(files, p.photos, 'kids');
+        saveState();
+        renderKidsProgramPhotos(p);
+        toast('Uploaded ' + files.length + ' photo(s) ✓', 'success');
+    };
+}
+
+function renderKidsProgramPhotos(program) {
+    const grid = document.getElementById('_kp-photos-grid');
+    if (!grid) return;
+    if (!program.photos || !program.photos.length) {
+        grid.innerHTML = '<p class="muted-note">No photos yet for this program. Click + Upload Photos to add.</p>';
+        return;
+    }
+    grid.innerHTML = program.photos.map((ph, idx) =>
+        '<div class="photo-thumb" style="position:relative">' +
+            '<img src="' + esc(ph.thumbnail || ph.url) + '" style="width:100%;height:100%;object-fit:cover;border-radius:6px">' +
+            '<button class="photo-del-btn" data-idx="' + idx + '" style="position:absolute;top:4px;right:4px;background:rgba(220,38,38,0.9);color:white;border:0;width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:14px">×</button>' +
+        '</div>'
+    ).join('');
+    grid.querySelectorAll('.photo-del-btn').forEach(btn => {
+        btn.onclick = () => {
+            const idx = parseInt(btn.dataset.idx, 10);
+            program.photos.splice(idx, 1);
+            saveState();
+            renderKidsProgramPhotos(program);
+            toast('Photo removed', 'info');
+        };
     });
 }
 

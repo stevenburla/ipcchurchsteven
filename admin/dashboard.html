@@ -117,6 +117,11 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="#" data-tab="tab-watch-live">
+                            <span class="nav-icon">📺</span><span class="nav-text">Watch Live</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="#" data-tab="tab-prayer">
                             <span class="nav-icon">🙏</span>
                             <span class="nav-text">Prayer Requests</span>
@@ -1066,7 +1071,60 @@
                     </div>
                 </div>
 
-                                                <!-- ═══ PRAYER REQUESTS ═══════════════════════════════════ -->
+                <!-- === WATCH LIVE ======================================= -->
+                <div id="tab-watch-live" class="tab-panel">
+                    <div class="page-title">
+                        <h1>📺 Watch Live</h1>
+                        <p>Configure the live stream URL and broadcast info shown on the homepage.</p>
+                    </div>
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>Stream Settings</h2>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group col-2">
+                                <label class="form-label">Live Stream URL</label>
+                                <input class="form-control" id="wl-url" placeholder="https://www.youtube.com/watch?v=abc123 or https://www.youtube.com/live/abc123">
+                                <p class="muted-note" style="font-size:11px;margin-top:0.3rem">Paste your YouTube live URL. Works with: youtube.com/watch?v=, youtube.com/live/, or youtu.be/ links.</p>
+                            </div>
+                            <div class="form-group col-2">
+                                <label class="form-label">Status</label>
+                                <label class="toggle-switch" style="display:inline-flex;align-items:center;gap:0.6rem">
+                                    <input type="checkbox" id="wl-isLive">
+                                    <span class="toggle-track"></span>
+                                    <span style="font-size:14px">Live Now (shows red badge + auto-plays stream)</span>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Title (English)</label>
+                                <input class="form-control" id="wl-title" placeholder="Watch Live">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Title (తెలుగు)</label>
+                                <input class="form-control" id="wl-title-te">
+                            </div>
+                            <div class="form-group col-2">
+                                <label class="form-label">Subtitle / Description (English)</label>
+                                <textarea class="form-control" id="wl-subtitle" rows="2" placeholder="Join us live every Sunday morning..."></textarea>
+                            </div>
+                            <div class="form-group col-2">
+                                <label class="form-label">Subtitle / Description (తెలుగు)</label>
+                                <textarea class="form-control" id="wl-subtitle-te" rows="2"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Next Broadcast (English)</label>
+                                <input class="form-control" id="wl-nextBroadcast" placeholder="e.g. Sunday 6:00 AM IST">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Next Broadcast (తెలుగు)</label>
+                                <input class="form-control" id="wl-nextBroadcast-te">
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-accent" id="wl-save-btn">💾 Save Watch Live Settings</button>
+                </div>
+
+                                                                <!-- ═══ PRAYER REQUESTS ═══════════════════════════════════ -->
                 <div id="tab-prayer" class="tab-panel">
                     <div class="page-title">
                         <h1>🙏 Prayer Requests</h1>

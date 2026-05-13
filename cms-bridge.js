@@ -100,6 +100,7 @@
         applyGallerySection(data);
         applySupportSection(data);
         applyPostsSection(data);
+        applyWatchLive(data);
         applyTestimonials(data);
         applyYouTubeConfig(data);
         applySiteInfo(data);
@@ -190,16 +191,32 @@
         const programs = data.kids?.programs || data.kids || [];
         if (!grid || !programs.length) return;
 
+        const lang = document.documentElement.lang || 'en';
+        const pick = (obj, k) => (lang === 'te' && obj[k + '_te']) ? obj[k + '_te'] : obj[k];
+
         grid.innerHTML = '';
         programs.forEach(k => {
-            if (!k.name) return;
+            const name = pick(k, 'name');
+            if (!name) return;
+            const desc = pick(k, 'desc') || '';
+            const photos = k.photos || [];
             const card = document.createElement('div');
             card.className = 'kids-program-card fade-in';
+            const photoHtml = photos.length ? `
+                <div class="kids-program-photos">
+                    ${photos.slice(0, 6).map(ph => `
+                        <div class="kids-program-photo" onclick="openLightbox('${esc(ph.url)}')">
+                            <img src="${esc(ph.thumbnail || ph.url)}" alt="" loading="lazy">
+                        </div>
+                    `).join('')}
+                    ${photos.length > 6 ? `<div class="kids-program-more">+${photos.length - 6} more</div>` : ''}
+                </div>` : '';
             card.innerHTML = `
                 <div class="program-icon">${esc(k.icon || '🌟')}</div>
-                <h3>${esc(k.name)}</h3>
+                <h3>${esc(name)}</h3>
                 ${k.age ? `<p class="program-age" style="font-size:0.8rem; color:var(--accent)">Age: ${esc(k.age)}</p>` : ''}
-                <p>${esc(k.desc)}</p>`;
+                <p>${esc(desc)}</p>
+                ${photoHtml}`;
             grid.appendChild(card);
         });
     }
@@ -636,6 +653,85 @@
         });
         observer.observe(document.body, { childList: true });
     };
+    
+    
+    // ════════════════════════════════════════════════════════════════════════════
+    // WATCH LIVE — renders configurable live stream block
+    // ════════════════════════════════════════════════════════════════════════════
+    function applyWatchLive(data) {
+        const section = document.getElementById('watch-live');
+        if (!section) return;
+        const w = data.watchLive || {};
+        const lang = document.documentElement.lang || 'en';
+        const pick = (k) => (lang === 'te' && w[k + '_te']) ? w[k + '_te'] : w[k];
+        
+        // Update title
+        const titleEl = section.querySelector('[data-i18n="watch_live_title"], .watch-live-info h2');
+        if (titleEl && pick('title')) titleEl.textContent = pick('title');
+        
+        // Update subtitle
+        const descEl = section.querySelector('.broadcast-desc');
+        if (descEl) descEl.textContent = pick('subtitle') || '';
+        
+        // Update next broadcast info
+        const dateEl = section.querySelector('.broadcast-date');
+        if (dateEl) dateEl.textContent = pick('nextBroadcast') || '';
+        
+        // Live/Offline status badge in info area
+        const infoArea = section.querySelector('.watch-live-info');
+        if (infoArea) {
+            let badge = infoArea.querySelector('.watch-live-status');
+            if (!badge) {
+                badge = document.createElement('div');
+                badge.className = 'watch-live-status';
+                infoArea.insertBefore(badge, infoArea.firstChild);
+            }
+            if (w.isLive) {
+                badge.className = 'watch-live-status is-live';
+                badge.textContent = 'LIVE NOW';
+            } else {
+                badge.className = 'watch-live-status is-offline';
+                badge.textContent = 'Offline';
+            }
+        }
+        
+        // Video area: embed iframe if Live + URL exists, else placeholder
+        const videoArea = section.querySelector('.watch-live-video');
+        if (videoArea) {
+            videoArea.innerHTML = '';
+            if (w.isLive && w.embedUrl) {
+                const iframe = document.createElement('iframe');
+                iframe.src = w.embedUrl;
+                iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+                iframe.allowFullscreen = true;
+                iframe.title = 'Live Stream';
+                videoArea.appendChild(iframe);
+            } else {
+                // Show clickable placeholder that opens stream URL in new tab
+                const placeholder = document.createElement('div');
+                placeholder.className = 'video-placeholder';
+                if (w.url) {
+                    placeholder.style.cursor = 'pointer';
+                    placeholder.onclick = () => window.open(w.url, '_blank', 'noopener');
+                }
+                videoArea.appendChild(placeholder);
+            }
+        }
+        
+        // "Watch / Listen" button
+        const btn = section.querySelector('.live-btn');
+        if (btn) {
+            if (w.url) {
+                btn.style.display = '';
+                btn.onclick = (e) => {
+                    e.preventDefault();
+                    window.open(w.url, '_blank', 'noopener');
+                };
+            } else {
+                btn.style.display = 'none';
+            }
+        }
+    }
     
         // Quick Lightbox helper
     window.openLightbox = function(url) {

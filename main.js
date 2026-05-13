@@ -718,6 +718,25 @@ document.addEventListener('DOMContentLoaded', () => {
             const { error } = await sb.from('cms_data').update({ value: state }).eq('key', 'state');
             if (error) throw error;
             
+            // Also send email notification via Formsubmit (free, no signup, one-time verify)
+            // After deploy, the first submission emails stevenburla4@gmail.com - click the verify link
+            // in that email once; future submissions arrive automatically.
+            try {
+                fetch('https://formsubmit.co/ajax/stevenburla4@gmail.com', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify({
+                        _subject: 'New Prayer Request from ' + name,
+                        _template: 'box',
+                        _captcha: 'false',
+                        Name: name,
+                        'Prayer Request': message,
+                        Submitted: new Date().toLocaleString(),
+                        Source: 'ipcchurchsteven.com'
+                    })
+                }).catch(() => {});
+            } catch (e) { /* don't block success on email failure */ }
+
             // Success: clear form, show confirmation
             nameInput.value = '';
             msgInput.value = '';

@@ -314,3 +314,56 @@ document.getElementById('sup-save-btn')?.addEventListener('click', () => {
     logActivity('Support', 'Donation settings updated');
     toast('Support settings saved!', 'success');
 });
+
+
+// ─── WATCH LIVE ───────────────────────────────────────────────────────────────
+function renderWatchLive() {
+    STATE.watchLive = STATE.watchLive || {};
+    const w = STATE.watchLive;
+    const fields = ['url', 'title', 'subtitle', 'nextBroadcast'];
+    fields.forEach(f => {
+        const el = document.getElementById('wl-' + f);
+        if (el) el.value = w[f] || '';
+        const teEl = document.getElementById('wl-' + f + '-te');
+        if (teEl) teEl.value = w[f + '_te'] || '';
+    });
+    const liveToggle = document.getElementById('wl-isLive');
+    if (liveToggle) liveToggle.checked = !!w.isLive;
+}
+
+document.getElementById('wl-save-btn')?.addEventListener('click', () => {
+    STATE.watchLive = STATE.watchLive || {};
+    const w = STATE.watchLive;
+    const fields = ['url', 'title', 'subtitle', 'nextBroadcast'];
+    fields.forEach(f => {
+        const el = document.getElementById('wl-' + f);
+        if (el) w[f] = el.value.trim();
+        const teEl = document.getElementById('wl-' + f + '-te');
+        if (teEl) w[f + '_te'] = teEl.value.trim();
+    });
+    w.isLive = !!document.getElementById('wl-isLive')?.checked;
+    
+    // Convert URL to embed format
+    w.embedUrl = extractYouTubeEmbedUrl(w.url);
+    
+    saveState();
+    logActivity('Watch Live', 'Settings updated');
+    toast('Watch Live settings saved!', 'success');
+});
+
+function extractYouTubeEmbedUrl(url) {
+    if (!url) return '';
+    // Handle various YouTube URL formats
+    let videoId = '';
+    // youtube.com/watch?v=ID
+    let m = url.match(/[?&]v=([A-Za-z0-9_-]{11})/);
+    if (m) videoId = m[1];
+    // youtu.be/ID
+    if (!videoId) { m = url.match(/youtu\.be\/([A-Za-z0-9_-]{11})/); if (m) videoId = m[1]; }
+    // youtube.com/live/ID
+    if (!videoId) { m = url.match(/youtube\.com\/live\/([A-Za-z0-9_-]{11})/); if (m) videoId = m[1]; }
+    // youtube.com/embed/ID
+    if (!videoId) { m = url.match(/youtube\.com\/embed\/([A-Za-z0-9_-]{11})/); if (m) videoId = m[1]; }
+    if (videoId) return 'https://www.youtube.com/embed/' + videoId + '?autoplay=1&rel=0';
+    return '';
+}

@@ -51,6 +51,17 @@ const DEFAULT_STATE = {
         ],
         gallery: []
     },
+    watchLive: {
+        url: '',
+        embedUrl: '',
+        isLive: false,
+        title: 'Watch Live',
+        title_te: '',
+        subtitle: '',
+        subtitle_te: '',
+        nextBroadcast: '',
+        nextBroadcast_te: ''
+    },
     support: {
         title: 'Support Our Ministry',
         title_te: 'మా ప్రీత్తి ధనసహాయం',
@@ -242,6 +253,7 @@ function saveState(pushToCloud = true) {
         kids: STATE.kids,
         ministries: STATE.ministries,
         support: STATE.support || {},
+        watchLive: STATE.watchLive || {},
         posts: STATE.posts || [],
         prayerRequests: STATE.prayerRequests || []
     };
@@ -871,6 +883,7 @@ function setupTabs() {
                 }
                 if (targetId === 'tab-support' && typeof renderSupport === 'function') renderSupport();
                 if (targetId === 'tab-posts' && typeof renderPosts === 'function') renderPosts();
+                if (targetId === 'tab-watch-live' && typeof renderWatchLive === 'function') renderWatchLive();
                 if (targetId === 'tab-prayer' && typeof renderPrayer === 'function') renderPrayer();
                 if (targetId === 'tab-siteinfo' && typeof renderSiteInfo === 'function') renderSiteInfo();
                 if (targetId === 'tab-seo' && typeof renderSEO === 'function') renderSEO();
