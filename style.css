@@ -2285,3 +2285,98 @@ p { color: var(--ink-700); }
   .gallery-album .collage { grid-auto-rows: 80px !important; gap: 4px !important; }
   .album-view-all-link { font-size: 0.78rem !important; padding: 0.3rem 0.6rem; }
 }
+
+/* ============================================================
+   ALBUM CARDS — FINAL FIX (forces 1 column on small screens, nowrap header)
+   ============================================================ */
+.gallery-section .section-container .gallery-album .album-header,
+.gallery-section .section-container .gallery-album .album-clickable {
+  flex-wrap: nowrap !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+.gallery-section .section-container .gallery-album .album-clickable > div:first-child {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+}
+.gallery-section .section-container .gallery-album .album-view-all-link {
+  flex: 0 0 auto !important;
+  white-space: nowrap !important;
+}
+
+/* Force single column below 800px so albums always have breathing room */
+@media (max-width: 800px) {
+  .gallery-section .section-container {
+    grid-template-columns: 1fr !important;
+    max-width: 600px;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+}
+
+/* Tablet: 2 columns only when comfortably wide */
+@media (min-width: 801px) and (max-width: 1100px) {
+  .gallery-section .section-container {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* ============================================================
+   ALBUM COLLAGE — final compact + proper image fill
+   ============================================================ */
+.gallery-album .collage {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  grid-auto-rows: 75px !important;
+  gap: 4px !important;
+  position: relative !important;
+}
+.gallery-album .collage .collage-item {
+  aspect-ratio: auto !important;
+  overflow: hidden !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+}
+.gallery-album .collage .collage-item img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  display: block !important;
+}
+
+/* "+X more" badge: anchor to bottom-right of LAST visible photo, prominent */
+.gallery-album .collage-more {
+  position: absolute !important;
+  bottom: 6px !important;
+  right: 6px !important;
+  background: rgba(0,0,0,0.75) !important;
+  color: white !important;
+  padding: 0.4rem 0.75rem !important;
+  border-radius: 18px !important;
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
+  backdrop-filter: blur(6px) !important;
+  pointer-events: none !important;
+  z-index: 2 !important;
+}
+
+@media (max-width: 600px) {
+  .gallery-album .collage { grid-auto-rows: 70px !important; gap: 3px !important; }
+  .gallery-album .collage-more { padding: 0.3rem 0.6rem !important; font-size: 0.7rem !important; }
+}
+
+/* Mobile: ensure View All link is small but visible */
+@media (max-width: 600px) {
+  .gallery-album .album-clickable {
+    margin: 0 0 0.6rem !important;
+    gap: 0.4rem !important;
+  }
+  .gallery-album .album-title { font-size: 0.95rem !important; }
+  .gallery-album .album-meta { font-size: 0.72rem !important; }
+  .album-view-all-link {
+    font-size: 0.7rem !important;
+    padding: 0.28rem 0.55rem !important;
+  }
+}

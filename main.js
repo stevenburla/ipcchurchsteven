@@ -65,9 +65,14 @@ document.addEventListener('DOMContentLoaded', () => {
             'https://api.allorigins.win/raw?url=',
             'https://api.codetabs.com/v1/proxy?quest='
         ];
+        // Use Promise.race for timeout (mobile Safari compatibility)
+        const fetchT = (url, ms) => Promise.race([
+            fetch(url),
+            new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))
+        ]);
         for (const p of proxies) {
             try {
-                const res = await fetch(p + encodeURIComponent(channelUrl), { signal: AbortSignal.timeout(8000) });
+                const res = await fetchT(p + encodeURIComponent(channelUrl), 8000);
                 if (!res.ok) continue;
                 const html = await res.text();
                 const m = html.match(/"externalId":"(UC[A-Za-z0-9_-]{20,})"/) ||
@@ -93,9 +98,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (!channels.length) {
-            grid.innerHTML = '<p style="text-align:center;color:#7a7a7a;grid-column:1/-1;padding:3rem;">No channel configured yet.</p>';
+            // Cloud data may not have arrived yet (esp. on slow mobile networks).
+            // Keep loading indicator and retry until CMS hydrates.
+            grid.innerHTML = '<div class="yt-loading" style="grid-column:1/-1;text-align:center;padding:2.5rem;color:#7a7a7a;">' +
+                '<span class="loader"></span><p style="margin-top:.75rem">Loading videos...</p></div>';
+            // Schedule retries: 1s, 3s, 6s, 10s
+            if (!window._ytRetryCount) window._ytRetryCount = 0;
+            if (window._ytRetryCount < 4) {
+                window._ytRetryCount++;
+                const delays = [1000, 2000, 3000, 4000];
+                setTimeout(() => fetchYouTubeVideos(), delays[window._ytRetryCount - 1]);
+            } else {
+                // After 4 retries (~10s), give up gracefully
+                grid.innerHTML = '<p style="text-align:center;color:#7a7a7a;grid-column:1/-1;padding:3rem;">No channel configured yet.</p>';
+            }
             return;
         }
+        // Reset retry counter when channels are present
+        window._ytRetryCount = 0;
 
         try {
             const allVideos = [];
@@ -117,12 +137,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 if (!firstFeedLink) firstFeedLink = channelPageUrl.replace(/\/videos$/, '');
 
-                // Use r.jina.ai to scrape the channel's /videos page (YouTube RSS is currently broken)
+                // Use r.jina.ai to scrape the channel's /videos page (YouTube RSS is broken)
+                // Multi-strategy: manual timeout (mobile Safari < 17.4 lacks AbortSignal.timeout)
+                const fetchWithTimeout = (url, ms) => Promise.race([
+                    fetch(url),
+                    new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))
+                ]);
+                const sources = [
+                    'https://r.jina.ai/' + channelPageUrl,
+                    'https://r.jina.ai/https://www.youtube.com/channel/' + ucId + '/videos',
+                    'https://api.allorigins.win/raw?url=' + encodeURIComponent(channelPageUrl),
+                ];
                 let pageText = null;
-                try {
-                    const r = await fetch('https://r.jina.ai/' + channelPageUrl, { signal: AbortSignal.timeout(10000) });
-                    if (r.ok) pageText = await r.text();
-                } catch (e) { console.warn('jina fetch failed', e); }
+                for (const url of sources) {
+                    try {
+                        const r = await fetchWithTimeout(url, 12000);
+                        if (!r.ok) continue;
+                        const txt = await r.text();
+                        if (txt && txt.match(/watch\?v=[A-Za-z0-9_-]{11}/)) {
+                            pageText = txt;
+                            break;
+                        }
+                    } catch (e) { console.warn('YT fetch source failed:', url.slice(0, 40), e.message); }
+                }
 
                 if (!pageText) return;
 
