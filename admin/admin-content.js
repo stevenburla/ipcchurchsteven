@@ -49,33 +49,62 @@ function createImageUploader(currentUrl, onChange, folder = 'general') {
         // Task 6: Preview before upload
         const result = await optimizeImage(file);
         
-        openModal('Confirm Upload', `
-            <div style="text-align:center">
-                <p>Optimization Complete:</p>
-                <div style="background:#f8f9fa; padding:1rem; border-radius:8px; margin:1rem 0">
-                    <img src="${result.previewUrl}" style="max-width:100%; border-radius:4px; box-shadow:0 2px 8px rgba(0,0,0,0.1)">
-                    <div style="margin-top:0.5rem; font-size:12px">
-                        Dimensions: ${result.w} x ${result.h} <br>
-                        Original: ${(file.size/1024).toFixed(1)}KB → Optimized: ${(result.fullBlob.size/1024).toFixed(1)}KB
+        // Hold the current blobs (may be replaced if user crops first)
+        let currentFull = result.fullBlob;
+        let currentThumb = result.thumbBlob;
+        let currentPreview = result.previewUrl;
+
+        const renderConfirmModal = () => {
+            openModal('Confirm Upload', `
+                <div style="text-align:center">
+                    <p>Optimization Complete:</p>
+                    <div style="background:#f8f9fa; padding:1rem; border-radius:8px; margin:1rem 0">
+                        <img id="_conf-preview" src="${currentPreview}" style="max-width:100%; border-radius:4px; box-shadow:0 2px 8px rgba(0,0,0,0.1)">
+                        <div style="margin-top:0.5rem; font-size:12px" id="_conf-info">
+                            Original: ${(file.size/1024).toFixed(1)}KB → Final: ${(currentFull.size/1024).toFixed(1)}KB
+                        </div>
                     </div>
+                    <div style="margin: 0.75rem 0">
+                        <button class="btn btn-outline btn-sm" id="_conf-crop-btn" type="button">✂ Crop / Edit Before Upload</button>
+                    </div>
+                    <p class="muted-note" style="font-size:11px">Optional: crop or adjust the image first. Otherwise click Upload Now.</p>
                 </div>
-                <p class="muted-note">This image will be stored permanently in Firebase Storage.</p>
-            </div>
-        `, async () => {
-            toast('Uploading to Storage...', 'info');
-            try {
-                const [url, thumb] = await Promise.all([
-                    uploadToStorage(result.fullBlob, result.name, folder),
-                    uploadToStorage(result.thumbBlob, 'thumb_' + result.name, folder)
-                ]);
-                updatePreview(url);
-                onChange({ url, thumbnail: thumb });
-                toast('Image Uploaded Successfully!', 'success');
-                closeModal();
-            } catch (err) {
-                toast('Upload Failed!', 'error');
-            }
-        }, { confirmText: '🚀 Upload Now' });
+            `, async () => {
+                toast('Uploading to Storage...', 'info');
+                try {
+                    const [url, thumb] = await Promise.all([
+                        uploadToStorage(currentFull, result.name, folder),
+                        uploadToStorage(currentThumb, 'thumb_' + result.name, folder)
+                    ]);
+                    updatePreview(url);
+                    onChange({ url, thumbnail: thumb });
+                    toast('Image Uploaded Successfully!', 'success');
+                    closeModal();
+                } catch (err) {
+                    toast('Upload Failed!', 'error');
+                }
+            }, { confirmText: '🚀 Upload Now' });
+
+            // Hook up crop-before-upload button
+            setTimeout(() => {
+                const cropBtn = document.getElementById('_conf-crop-btn');
+                if (cropBtn) {
+                    cropBtn.onclick = () => {
+                        closeModal();
+                        // Open Cropper with current preview URL
+                        openImageEditor(currentPreview, (blobs) => {
+                            currentFull = blobs.full;
+                            currentThumb = blobs.thumb;
+                            if (currentPreview && currentPreview.startsWith('blob:')) URL.revokeObjectURL(currentPreview);
+                            currentPreview = URL.createObjectURL(blobs.full);
+                            renderConfirmModal();
+                        });
+                    };
+                }
+            }, 50);
+        };
+
+        renderConfirmModal();
     };
 
     function updatePreview(url) {
@@ -166,79 +195,100 @@ function openMediaLibraryPicker(category, onSelect) {
  * Enhanced Image Editor Modal with basic Cropping/Rotating
  */
 function openImageEditor(url, onSave) {
-    let rotation = 0;
-    let crop = null; // {x, y, w, h}
+    let cropper = null;
     
-    openModal('🖼 Edit & Optimize Image', `
-        <div class="editor-toolbar" style="margin-bottom:1rem; display:flex; gap:0.5rem; flex-wrap:wrap">
-            <button class="btn btn-sm" id="_edit-rot-l">↺ Rotate</button>
-            <button class="btn btn-sm" id="_edit-center">🎯 Center Crop</button>
-            <div style="flex:1"></div>
-            <span class="muted-note" id="_edit-info">Optimizing for storage...</span>
+    openModal('🖼 Crop & Edit Image', `
+        <div class="cropper-toolbar" style="margin-bottom:1rem; display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center">
+            <strong style="font-size:13px">Aspect:</strong>
+            <button class="btn btn-outline btn-sm cropper-ar-btn active" data-ar="free">Free</button>
+            <button class="btn btn-outline btn-sm cropper-ar-btn" data-ar="1">1:1 Square</button>
+            <button class="btn btn-outline btn-sm cropper-ar-btn" data-ar="0.75">3:4 Portrait</button>
+            <button class="btn btn-outline btn-sm cropper-ar-btn" data-ar="1.333">4:3 Landscape</button>
+            <button class="btn btn-outline btn-sm cropper-ar-btn" data-ar="1.777">16:9 Wide</button>
+            <div style="flex:1; min-width:6px"></div>
+            <button class="btn btn-outline btn-sm" id="_cr-rotate">↻ Rotate</button>
+            <button class="btn btn-outline btn-sm" id="_cr-reset">⟲ Reset</button>
         </div>
-        <div style="display:flex; justify-content:center; background:#111; padding:1rem; border-radius:8px; overflow:auto; max-height:400px">
-            <canvas id="image-editor-canvas"></canvas>
+        <div style="background:#1a1a1a; border-radius:8px; padding:0.5rem; max-height:480px; overflow:hidden">
+            <img id="_cropper-img" src="${url}" crossorigin="anonymous" style="display:block; max-width:100%; max-height:460px">
         </div>
-        <p class="field-hint" style="margin-top:1rem;text-align:center">Final Resolution: <span id="_edit-size-info"></span></p>
+        <p class="muted-note" style="margin-top:0.6rem; font-size:12px">
+            Drag inside the box to move, drag handles to resize. Pick an aspect ratio above for fixed shapes.
+        </p>
     `, async () => {
-        const canvas = document.getElementById('image-editor-canvas');
-        if (canvas) {
-            // Generate both full and thumb
-            const full = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.8));
-            
-            // Create thumb canvas
-            const thumbCanvas = document.createElement('canvas');
-            thumbCanvas.width = 300; thumbCanvas.height = Math.round(300 * canvas.height / canvas.width);
-            thumbCanvas.getContext('2d').drawImage(canvas, 0, 0, thumbCanvas.width, thumbCanvas.height);
-            const thumb = await new Promise(res => thumbCanvas.toBlob(res, 'image/jpeg', 0.6));
-            
-            onSave({ full, thumb });
-            closeModal();
+        if (!cropper) {
+            toast('Cropper not ready, try again', 'error');
+            return;
         }
-    }, { confirmText: '✅ Save to Cloud' });
+        toast('Generating cropped image...', 'info');
+        const canvas = cropper.getCroppedCanvas({
+            maxWidth: 1600,
+            maxHeight: 1600,
+            imageSmoothingEnabled: true,
+            imageSmoothingQuality: 'high',
+            fillColor: '#ffffff'
+        });
+        if (!canvas) {
+            toast('Crop failed', 'error');
+            return;
+        }
+        const fullBlob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.85));
 
-    const canvas = document.getElementById('image-editor-canvas');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.src = url;
-    img.onload = () => renderCanvas();
+        // Make thumbnail
+        const thumbCanvas = document.createElement('canvas');
+        const tw = 300;
+        const th = Math.round(tw * canvas.height / canvas.width);
+        thumbCanvas.width = tw;
+        thumbCanvas.height = th;
+        thumbCanvas.getContext('2d').drawImage(canvas, 0, 0, tw, th);
+        const thumbBlob = await new Promise(res => thumbCanvas.toBlob(res, 'image/jpeg', 0.7));
 
-    function renderCanvas() {
-        let w = img.width, h = img.height;
-        if (rotation % 180 !== 0) { const t = w; w = h; h = t; }
-        
-        // Simple limit for editor preview
-        const limit = 800;
-        if (w > limit) { h = Math.round(h * limit / w); w = limit; }
-        
-        canvas.width = w; canvas.height = h;
-        ctx.clearRect(0,0, canvas.width, canvas.height);
-        ctx.save();
-        ctx.translate(canvas.width/2, canvas.height/2);
-        ctx.rotate(rotation * Math.PI / 180);
-        
-        // Draw image scaled to canvas
-        const drawW = (rotation % 180 === 0) ? w : h;
-        const drawH = (rotation % 180 === 0) ? h : w;
-        ctx.drawImage(img, -drawW/2, -drawH/2, drawW, drawH);
-        ctx.restore();
-        
-        document.getElementById('_edit-size-info').textContent = `${canvas.width} x ${canvas.height}`;
-    }
+        cropper.destroy();
+        cropper = null;
+        onSave({ full: fullBlob, thumb: thumbBlob });
+        closeModal();
+    }, { confirmText: '✅ Save Crop' });
 
-    document.getElementById('_edit-rot-l').onclick = () => { rotation = (rotation + 90) % 360; renderCanvas(); };
-    document.getElementById('_edit-center').onclick = () => {
-        // Simple square center crop simulation
-        const size = Math.min(canvas.width, canvas.height);
-        const x = (canvas.width - size) / 2;
-        const y = (canvas.height - size) / 2;
-        const data = ctx.getImageData(x, y, size, size);
-        canvas.width = size; canvas.height = size;
-        ctx.putImageData(data, 0, 0);
-        document.getElementById('_edit-size-info').textContent = `${size} x ${size} (Cropped)`;
-    };
+    // Wait for image and Cropper library, then attach
+    setTimeout(() => {
+        const imgEl = document.getElementById('_cropper-img');
+        if (!imgEl) return;
+        if (typeof Cropper === 'undefined') {
+            toast('Crop library not loaded - refresh page', 'error');
+            closeModal();
+            return;
+        }
+
+        const initCropper = () => {
+            cropper = new Cropper(imgEl, {
+                viewMode: 1,
+                autoCropArea: 0.9,
+                background: false,
+                responsive: true,
+                checkOrientation: true,
+                checkCrossOrigin: false
+            });
+
+            // Aspect ratio buttons
+            document.querySelectorAll('.cropper-ar-btn').forEach(btn => {
+                btn.onclick = () => {
+                    document.querySelectorAll('.cropper-ar-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    const ar = btn.dataset.ar;
+                    if (ar === 'free') {
+                        cropper.setAspectRatio(NaN);
+                    } else {
+                        cropper.setAspectRatio(parseFloat(ar));
+                    }
+                };
+            });
+            document.getElementById('_cr-rotate').onclick = () => cropper.rotate(90);
+            document.getElementById('_cr-reset').onclick = () => cropper.reset();
+        };
+
+        if (imgEl.complete) initCropper();
+        else imgEl.onload = initCropper;
+    }, 100);
 }
 
 // ─── MEDIA LIBRARY ────────────────────────────────────────────────────────────
