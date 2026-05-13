@@ -2186,3 +2186,102 @@ p { color: var(--ink-700); }
   .yt-video-grid { grid-template-columns: 1fr !important; }
   .gallery-hero-collage { grid-auto-rows: 100px !important; }
 }
+
+/* ============================================================
+   GALLERY ALBUMS — clean layout (overrides old photo-tile grid)
+   ============================================================ */
+.gallery-section .section-container {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)) !important;
+  gap: 1.25rem !important;
+  margin-top: 1rem !important;
+}
+/* Reset the aspect-ratio = 1 that was forcing albums into squares */
+.gallery-section .section-container > .gallery-album {
+  aspect-ratio: auto !important;
+  border-radius: 14px;
+  overflow: visible;
+  transform: none !important;
+}
+.gallery-section .section-container > .gallery-album:hover {
+  transform: translateY(-2px) !important;
+}
+
+/* CLEAN ALBUM CARD */
+.gallery-album {
+  background: white;
+  padding: 1.1rem 1.1rem 1rem !important;
+  margin: 0 !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.gallery-album:hover {
+  box-shadow: 0 10px 26px rgba(0,0,0,0.1);
+}
+/* Header: title left, View All right - no wrap */
+.gallery-album .album-clickable {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: nowrap;
+  padding: 0 !important;
+  margin: 0 0 0.85rem !important;
+}
+.gallery-album .album-clickable > div {
+  min-width: 0;
+  flex: 1;
+}
+.gallery-album .album-title {
+  font-size: 1.1rem !important;
+  margin: 0 0 0.15rem !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.gallery-album .album-meta {
+  font-size: 0.8rem !important;
+}
+.album-view-all-link {
+  flex-shrink: 0;
+  font-size: 0.85rem !important;
+  padding: 0.4rem 0.7rem;
+  border-radius: 18px;
+  background: rgba(244,106,0,0.1);
+}
+.gallery-album .album-clickable:hover .album-view-all-link {
+  background: var(--accent, #C8521E);
+  color: white;
+}
+
+/* Collage thumbnails: cleaner 3-col grid with proper size */
+.gallery-album .collage {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  grid-auto-rows: 90px !important;
+  gap: 5px !important;
+  position: relative;
+}
+.gallery-album .collage .collage-item {
+  aspect-ratio: auto;
+  border-radius: 6px;
+}
+.collage-more {
+  font-size: 0.75rem !important;
+  font-weight: 600;
+  padding: 0.35rem 0.65rem !important;
+}
+
+/* Single-column on phones — albums full-width */
+@media (max-width: 720px) {
+  .gallery-section .section-container {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+}
+@media (max-width: 600px) {
+  .gallery-album { padding: 1rem 0.85rem !important; }
+  .gallery-album .album-title { font-size: 1rem !important; }
+  .gallery-album .collage { grid-auto-rows: 80px !important; gap: 4px !important; }
+  .album-view-all-link { font-size: 0.78rem !important; padding: 0.3rem 0.6rem; }
+}
