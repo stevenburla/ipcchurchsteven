@@ -666,4 +666,75 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 5000);
     };
     window.startHeroSlideshow();
+
+
+    // ════════════════════════════════════════════════════════════════════════════
+    // PRAYER REQUEST FORM — submit handler
+    // ════════════════════════════════════════════════════════════════════════════
+    document.addEventListener('submit', async (e) => {
+        if (!e.target.matches('.prayer-form')) return;
+        e.preventDefault();
+        const form = e.target;
+        const nameInput = form.querySelector('input[type="text"]');
+        const msgInput = form.querySelector('textarea');
+        const submitBtn = form.querySelector('button[type="submit"]');
+        
+        if (!nameInput || !msgInput) return;
+        const name = nameInput.value.trim();
+        const message = msgInput.value.trim();
+        if (!name || !message) {
+            alert('Please fill in both your name and prayer request.');
+            return;
+        }
+        
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending...';
+        
+        try {
+            // Get Supabase client
+            const SUPABASE_URL = 'https://fsxnckdckfcargnvxzlf.supabase.co';
+            const SUPABASE_KEY = 'sb_publishable_n4HVXI_QZoibz3DUjjuDSw_7MwD2Ivl';
+            const sb = window._sbClient || (window.supabase?.createClient ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null);
+            if (!sb) throw new Error('Supabase not loaded');
+            window._sbClient = sb;
+            
+            // Read current state from cms_data
+            const { data: stateData } = await sb.from('cms_data').select('value').eq('key', 'state').single();
+            const state = stateData?.value || {};
+            state.prayerRequests = state.prayerRequests || [];
+            
+            // Append new request
+            const newRequest = {
+                id: Date.now(),
+                name: name,
+                message: message,
+                date: new Date().toISOString(),
+                status: 'new'  // admin filter looks for this status
+            };
+            state.prayerRequests.unshift(newRequest);
+            
+            // Save back
+            const { error } = await sb.from('cms_data').update({ value: state }).eq('key', 'state');
+            if (error) throw error;
+            
+            // Success: clear form, show confirmation
+            nameInput.value = '';
+            msgInput.value = '';
+            submitBtn.textContent = '✓ Sent!';
+            submitBtn.style.background = '#16a34a';
+            setTimeout(() => {
+                submitBtn.textContent = originalText;
+                submitBtn.style.background = '';
+                submitBtn.disabled = false;
+            }, 3000);
+        } catch (err) {
+            console.error('Prayer submit error:', err);
+            submitBtn.textContent = '✗ Error - try again';
+            submitBtn.disabled = false;
+            setTimeout(() => { submitBtn.textContent = originalText; }, 3000);
+        }
+    });
+
+
 });

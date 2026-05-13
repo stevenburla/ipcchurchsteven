@@ -56,12 +56,17 @@
     function setVisibility(id, hasContent) {
         const el = document.getElementById(id);
         if (!el) return;
-        if (hasContent) {
+        // CRITICAL: Always respect the admin toggle first.
+        // If admin has hidden this section, keep it hidden regardless of content.
+        const cms = window._cmsData || {};
+        const cfg = cms.sections && cms.sections[id];
+        const adminAllows = !cfg || cfg.visible !== false;
+        const shouldShow = adminAllows && hasContent;
+        if (shouldShow) {
             el.style.display = '';
             el.classList.remove('hidden-cms');
-            // Ensure .fade-in works correctly
             if (el.classList.contains('fade-in')) {
-                el.classList.add('visible'); // Force visible if observer fails
+                el.classList.add('visible');
             }
         } else {
             el.style.display = 'none';
