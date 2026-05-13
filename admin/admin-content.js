@@ -83,7 +83,7 @@ function createImageUploader(currentUrl, onChange, folder = 'general') {
                 } catch (err) {
                     toast('Upload Failed!', 'error');
                 }
-            }, { confirmText: '🚀 Upload Now' });
+            }, '🚀 Upload Now');
 
             // Hook up crop-before-upload button
             setTimeout(() => {
@@ -177,7 +177,7 @@ function openMediaLibraryPicker(category, onSelect) {
         } else {
             toast('Please select an image', 'warning');
         }
-    }, { confirmText: 'Select Image' });
+    }, 'Select Image');
 
     document.querySelectorAll('.media-picker-item').forEach(el => {
         el.onclick = () => {
@@ -247,7 +247,7 @@ function openImageEditor(url, onSave) {
         cropper = null;
         onSave({ full: fullBlob, thumb: thumbBlob });
         closeModal();
-    }, { confirmText: '✅ Save Crop' });
+    }, '✅ Save Crop');
 
     // Wait for image and Cropper library, then attach
     setTimeout(() => {
