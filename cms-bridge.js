@@ -78,6 +78,7 @@
         
         const data = remoteData || localFull || localCms;
         if (!data) return;
+        window._cmsData = data; // expose for album modal etc
 
         // Apply shared sections visibility first
         if (data.sections) {
@@ -364,20 +365,23 @@
                 if (ev) eventText = ' • Event: ' + ev.title;
             }
 
+            // Album card preview shows up to 6 thumbnails. Clicking opens full album modal.
+            const previewPhotos = album.photos.slice(0, 6);
             albumEl.innerHTML = `
-                <div class="album-header">
-                    <h3 class="album-title">${esc(album.title)}</h3>
-                    <div class="album-meta">${album.photos.length} Photos${esc(eventText)}</div>
+                <div class="album-header album-clickable" onclick="window.openAlbumModal('${esc(album.id || album.title)}')">
+                    <div>
+                        <h3 class="album-title">${esc(album.title)}</h3>
+                        <div class="album-meta">${album.photos.length} Photos${esc(eventText)}</div>
+                    </div>
+                    <span class="album-view-all-link">View All →</span>
                 </div>
-                <div class="collage collage-${style}">
-                    ${album.photos.map((photo, idx) => `
-                        <div class="collage-item collage-item-${idx}" onclick="openLightbox('${esc(photo.url)}')">
+                <div class="collage collage-${style}" onclick="window.openAlbumModal('${esc(album.id || album.title)}')">
+                    ${previewPhotos.map((photo, idx) => `
+                        <div class="collage-item collage-item-${idx}">
                             <img src="${esc(photo.thumbnail || photo.url)}" alt="${esc(photo.name || '')}" loading="lazy" decoding="async">
-                            <div class="collage-overlay">
-                                <span>🔍 View Larger</span>
-                            </div>
                         </div>
                     `).join('')}
+                    ${album.photos.length > 6 ? `<div class="collage-more">+${album.photos.length - 6} more</div>` : ''}
                 </div>
             `;
             container.appendChild(albumEl);
@@ -462,6 +466,54 @@
             } else bankBlock.style.display = 'none';
         }
     }
+
+    
+    // ════════════════════════════════════════════════════════════════════════════
+    // ALBUM MODAL — show all photos in an album
+    // ════════════════════════════════════════════════════════════════════════════
+    window.openAlbumModal = function(albumId) {
+        const cms = window._cmsData || {};
+        const album = (cms.galleryAlbums || []).find(a => (a.id || a.title) == albumId);
+        if (!album) return;
+
+        // Remove any existing album modal
+        document.getElementById('album-modal')?.remove();
+
+        const modal = document.createElement('div');
+        modal.id = 'album-modal';
+        modal.className = 'album-modal-overlay';
+        modal.innerHTML = `
+            <div class="album-modal-content" onclick="event.stopPropagation()">
+                <div class="album-modal-header">
+                    <div>
+                        <h2 class="album-modal-title">${esc(album.title)}</h2>
+                        <div class="album-modal-meta">${album.photos.length} Photos</div>
+                    </div>
+                    <button class="album-modal-close" onclick="document.getElementById('album-modal').remove()">×</button>
+                </div>
+                <div class="album-modal-grid">
+                    ${(album.photos || []).map(photo => `
+                        <div class="album-modal-photo" onclick="openLightbox('${esc(photo.url)}')">
+                            <img src="${esc(photo.thumbnail || photo.url)}" alt="${esc(photo.name || '')}" loading="lazy">
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+        modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+        document.body.appendChild(modal);
+        // Prevent body scroll
+        document.body.style.overflow = 'hidden';
+        modal.addEventListener('remove', () => { document.body.style.overflow = ''; });
+        // Restore on close
+        const observer = new MutationObserver(() => {
+            if (!document.getElementById('album-modal')) {
+                document.body.style.overflow = '';
+                observer.disconnect();
+            }
+        });
+        observer.observe(document.body, { childList: true });
+    };
 
         // Quick Lightbox helper
     window.openLightbox = function(url) {
