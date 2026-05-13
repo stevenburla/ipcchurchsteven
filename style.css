@@ -2380,3 +2380,61 @@ p { color: var(--ink-700); }
     padding: 0.28rem 0.55rem !important;
   }
 }
+
+/* ============================================================
+   FORCE clean uniform grid for album previews on the homepage
+   (overrides bento/masonry/strip variable-sized layouts that 
+   cause "whitespace between images" feel)
+   ============================================================ */
+.gallery-album .collage,
+.gallery-album .collage.collage-bento,
+.gallery-album .collage.collage-masonry,
+.gallery-album .collage.collage-grid,
+.gallery-album .collage.collage-strip,
+.gallery-album .collage.collage-carousel {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  grid-auto-rows: 80px !important;
+  grid-auto-flow: row !important;
+  gap: 4px !important;
+  overflow: visible !important;
+}
+
+/* RESET all span rules from variant styles - force every cell to 1x1 */
+.gallery-album .collage .collage-item,
+.gallery-album .collage .collage-item-0,
+.gallery-album .collage .collage-item-1,
+.gallery-album .collage .collage-item-2,
+.gallery-album .collage .collage-item-3,
+.gallery-album .collage .collage-item-4,
+.gallery-album .collage .collage-item-5,
+.gallery-album .collage .collage-item:nth-child(n),
+.gallery-album .collage .collage-item:nth-child(3n+1),
+.gallery-album .collage .collage-item:nth-child(5n) {
+  grid-column: auto !important;
+  grid-row: auto !important;
+  aspect-ratio: auto !important;
+  height: 100% !important;
+  background: transparent !important;
+}
+
+.gallery-album .collage .collage-item img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  display: block !important;
+  border-radius: 6px;
+}
+
+@media (max-width: 600px) {
+  .gallery-album .collage,
+  .gallery-album .collage.collage-bento,
+  .gallery-album .collage.collage-masonry,
+  .gallery-album .collage.collage-grid,
+  .gallery-album .collage.collage-strip,
+  .gallery-album .collage.collage-carousel {
+    grid-auto-rows: 70px !important;
+    gap: 3px !important;
+  }
+}
