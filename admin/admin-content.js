@@ -462,7 +462,16 @@ function openPastorModal(id = null) {
     });
     document.getElementById('_p-photo-container').appendChild(createImageUploader(photoUrl, (res) => { 
         photoUrl = res.url;
-        // Optionally store res.thumbnail
+        // AUTO-SAVE: if editing an EXISTING pastor, persist photo immediately
+        // so closing the modal accidentally doesn't lose the upload.
+        if (id) {
+            const pastor = STATE.pastors.find(item => item.id === id);
+            if (pastor) {
+                pastor.photo = photoUrl;
+                saveState();
+                toast('Photo saved ✓', 'success');
+            }
+        }
     }, 'pastors'));
 }
 
@@ -702,8 +711,19 @@ function openEventModal(id = null) {
     const thumbContainer = document.getElementById('_ev-thumb-container');
     thumbContainer.appendChild(createImageUploader(thumbUrl, (res) => { 
         thumbUrl = res.url; 
-        // We can also store res.thumbnail if we add a thumb field to events
-        toast('Thumbnail updated', 'info');
+        // AUTO-SAVE: if editing an EXISTING event, persist thumb immediately
+        if (id) {
+            const ev = STATE.events.find(e => e.id === id);
+            if (ev) {
+                ev.thumb = thumbUrl;
+                saveState();
+                toast('Thumbnail saved ✓', 'success');
+            } else {
+                toast('Thumbnail updated', 'info');
+            }
+        } else {
+            toast('Thumbnail updated', 'info');
+        }
     }, 'events'));
 }
 
@@ -737,6 +757,7 @@ function renderLyrics() {
             if (confirm(`Delete "${lyric.title_en}"?`)) {
                 STATE.lyrics[cat] = STATE.lyrics[cat].filter(l => l.id !== lyric.id);
                 logActivity('Lyrics', `Deleted "${lyric.title_en}"`);
+                saveState();
                 renderLyrics();
             }
         };
@@ -902,7 +923,15 @@ function openTestimonialModal(id = null, cat) {
     });
     document.getElementById('_t-photo-container').appendChild(createImageUploader(photoUrl, (res) => { 
         photoUrl = res.url;
-        // Optionally store res.thumbnail if needed
+        // AUTO-SAVE: if editing an EXISTING testimonial, persist photo immediately
+        if (id && STATE.testimonials[cat]) {
+            const item = STATE.testimonials[cat].find(t => t.id === id);
+            if (item) {
+                item.photo = photoUrl;
+                saveState();
+                toast('Photo saved ✓', 'success');
+            }
+        }
     }, 'testimonials'));
 }
 
@@ -928,6 +957,7 @@ function renderMinistries() {
         li.querySelector('.action-del').onclick = () => {
             if (confirm(`Delete ministry "${m.name}"?`)) {
                 STATE.ministries = STATE.ministries.filter(item => item.id !== m.id);
+                saveState();
                 renderMinistries();
             }
         };
@@ -958,7 +988,16 @@ function openMinistryModal(id = null) {
         saveState(); closeModal(); renderMinistries();
     });
     document.getElementById('_m-img-container').appendChild(createImageUploader(imgUrl, (res) => { 
-        imgUrl = res.url; 
+        imgUrl = res.url;
+        // AUTO-SAVE: if editing an EXISTING ministry, persist image immediately
+        if (id) {
+            const min = STATE.ministries.find(item => item.id === id);
+            if (min) {
+                min.img = imgUrl;
+                saveState();
+                toast('Image saved ✓', 'success');
+            }
+        }
     }, 'ministries'));
 }
 
@@ -979,6 +1018,14 @@ function renderKids() {
             </div>
         </li>`;
         li.querySelector('.action-edit').onclick = () => openKidsModal(p.id);
+        li.querySelector('.action-del').onclick = () => {
+            if (confirm(`Delete program "${p.name}"?`)) {
+                STATE.kids.programs = STATE.kids.programs.filter(item => item.id !== p.id);
+                saveState();
+                renderKids();
+                toast(`Deleted "${p.name}"`, 'info');
+            }
+        };
         ul.appendChild(li);
     });
 }

@@ -212,7 +212,8 @@
 
     function applyPastorsSection(data) {
         const grid = document.querySelector('.pastors-grid');
-        const pastors = (data.pastors || []).filter(p => p.status === 'published');
+        // Show pastors with status='published' OR with no status set (legacy records)
+        const pastors = (data.pastors || []).filter(p => !p.status || p.status === 'published');
         if (!grid) return;
 
         setVisibility('pastors', pastors.length > 0);
