@@ -106,44 +106,58 @@ document.addEventListener('DOMContentLoaded', () => {
                 const ucId = await resolveChannelIdFront(chRaw);
                 if (!ucId) return;
 
-                const feedUrl = 'https://www.youtube.com/feeds/videos.xml?channel_id=' + ucId;
-                // Fetch XML directly through CORS proxies (avoids rss2json rate limits)
-                const ytProxies = [
-                    'https://corsproxy.io/?',
-                    'https://api.allorigins.win/raw?url=',
-                    'https://api.codetabs.com/v1/proxy?quest='
-                ];
-                let xmlText = null;
-                for (const p of ytProxies) {
-                    try {
-                        const r = await fetch(p + encodeURIComponent(feedUrl), { signal: AbortSignal.timeout(8000) });
-                        if (!r.ok) continue;
-                        xmlText = await r.text();
-                        if (xmlText && xmlText.indexOf('<entry') > -1) break;
-                        xmlText = null;
-                    } catch (e) {}
+                // Build channel URL - prefer handle if user gave one, else use UC ID
+                let channelPageUrl;
+                const rawStr = String(chRaw).trim();
+                if (rawStr.startsWith('@') || rawStr.includes('/@')) {
+                    const handle = rawStr.replace(/^.*@/, '').replace(/\/.*$/, '');
+                    channelPageUrl = 'https://www.youtube.com/@' + handle + '/videos';
+                } else {
+                    channelPageUrl = 'https://www.youtube.com/channel/' + ucId + '/videos';
                 }
-                if (xmlText) {
-                    const xml = new DOMParser().parseFromString(xmlText, 'application/xml');
-                    const feedTitle = (xml.querySelector('feed > title') || {}).textContent || 'Church TV';
-                    const feedLinkEl = xml.querySelector('feed > link[rel=\"alternate\"]');
-                    const feedLink = (feedLinkEl ? feedLinkEl.getAttribute('href') : null) || ('https://www.youtube.com/channel/' + ucId);
-                    if (!firstFeedLink) firstFeedLink = feedLink;
-                    xml.querySelectorAll('entry').forEach(entry => {
-                        const idEl = entry.getElementsByTagName('yt:videoId')[0] || entry.querySelector('videoId');
-                        const videoId   = idEl ? idEl.textContent : '';
-                        const title     = (entry.querySelector('title') || {}).textContent || '';
-                        const linkEl    = entry.querySelector('link');
-                        const link      = (linkEl ? linkEl.getAttribute('href') : null) || ('https://www.youtube.com/watch?v=' + videoId);
-                        const pubDate   = (entry.querySelector('published') || {}).textContent || '';
-                        const thumbnail = videoId ? ('https://i.ytimg.com/vi/' + videoId + '/hqdefault.jpg') : '';
-                        const guid      = videoId || link;
-                        if (!seenIds.has(guid)) {
-                            seenIds.add(guid);
-                            allVideos.push({ guid, title, link, pubDate, thumbnail, channelTitle: feedTitle, channelLink: feedLink });
-                        }
+                if (!firstFeedLink) firstFeedLink = channelPageUrl.replace(/\/videos$/, '');
+
+                // Use r.jina.ai to scrape the channel's /videos page (YouTube RSS is currently broken)
+                let pageText = null;
+                try {
+                    const r = await fetch('https://r.jina.ai/' + channelPageUrl, { signal: AbortSignal.timeout(10000) });
+                    if (r.ok) pageText = await r.text();
+                } catch (e) { console.warn('jina fetch failed', e); }
+
+                if (!pageText) return;
+
+                // Extract unique video IDs from watch?v= patterns
+                const idMatches = pageText.match(/watch\?v=([A-Za-z0-9_-]{11})/g) || [];
+                const videoIds = [...new Set(idMatches.map(m => m.slice(8)))];
+
+                // Try to extract titles next to each video ID in the markdown
+                // Jina markdown format often has: [Video Title](https://...watch?v=ID...)
+                const titleMap = {};
+                const titleRegex = /\[([^\]\n]+)\]\([^)]*watch\?v=([A-Za-z0-9_-]{11})/g;
+                let m;
+                while ((m = titleRegex.exec(pageText)) !== null) {
+                    const title = m[1].replace(/^Image \d+:\s*/, '').trim();
+                    if (title && title.length > 3 && !titleMap[m[2]]) {
+                        titleMap[m[2]] = title;
+                    }
+                }
+
+                videoIds.forEach((vid, idx) => {
+                    if (seenIds.has(vid)) return;
+                    seenIds.add(vid);
+                    const title = titleMap[vid] || ('Video #' + (idx + 1));
+                    allVideos.push({
+                        guid: vid,
+                        title: title,
+                        link: 'https://www.youtube.com/watch?v=' + vid,
+                        pubDate: '',
+                        thumbnail: 'https://i.ytimg.com/vi/' + vid + '/hqdefault.jpg',
+                        channelTitle: 'Church TV',
+                        channelLink: channelPageUrl.replace(/\/videos$/, ''),
+                        // Preserve original order from page (newest first)
+                        _orderIdx: idx
                     });
-                }
+                });
             }));
 
             const visitBtn = document.getElementById('yt-channel-link');
@@ -154,13 +168,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 allVideos.sort((a, b) => {
                     const ai = manualOrder.indexOf(a.guid);
                     const bi = manualOrder.indexOf(b.guid);
-                    if (ai === -1 && bi === -1) return new Date(b.pubDate) - new Date(a.pubDate);
+                    if (ai === -1 && bi === -1) return (a._orderIdx || 0) - (b._orderIdx || 0);
                     if (ai === -1) return 1;
                     if (bi === -1) return -1;
                     return ai - bi;
                 });
             } else {
-                allVideos.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+                // Channel /videos page shows newest first by default - preserve that order
+                allVideos.sort((a, b) => (a._orderIdx || 0) - (b._orderIdx || 0));
             }
 
             if (!allVideos.length) {
