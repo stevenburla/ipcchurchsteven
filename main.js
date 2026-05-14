@@ -456,13 +456,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const name = card.dataset.name || card.querySelector('.testimonial-name')?.textContent || '';
         const role = card.dataset.role || card.querySelector('.testimonial-role')?.textContent || '';
         const text = card.dataset.text || card.querySelector('.testimonial-text')?.textContent || '';
-        const num = card.dataset.num || '';
+        const initial = (name || '').charAt(0).toUpperCase();
 
         if (tModalName) tModalName.textContent = name;
         if (tModalRole) tModalRole.textContent = role;
         if (tModalText) tModalText.textContent = text;
-        if (tModalNum) tModalNum.textContent = num;
-        if (tModalPhoto) tModalPhoto.setAttribute('data-num', num);
+        if (tModalNum) tModalNum.textContent = initial;
+        if (tModalPhoto) tModalPhoto.removeAttribute('data-num');
 
         tModal.removeAttribute('hidden');
         // Force reflow so transition fires

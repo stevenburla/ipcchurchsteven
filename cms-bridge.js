@@ -895,7 +895,7 @@
             const displayUrl = t.thumbnail || t.photo || '';
             card.innerHTML = `
                 <div class="testimonial-photo-wrapper">
-                    ${displayUrl ? `<img src="${esc(displayUrl)}" class="testimonial-photo" alt="${esc(t.name)}" loading="lazy" decoding="async">` : `<div class="img-placeholder testimonial-photo"><span>${prefix}${i + 1}</span></div>`}
+                    ${displayUrl ? `<img src="${esc(displayUrl)}" class="testimonial-photo" alt="${esc(t.name)}" loading="lazy" decoding="async">` : `<div class="img-placeholder testimonial-photo"><span>${esc(t.name?.charAt(0) || "")}</span></div>`}
                 </div>
                 <h4 class="testimonial-name">${esc(t.name)}</h4>
                 <div class="testimonial-role">${esc(t.role)}</div>
@@ -937,7 +937,7 @@
             const displayUrl = t.thumbnail || t.photo || '';
             card.innerHTML = `
                 <div class="testimonial-photo-wrapper">
-                    ${displayUrl ? `<img src="${esc(displayUrl)}" class="testimonial-photo" alt="${esc(name)}" loading="lazy" decoding="async">` : `<div class="img-placeholder testimonial-photo"><span>YT${i + 1}</span></div>`}
+                    ${displayUrl ? `<img src="${esc(displayUrl)}" class="testimonial-photo" alt="${esc(name)}" loading="lazy" decoding="async">` : `<div class="img-placeholder testimonial-photo"><span>${esc(name?.charAt(0) || "")}</span></div>`}
                 </div>
                 <h4 class="testimonial-name">${esc(name)}</h4>
                 <div class="testimonial-role">${esc(t.role)}</div>

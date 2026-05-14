@@ -1482,18 +1482,7 @@ p { color: var(--ink-700); }
   line-height: 1;
   user-select: none;
 }
-.testimonials-page-body .static-card::after {
-  content: attr(data-num);
-  position: absolute;
-  top: 0.75rem; right: 1rem;
-  font-size: 0.65rem;
-  font-weight: 700;
-  color: var(--gold-600);
-  background: rgba(212, 165, 116, 0.15);
-  padding: 0.2rem 0.5rem;
-  border-radius: 20px;
-  letter-spacing: 0.08em;
-}
+/* Removed: corner badge chip with YT1/MT1 placeholders */
 .testimonials-page-body .testimonial-photo {
   width: 80px; height: 80px;
   border-radius: 50%;
