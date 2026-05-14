@@ -1381,7 +1381,7 @@ function renderLogs() {
         logs.forEach(log => {
             const li = document.createElement('li');
             li.className = 'activity-item';
-            li.innerHTML = `<span class="activity-time">${fmtTime(log.time)}</span> <span class="activity-tag ${log.type.toLowerCase()}">${log.type}</span> ${log.desc}`;
+            li.innerHTML = `<span class="activity-time">${esc(fmtTime(log.time))}</span> <span class="activity-tag ${esc(log.type.toLowerCase())}">${esc(log.type)}</span> ${esc(log.desc)}`;
             activityList.appendChild(li);
         });
     }
@@ -1393,7 +1393,7 @@ function renderLogs() {
         errors.forEach(err => {
             const li = document.createElement('li');
             li.className = 'activity-item error';
-            li.innerHTML = `<span class="activity-time">${fmtTime(err.time)}</span> <strong>[${err.context}]</strong> ${err.message}`;
+            li.innerHTML = `<span class="activity-time">${esc(fmtTime(err.time))}</span> <strong>[${esc(err.context)}]</strong> ${esc(err.message)}`;
             errorList.appendChild(li);
         });
     }

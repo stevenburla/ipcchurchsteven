@@ -444,7 +444,9 @@ function toast(msg, type = 'info') {
     const el = document.createElement('div');
     el.className = `toast toast-${type}`;
     const icons = { info: 'ℹ', success: '✓', warning: '⚠', error: '✕' };
-    el.innerHTML = `<span class="toast-icon">${icons[type] || '•'}</span><span class="toast-msg">${msg}</span>`;
+    // Escape msg to prevent XSS (toasts may show user-provided content)
+    const _toastEsc = String(msg).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    el.innerHTML = `<span class="toast-icon">${icons[type] || '•'}</span><span class="toast-msg">${_toastEsc}</span>`;
     stack.appendChild(el);
     setTimeout(() => { 
         el.style.opacity = '0'; 
