@@ -242,7 +242,7 @@
 
         // ALSO render the hero collage at top of kids page if it exists
         const heroCollage = document.getElementById('kids-hero-collage');
-        if (heroCollage && kg.length >= 3) {
+        if (heroCollage && kg.length >= 1) {
             heroCollage.style.display = '';
             const TILE_COUNT = 6;
             const initial = [];
@@ -255,7 +255,7 @@
             // Clear any previous rotator
             if (window._kidsCollageRotator) clearInterval(window._kidsCollageRotator);
             // Auto-rotate every 3 seconds (same pattern as Church Gallery hero)
-            if (kg.length > TILE_COUNT) {
+            if (kg.length > 1) {
                 let nextPoolIdx = TILE_COUNT;
                 let nextTileIdx = 0;
                 window._kidsCollageRotator = setInterval(() => {
