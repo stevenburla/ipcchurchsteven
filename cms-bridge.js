@@ -241,12 +241,16 @@
         }
 
         // ALSO render the hero collage at top of kids page if it exists
+        // ADAPTIVE: number of tiles matches number of unique photos (up to 6)
         const heroCollage = document.getElementById('kids-hero-collage');
         if (heroCollage && kg.length >= 1) {
             heroCollage.style.display = '';
-            const TILE_COUNT = 6;
-            const initial = [];
-            for (let i = 0; i < TILE_COUNT; i++) initial.push(kg[i % kg.length]);
+            // How many tiles to display? Match photo count, max 6.
+            const TILE_COUNT = Math.min(kg.length, 6);
+            // Set a data attribute so CSS can pick the right layout
+            heroCollage.setAttribute('data-count', String(TILE_COUNT));
+            // Tiles 0..TILE_COUNT-1 each get a unique photo
+            const initial = kg.slice(0, TILE_COUNT);
             heroCollage.innerHTML = initial.map((p, i) =>
                 '<div class="hero-collage-item hero-collage-item-' + i + '" data-tile="' + i + '" onclick="openLightbox(\'' + esc(p.url) + '\')">' +
                     '<img src="' + esc(p.url || p.thumbnail) + '" alt="' + esc(p.name || '') + '" loading="lazy">' +
@@ -254,8 +258,8 @@
             ).join('');
             // Clear any previous rotator
             if (window._kidsCollageRotator) clearInterval(window._kidsCollageRotator);
-            // Auto-rotate every 3 seconds (same pattern as Church Gallery hero)
-            if (kg.length > 1) {
+            // Only rotate if there are MORE photos than tiles displayed
+            if (kg.length > TILE_COUNT) {
                 let nextPoolIdx = TILE_COUNT;
                 let nextTileIdx = 0;
                 window._kidsCollageRotator = setInterval(() => {

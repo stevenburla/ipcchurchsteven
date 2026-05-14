@@ -2888,18 +2888,72 @@ p { color: var(--ink-700); }
 }
 
 /* ============================================================
-   KIDS HERO COLLAGE — dedicated styling that doesn't rely
-   on the homepage gallery-hero-collage bento rules
+   KIDS HERO COLLAGE — ADAPTIVE LAYOUT (1-6 photos)
+   Layout changes based on data-count attribute set by JS
    ============================================================ */
 #kids-hero-collage {
   display: grid !important;
-  grid-template-columns: repeat(4, 1fr) !important;
-  grid-auto-rows: 140px !important;
   gap: 6px !important;
   max-width: 1100px !important;
   width: calc(100% - 2rem) !important;
   margin: 1.5rem auto !important;
   padding: 0 !important;
+}
+
+/* 1 photo: single wide banner */
+#kids-hero-collage[data-count="1"] {
+  grid-template-columns: 1fr !important;
+  grid-auto-rows: 280px !important;
+}
+
+/* 2 photos: side-by-side */
+#kids-hero-collage[data-count="2"] {
+  grid-template-columns: 1fr 1fr !important;
+  grid-auto-rows: 240px !important;
+}
+
+/* 3 photos: 1 big + 2 stacked */
+#kids-hero-collage[data-count="3"] {
+  grid-template-columns: 2fr 1fr !important;
+  grid-auto-rows: 130px !important;
+}
+#kids-hero-collage[data-count="3"] .hero-collage-item-0 {
+  grid-row: span 2 !important;
+}
+
+/* 4 photos: 2x2 grid */
+#kids-hero-collage[data-count="4"] {
+  grid-template-columns: 1fr 1fr !important;
+  grid-auto-rows: 170px !important;
+}
+
+/* 5 photos: 1 big + 4 small (bento) */
+#kids-hero-collage[data-count="5"] {
+  grid-template-columns: repeat(4, 1fr) !important;
+  grid-auto-rows: 140px !important;
+}
+#kids-hero-collage[data-count="5"] .hero-collage-item-0 {
+  grid-column: span 2 !important;
+  grid-row: span 2 !important;
+}
+
+/* 6 photos: classic bento (1 big + 5 small) */
+#kids-hero-collage[data-count="6"] {
+  grid-template-columns: repeat(4, 1fr) !important;
+  grid-auto-rows: 140px !important;
+}
+#kids-hero-collage[data-count="6"] .hero-collage-item-0 {
+  grid-column: span 2 !important;
+  grid-row: span 2 !important;
+}
+#kids-hero-collage[data-count="6"] .hero-collage-item-1 {
+  grid-column: span 2 !important;
+}
+#kids-hero-collage[data-count="6"] .hero-collage-item-2 {
+  grid-row: span 2 !important;
+}
+#kids-hero-collage[data-count="6"] .hero-collage-item-4 {
+  grid-column: span 2 !important;
 }
 
 #kids-hero-collage .hero-collage-item {
@@ -2927,37 +2981,55 @@ p { color: var(--ink-700); }
 #kids-hero-collage .hero-collage-item:hover img { transform: scale(1.04) !important; }
 
 /* Bento span pattern — 6 tiles in a balanced 4-col layout */
-#kids-hero-collage .hero-collage-item-0 { grid-column: span 2 !important; grid-row: span 2 !important; }
-#kids-hero-collage .hero-collage-item-1 { grid-column: span 2 !important; }
-#kids-hero-collage .hero-collage-item-2 { grid-row: span 2 !important; }
-#kids-hero-collage .hero-collage-item-3 { }
-#kids-hero-collage .hero-collage-item-4 { grid-column: span 2 !important; }
-#kids-hero-collage .hero-collage-item-5 { }
 
-/* Tablet */
+
+
+
+
+/* MOBILE/TABLET adaptive collage */
 @media (max-width: 800px) {
-  #kids-hero-collage {
-    grid-template-columns: repeat(3, 1fr) !important;
-    grid-auto-rows: 130px !important;
+  #kids-hero-collage[data-count="1"] { grid-auto-rows: 240px !important; }
+  #kids-hero-collage[data-count="2"] { grid-auto-rows: 200px !important; }
+  #kids-hero-collage[data-count="3"] {
+    grid-template-columns: 1fr !important;
+    grid-auto-rows: 200px !important;
   }
-  #kids-hero-collage .hero-collage-item-0 { grid-column: span 2 !important; grid-row: span 2 !important; }
-  #kids-hero-collage .hero-collage-item-1 { grid-column: auto !important; }
-  #kids-hero-collage .hero-collage-item-2 { grid-row: auto !important; }
-  #kids-hero-collage .hero-collage-item-4 { grid-column: span 2 !important; }
+  #kids-hero-collage[data-count="3"] .hero-collage-item-0 { grid-row: auto !important; }
+  #kids-hero-collage[data-count="4"] { grid-auto-rows: 140px !important; }
+  #kids-hero-collage[data-count="5"],
+  #kids-hero-collage[data-count="6"] {
+    grid-template-columns: repeat(3, 1fr) !important;
+    grid-auto-rows: 120px !important;
+  }
+  #kids-hero-collage[data-count="5"] .hero-collage-item-0,
+  #kids-hero-collage[data-count="6"] .hero-collage-item-0 {
+    grid-column: span 2 !important;
+    grid-row: span 2 !important;
+  }
+  #kids-hero-collage[data-count="6"] .hero-collage-item-1 { grid-column: auto !important; }
+  #kids-hero-collage[data-count="6"] .hero-collage-item-2 { grid-row: auto !important; }
+  #kids-hero-collage[data-count="6"] .hero-collage-item-4 { grid-column: span 2 !important; }
 }
 
-/* Mobile */
 @media (max-width: 600px) {
   #kids-hero-collage {
-    grid-template-columns: repeat(2, 1fr) !important;
-    grid-auto-rows: 120px !important;
     gap: 4px !important;
     width: calc(100% - 1.5rem) !important;
   }
-  #kids-hero-collage .hero-collage-item-0 { grid-column: span 2 !important; grid-row: span 2 !important; }
-  #kids-hero-collage .hero-collage-item-1 { grid-column: span 2 !important; grid-row: auto !important; }
-  #kids-hero-collage .hero-collage-item-2 { grid-column: auto !important; grid-row: auto !important; }
-  #kids-hero-collage .hero-collage-item-3 { grid-column: auto !important; }
-  #kids-hero-collage .hero-collage-item-4 { grid-column: span 2 !important; }
-  #kids-hero-collage .hero-collage-item-5 { grid-column: auto !important; }
+  #kids-hero-collage[data-count="1"] { grid-auto-rows: 200px !important; }
+  #kids-hero-collage[data-count="2"] { grid-auto-rows: 150px !important; }
+  #kids-hero-collage[data-count="4"],
+  #kids-hero-collage[data-count="5"],
+  #kids-hero-collage[data-count="6"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+    grid-auto-rows: 130px !important;
+  }
+  #kids-hero-collage[data-count="5"] .hero-collage-item-0,
+  #kids-hero-collage[data-count="6"] .hero-collage-item-0 {
+    grid-column: span 2 !important;
+    grid-row: span 2 !important;
+  }
+  #kids-hero-collage[data-count="6"] .hero-collage-item-1 {
+    grid-column: span 2 !important;
+  }
 }
