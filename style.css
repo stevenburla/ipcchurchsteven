@@ -2886,3 +2886,78 @@ p { color: var(--ink-700); }
   font-size: 12px !important;
   line-height: 1 !important;
 }
+
+/* ============================================================
+   KIDS HERO COLLAGE — dedicated styling that doesn't rely
+   on the homepage gallery-hero-collage bento rules
+   ============================================================ */
+#kids-hero-collage {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  grid-auto-rows: 140px !important;
+  gap: 6px !important;
+  max-width: 1100px !important;
+  width: calc(100% - 2rem) !important;
+  margin: 1.5rem auto !important;
+  padding: 0 !important;
+}
+
+#kids-hero-collage .hero-collage-item {
+  position: relative !important;
+  width: 100% !important;
+  height: 100% !important;
+  overflow: hidden !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  background: #f4f0e8 !important;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.07) !important;
+}
+
+#kids-hero-collage .hero-collage-item img {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  display: block !important;
+  transition: opacity 0.6s ease, transform 0.4s ease !important;
+}
+
+#kids-hero-collage .hero-collage-item img.fade-out { opacity: 0 !important; }
+#kids-hero-collage .hero-collage-item:hover img { transform: scale(1.04) !important; }
+
+/* Bento span pattern — 6 tiles in a balanced 4-col layout */
+#kids-hero-collage .hero-collage-item-0 { grid-column: span 2 !important; grid-row: span 2 !important; }
+#kids-hero-collage .hero-collage-item-1 { grid-column: span 2 !important; }
+#kids-hero-collage .hero-collage-item-2 { grid-row: span 2 !important; }
+#kids-hero-collage .hero-collage-item-3 { }
+#kids-hero-collage .hero-collage-item-4 { grid-column: span 2 !important; }
+#kids-hero-collage .hero-collage-item-5 { }
+
+/* Tablet */
+@media (max-width: 800px) {
+  #kids-hero-collage {
+    grid-template-columns: repeat(3, 1fr) !important;
+    grid-auto-rows: 130px !important;
+  }
+  #kids-hero-collage .hero-collage-item-0 { grid-column: span 2 !important; grid-row: span 2 !important; }
+  #kids-hero-collage .hero-collage-item-1 { grid-column: auto !important; }
+  #kids-hero-collage .hero-collage-item-2 { grid-row: auto !important; }
+  #kids-hero-collage .hero-collage-item-4 { grid-column: span 2 !important; }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  #kids-hero-collage {
+    grid-template-columns: repeat(2, 1fr) !important;
+    grid-auto-rows: 120px !important;
+    gap: 4px !important;
+    width: calc(100% - 1.5rem) !important;
+  }
+  #kids-hero-collage .hero-collage-item-0 { grid-column: span 2 !important; grid-row: span 2 !important; }
+  #kids-hero-collage .hero-collage-item-1 { grid-column: span 2 !important; grid-row: auto !important; }
+  #kids-hero-collage .hero-collage-item-2 { grid-column: auto !important; grid-row: auto !important; }
+  #kids-hero-collage .hero-collage-item-3 { grid-column: auto !important; }
+  #kids-hero-collage .hero-collage-item-4 { grid-column: span 2 !important; }
+  #kids-hero-collage .hero-collage-item-5 { grid-column: auto !important; }
+}
