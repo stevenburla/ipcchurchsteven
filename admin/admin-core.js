@@ -704,6 +704,85 @@ document.getElementById('logout-btn-top')?.addEventListener('click', () => {
     window.location.href = 'login.html';
 });
 
+// ════════════════════════════════════════════════════════════════════════════
+// IDLE AUTO-LOGOUT — sign out after 5 min inactivity, warn at 4 min
+// ════════════════════════════════════════════════════════════════════════════
+(function setupIdleLogout() {
+    if (!currentUser) return; // not logged in, nothing to do
+    
+    const IDLE_LIMIT_MS = 5 * 60 * 1000;    // 5 minutes
+    const WARN_BEFORE_MS = 60 * 1000;       // show warning 60 sec before logout
+    let idleTimer = null;
+    let warnTimer = null;
+    let warningEl = null;
+    let countdownInterval = null;
+    
+    function doLogout() {
+        if (warningEl) warningEl.remove();
+        if (countdownInterval) clearInterval(countdownInterval);
+        localStorage.removeItem(AUTH_KEY);
+        window.location.replace('login.html?reason=idle');
+    }
+    
+    function showWarning() {
+        if (warningEl) return;
+        warningEl = document.createElement('div');
+        warningEl.id = 'idle-warning-modal';
+        warningEl.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)';
+        warningEl.innerHTML = `
+            <div style="background:white;border-radius:14px;max-width:420px;padding:1.75rem 2rem;box-shadow:0 24px 60px rgba(0,0,0,0.4);text-align:center">
+                <div style="font-size:48px;line-height:1">⏱️</div>
+                <h2 style="margin:0.5rem 0;font-size:1.3rem">Are you still there?</h2>
+                <p style="color:#555;margin:0.5rem 0 1rem">You'll be signed out in <strong id="idle-countdown">60</strong> seconds for security.</p>
+                <button id="idle-stay-btn" style="background:#C8521E;color:white;border:0;padding:0.75rem 1.5rem;border-radius:8px;font-weight:600;font-size:14px;cursor:pointer;width:100%">Stay signed in</button>
+                <button id="idle-logout-btn" style="background:transparent;color:#888;border:0;padding:0.75rem;margin-top:0.5rem;font-size:13px;cursor:pointer;width:100%">Sign out now</button>
+            </div>
+        `;
+        document.body.appendChild(warningEl);
+        
+        document.getElementById('idle-stay-btn').onclick = () => {
+            warningEl.remove();
+            warningEl = null;
+            if (countdownInterval) clearInterval(countdownInterval);
+            resetIdleTimer();
+        };
+        document.getElementById('idle-logout-btn').onclick = doLogout;
+        
+        let seconds = 60;
+        const countdownEl = document.getElementById('idle-countdown');
+        countdownInterval = setInterval(() => {
+            seconds--;
+            if (countdownEl) countdownEl.textContent = seconds;
+            if (seconds <= 0) {
+                clearInterval(countdownInterval);
+                doLogout();
+            }
+        }, 1000);
+    }
+    
+    function resetIdleTimer() {
+        if (idleTimer) clearTimeout(idleTimer);
+        if (warnTimer) clearTimeout(warnTimer);
+        warnTimer = setTimeout(showWarning, IDLE_LIMIT_MS - WARN_BEFORE_MS);
+        idleTimer = setTimeout(doLogout, IDLE_LIMIT_MS);
+    }
+    
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+    let lastReset = Date.now();
+    events.forEach(evt => {
+        document.addEventListener(evt, () => {
+            const now = Date.now();
+            if (now - lastReset < 5000) return;
+            lastReset = now;
+            if (warningEl) return;
+            resetIdleTimer();
+        }, { passive: true });
+    });
+    
+    resetIdleTimer();
+})();
+
+
 // ─── SIDEBAR COLLAPSE ─────────────────────────────────────────────────────────
 document.getElementById('sidebar-toggle')?.addEventListener('click', () => {
     const sb = document.getElementById('sidebar');
