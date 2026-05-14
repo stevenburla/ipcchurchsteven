@@ -202,14 +202,17 @@
             const photos = k.photos || [];
             const card = document.createElement('div');
             card.className = 'kids-program-card fade-in';
+            // Build photo collage based on chosen style
+            const style = k.collageStyle || 'grid';
+            const previewPhotos = photos.slice(0, style === 'carousel' ? 12 : 6);
             const photoHtml = photos.length ? `
-                <div class="kids-program-photos">
-                    ${photos.slice(0, 6).map(ph => `
-                        <div class="kids-program-photo" onclick="openLightbox('${esc(ph.url)}')">
-                            <img src="${esc(ph.thumbnail || ph.url)}" alt="" loading="lazy">
+                <div class="kids-program-photos kpp-style-${style}" data-program-id="${esc(String(k.id))}">
+                    ${previewPhotos.map((ph, idx) => `
+                        <div class="kpp-item kpp-item-${idx}" onclick="event.stopPropagation(); openLightbox('${esc(ph.url)}')">
+                            <img src="${esc(ph.url || ph.thumbnail)}" alt="" loading="lazy">
                         </div>
                     `).join('')}
-                    ${photos.length > 6 ? `<div class="kids-program-more">+${photos.length - 6} more</div>` : ''}
+                    ${photos.length > previewPhotos.length ? `<div class="kpp-more" onclick="window.openKidsProgramAlbum('${esc(String(k.id))}')">+${photos.length - previewPhotos.length} more</div>` : ''}
                 </div>` : '';
             card.innerHTML = `
                 <div class="program-icon">${esc(k.icon || '🌟')}</div>
@@ -226,16 +229,55 @@
         const kg = data.kids?.gallery || data.kidsGallery || [];
         
         setVisibility('kids-gallery', kg.length > 0);
-        if (!grid || !kg.length) return;
+        if (grid && kg.length) {
+            grid.innerHTML = '';
+            kg.forEach(img => {
+                const wrap = document.createElement('div');
+                wrap.className = 'kids-gallery-img';
+                wrap.innerHTML = `<img src="${esc(img.url)}" alt="${esc(img.name)}" 
+                    style="width:100%;height:100%;object-fit:cover" loading="lazy">`;
+                grid.appendChild(wrap);
+            });
+        }
 
-        grid.innerHTML = '';
-        kg.forEach(img => {
-            const wrap = document.createElement('div');
-            wrap.className = 'kids-gallery-img';
-            wrap.innerHTML = `<img src="${esc(img.url)}" alt="${esc(img.name)}" 
-                style="width:100%;height:100%;object-fit:cover" loading="lazy">`;
-            grid.appendChild(wrap);
-        });
+        // ALSO render the hero collage at top of kids page if it exists
+        const heroCollage = document.getElementById('kids-hero-collage');
+        if (heroCollage && kg.length >= 3) {
+            heroCollage.style.display = '';
+            const TILE_COUNT = 6;
+            const initial = [];
+            for (let i = 0; i < TILE_COUNT; i++) initial.push(kg[i % kg.length]);
+            heroCollage.innerHTML = initial.map((p, i) =>
+                '<div class="hero-collage-item hero-collage-item-' + i + '" data-tile="' + i + '" onclick="openLightbox(\'' + esc(p.url) + '\')">' +
+                    '<img src="' + esc(p.url || p.thumbnail) + '" alt="' + esc(p.name || '') + '" loading="lazy">' +
+                '</div>'
+            ).join('');
+            // Clear any previous rotator
+            if (window._kidsCollageRotator) clearInterval(window._kidsCollageRotator);
+            // Auto-rotate every 3 seconds (same pattern as Church Gallery hero)
+            if (kg.length > TILE_COUNT) {
+                let nextPoolIdx = TILE_COUNT;
+                let nextTileIdx = 0;
+                window._kidsCollageRotator = setInterval(() => {
+                    const tiles = heroCollage.querySelectorAll('.hero-collage-item');
+                    if (!tiles.length) return;
+                    const tile = tiles[nextTileIdx % tiles.length];
+                    const img = tile.querySelector('img');
+                    const newPhoto = kg[nextPoolIdx % kg.length];
+                    if (!img || !newPhoto) return;
+                    img.classList.add('fade-out');
+                    setTimeout(() => {
+                        img.src = newPhoto.url || newPhoto.thumbnail;
+                        tile.setAttribute('onclick', "openLightbox('" + esc(newPhoto.url) + "')");
+                        img.classList.remove('fade-out');
+                    }, 500);
+                    nextTileIdx++;
+                    nextPoolIdx++;
+                }, 3000);
+            }
+        } else if (heroCollage) {
+            heroCollage.style.display = 'none';
+        }
     }
 
     function applyPastorsSection(data) {
@@ -733,6 +775,52 @@
         }
     }
     
+    
+    // ════════════════════════════════════════════════════════════════════════════
+    // KIDS PROGRAM ALBUM MODAL — view all photos of one kids program
+    // ════════════════════════════════════════════════════════════════════════════
+    window.openKidsProgramAlbum = function(programId) {
+        const cms = window._cmsData || {};
+        const programs = cms.kids?.programs || [];
+        const program = programs.find(p => String(p.id) === String(programId));
+        if (!program) return;
+        const lang = document.documentElement.lang || 'en';
+        const name = (lang === 'te' && program.name_te) ? program.name_te : program.name;
+        
+        document.getElementById('album-modal')?.remove();
+        const modal = document.createElement('div');
+        modal.id = 'album-modal';
+        modal.className = 'album-modal-overlay';
+        modal.innerHTML = `
+            <div class="album-modal-content" onclick="event.stopPropagation()">
+                <div class="album-modal-header">
+                    <div>
+                        <h2 class="album-modal-title">${esc(name)}</h2>
+                        <div class="album-modal-meta">${program.photos.length} Photos</div>
+                    </div>
+                    <button class="album-modal-close" onclick="document.getElementById('album-modal').remove()">×</button>
+                </div>
+                <div class="album-modal-grid">
+                    ${(program.photos || []).map(photo => `
+                        <div class="album-modal-photo" onclick="openLightbox('${esc(photo.url)}')">
+                            <img src="${esc(photo.url || photo.thumbnail)}" alt="" loading="lazy">
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+        modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+        document.body.appendChild(modal);
+        document.body.style.overflow = 'hidden';
+        const obs = new MutationObserver(() => {
+            if (!document.getElementById('album-modal')) {
+                document.body.style.overflow = '';
+                obs.disconnect();
+            }
+        });
+        obs.observe(document.body, { childList: true });
+    };
+
         // Quick Lightbox helper
     window.openLightbox = function(url) {
         const overlay = document.createElement('div');

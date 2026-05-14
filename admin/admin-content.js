@@ -1154,7 +1154,15 @@ function openKidsModal(id = null) {
                 <label class="form-label">Age Range</label>
                 <input class="form-control" id="_kp-age" value="${esc(p.age || '')}" placeholder="e.g. 3-5 or All ages">
             </div>
-            <div class="form-group"></div>
+            <div class="form-group">
+                <label class="form-label">Collage Style</label>
+                <select class="form-control" id="_kp-collage">
+                    <option value="grid"${(p.collageStyle === 'grid' || !p.collageStyle) ? ' selected' : ''}>Classic Grid (uniform)</option>
+                    <option value="bento"${p.collageStyle === 'bento' ? ' selected' : ''}>Bento (varied sizes)</option>
+                    <option value="masonry"${p.collageStyle === 'masonry' ? ' selected' : ''}>Masonry (Pinterest-style)</option>
+                    <option value="carousel"${p.collageStyle === 'carousel' ? ' selected' : ''}>Horizontal Carousel</option>
+                </select>
+            </div>
             <div class="form-group col-2">
                 <label class="form-label">Description (English)</label>
                 <textarea class="form-control" id="_kp-desc" rows="4">${esc(p.desc)}</textarea>
@@ -1178,6 +1186,7 @@ function openKidsModal(id = null) {
         p.name = document.getElementById('_kp-name').value.trim();
         p.name_te = document.getElementById('_kp-name-te').value.trim();
         p.age = document.getElementById('_kp-age').value.trim();
+        p.collageStyle = document.getElementById('_kp-collage').value;
         p.desc = document.getElementById('_kp-desc').value.trim();
         p.desc_te = document.getElementById('_kp-desc-te').value.trim();
         

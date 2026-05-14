@@ -2661,45 +2661,118 @@ p { color: var(--ink-700); }
 }
 
 /* ============================================================
-   KIDS PROGRAM PHOTOS (per-program gallery)
+   KIDS PROGRAM PHOTOS — 4 collage styles
    ============================================================ */
 .kids-program-photos {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-auto-rows: 90px;
-  gap: 4px;
   margin-top: 1rem;
   position: relative;
+  gap: 5px;
 }
-.kids-program-photo {
+.kpp-item {
   overflow: hidden;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   background: #f4f0e8;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-.kids-program-photo:hover { transform: scale(1.02); }
-.kids-program-photo img {
+.kpp-item:hover {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+}
+.kpp-item img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+  transition: transform 0.4s ease;
 }
-.kids-program-more {
+.kpp-item:hover img { transform: scale(1.05); }
+.kpp-more {
   position: absolute;
-  bottom: 6px;
-  right: 6px;
-  background: rgba(0,0,0,0.75);
+  bottom: 10px;
+  right: 10px;
+  background: rgba(0,0,0,0.78);
   color: white;
-  padding: 0.35rem 0.7rem;
-  border-radius: 18px;
-  font-size: 0.75rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 20px;
+  font-size: 0.78rem;
   font-weight: 600;
-  pointer-events: none;
+  cursor: pointer;
+  z-index: 2;
+  backdrop-filter: blur(6px);
+  transition: background 0.2s ease;
+}
+.kpp-more:hover { background: rgba(0,0,0,0.9); }
+
+/* STYLE 1: GRID — uniform tiles */
+.kpp-style-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 140px;
 }
 @media (max-width: 600px) {
-  .kids-program-photos { grid-auto-rows: 80px; gap: 3px; }
+  .kpp-style-grid { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 130px; }
 }
+
+/* STYLE 2: BENTO — varied tile sizes */
+.kpp-style-bento {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: 110px;
+  grid-auto-flow: dense;
+}
+.kpp-style-bento .kpp-item-0 { grid-column: span 2; grid-row: span 2; }
+.kpp-style-bento .kpp-item-3 { grid-row: span 2; }
+.kpp-style-bento .kpp-item-1 { grid-column: span 2; }
+@media (max-width: 600px) {
+  .kpp-style-bento { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 110px; }
+  .kpp-style-bento .kpp-item-0 { grid-column: span 2; grid-row: span 2; }
+  .kpp-style-bento .kpp-item-3 { grid-row: auto; }
+  .kpp-style-bento .kpp-item-1 { grid-column: span 2; }
+}
+
+/* STYLE 3: MASONRY — Pinterest, dynamic heights via CSS columns */
+.kpp-style-masonry {
+  column-count: 3;
+  column-gap: 5px;
+  display: block;
+}
+.kpp-style-masonry .kpp-item {
+  break-inside: avoid;
+  margin-bottom: 5px;
+  display: block;
+  aspect-ratio: auto;
+  height: auto;
+}
+.kpp-style-masonry .kpp-item img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+@media (max-width: 600px) {
+  .kpp-style-masonry { column-count: 2; }
+}
+
+/* STYLE 4: CAROUSEL — horizontal scrolling */
+.kpp-style-carousel {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 8px;
+  scrollbar-width: thin;
+}
+.kpp-style-carousel .kpp-item {
+  flex: 0 0 240px;
+  height: 180px;
+  scroll-snap-align: start;
+}
+@media (max-width: 600px) {
+  .kpp-style-carousel .kpp-item { flex: 0 0 200px; height: 160px; }
+}
+.kpp-style-carousel::-webkit-scrollbar { height: 6px; }
+.kpp-style-carousel::-webkit-scrollbar-thumb { background: rgba(244,106,0,0.4); border-radius: 3px; }
+
 
 /* ============================================================
    WATCH LIVE — video embed + status
@@ -2776,4 +2849,40 @@ p { color: var(--ink-700); }
 @media (max-width: 700px) {
   .watch-live-container { grid-template-columns: 1fr; gap: 1.25rem; }
   .watch-live-info h2 { font-size: 1.35rem; }
+}
+
+/* ============================================================
+   ADMIN: Compact photo grid (kids + posts editing)
+   ============================================================ */
+.photo-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)) !important;
+  gap: 0.4rem !important;
+  margin-top: 0.5rem !important;
+  max-height: 360px;
+  overflow-y: auto;
+  padding: 0.25rem;
+  border-radius: 6px;
+}
+.photo-thumb {
+  aspect-ratio: 1 / 1 !important;
+  border-radius: 6px !important;
+  overflow: hidden !important;
+  background: #f0f0f0 !important;
+  position: relative !important;
+  width: 100% !important;
+  max-width: 130px !important;
+  margin: 0 !important;
+}
+.photo-thumb img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  display: block !important;
+}
+.photo-del-btn {
+  width: 22px !important;
+  height: 22px !important;
+  font-size: 12px !important;
+  line-height: 1 !important;
 }
