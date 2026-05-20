@@ -721,7 +721,7 @@ document.getElementById('logout-btn-top')?.addEventListener('click', () => {
         if (warningEl) warningEl.remove();
         if (countdownInterval) clearInterval(countdownInterval);
         localStorage.removeItem(AUTH_KEY);
-        window.location.replace('login.html?reason=idle');
+        sessionStorage.setItem('idle_logout', '1'); window.location.replace('login.html');
     }
     
     function showWarning() {
