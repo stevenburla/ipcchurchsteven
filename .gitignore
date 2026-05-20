@@ -35,3 +35,9 @@ node_modules/
 # Local backup files from patches (keep local, don't push)
 *.before-*
 *.backup
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example
